@@ -4,14 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.lxtx.im</groupId>
-    <artifactId>lxtx-im-admin</artifactId>
+    <artifactId>cargo</artifactId>
     <version>0.0.1</version>
 
     <modules>
-        <module>lxtx-im-admin-feign</module>
-        <module>lxtx-im-admin-service</module>
-        <module>lxtx-im-admin-web</module>
-        <module>lxtx-im-admin-dao</module>
+        <module>cargo-service</module>
+        <module>cargo-web</module>
+        <module>cargo-dao</module>
     </modules>
     <packaging>pom</packaging>
 
