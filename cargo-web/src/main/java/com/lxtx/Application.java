@@ -2,15 +2,10 @@ package com.lxtx;
 
 import com.lxtx.framework.common.log.filter.RepeatedReadRequestFilter;
 import com.lxtx.framework.common.utils.SpringUtil;
-import com.lxtx.framework.common.utils.ribbon.LxtxRibbonRule;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.AsyncTaskExecutor;
@@ -22,10 +17,7 @@ import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @SpringBootApplication
-@EnableEurekaClient
-@EnableFeignClients
 @EnableAsync
-@RibbonClients(defaultConfiguration = LxtxRibbonRule.class)
 public class Application {
 
 	public static void main(String[] args) {

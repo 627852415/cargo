@@ -1,3 +1,4 @@
+/*
 package com.lxtx.im.admin.service.shiro;
 
 import com.lxtx.framework.common.utils.environment.PropertiesUtil;
@@ -22,9 +23,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
+*/
 /**
  * @author Czh Date: 2018/9/27 下午2:16
- */
+ *//*
+
 public class AuthRealm extends AuthorizingRealm {
     @Autowired
     private SysUserDao sysUserDao;
@@ -38,9 +41,11 @@ public class AuthRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
 
-    /**
+    */
+/**
      * 授权(验证权限时调用)
-     */
+     *//*
+
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         SysUser user = (SysUser) principals.getPrimaryPrincipal();
@@ -79,9 +84,11 @@ public class AuthRealm extends AuthorizingRealm {
         return info;
     }
 
-    /**
+    */
+/**
      * 认证(登录时调用)
-     */
+     *//*
+
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 
@@ -112,4 +119,4 @@ public class AuthRealm extends AuthorizingRealm {
     }
 
 
-}
+}*/
