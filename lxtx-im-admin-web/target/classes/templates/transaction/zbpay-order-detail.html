@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 140px;
+        margin-left: 100px;
+    }
+    .my-inline{
+        width: 300px !important;
+    }
+    .my-inline-remark{
+        width: 300px !important;
+    }
+</style>
+<body>
+    <form class="layui-form" action="" style="margin-top: 20px; align-content: center">
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">ID</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">[[#{text.placeholder.zbpay.order.number}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.thirdPartyOrderNo}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.wallet.user.id}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.userId}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.user.username}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.country.code}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.placeholder.telephone}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.telephone}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.payWay}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" id="payWay" th:value="${detail.payWay}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.status}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" id="status" th:value="${detail.status}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.coin}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.coinName}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.withdraw.topgate.actual.amount}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="actualAmount" th:value="${detail.actualAmount}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.withdraw.topgate.amount}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="amount" th:value="${detail.amount}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.TotalFee}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="fee" th:value="${detail.fee}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.innerFee}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="innerFee" th:value="${detail.innerFee}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.thirdFee}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="thirdFee" th:value="${detail.thirdFee}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.topgate.imMerchantIn}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="imMerchantIn" th:value="${detail.imMerchantIn}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.topgate.topgateMerchantIn}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="topgateMerchantIn" th:value="${detail.topgateMerchantIn}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.trade.date}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="transferDate" th:value="${#dates.format(detail.createTime, 'yyyy-MM-dd HH:mm:ss')}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.update.date}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="updateDate" th:value="${#dates.format(detail.updateTime, 'yyyy-MM-dd HH:mm:ss')}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.remarks}]]</label>
+            <div class="layui-input-inline my-inline-remark">
+                <textarea th:placeholder="${detail.remarks}" th:value="${detail.remarks}" class="layui-textarea" disabled></textarea>
+            </div>
+        </div>
+    </form>
+    <script th:inline="javascript">
+
+        var detail = [[${detail}]];
+        $('input[name=amount]').val(detail.amount);
+        $('input[name=fee]').val(detail.fee);
+        $('input[name=actualAmount]').val(detail.actualAmount);
+        $('input[name=innerFee]').val(detail.innerFee);
+        $('input[name=thirdFee]').val(detail.thirdFee);
+        $('input[name=imMerchantIn]').val(detail.imMerchantIn);
+        $('input[name=topgateMerchantIn]').val(detail.topgateMerchantIn);
+        $('input[id=status]').val(getStatusStr(detail.status));
+        $('input[id=payWay]').val(getPayWayName(detail.payWay));
+
+        function getStatusStr(status) {
+            var statusStr = "";
+            switch (status) {
+                case 0 :
+                case 1 :
+                    statusStr =[[#{text.processing}]];break
+
+                case 2 :
+                    statusStr =[[#{text.success}]];break
+                case 3 :
+                    statusStr = [[#{text.failure}]];break
+                default:
+                    statusStr = status;break
+            }
+            return statusStr;
+        }
+
+        function getPayWayName(payWay) {
+            var payWayNameStr = "";
+            switch (payWay) {
+                case 1 :
+                    payWayNameStr = [[#{text.placeholder.payWay.WechatPay}]];break
+                case 2 :
+                    payWayNameStr = [[#{text.placeholder.payWay.AliPay}]];break
+                case 3 :
+                    payWayNameStr = [[#{text.placeholder.payWay.DigitalPay}]];break
+                case 4 :
+                    payWayNameStr = [[#{text.placeholder.payWay.AliPay_QN}]];break
+                case 5 :
+                    payWayNameStr = [[#{text.placeholder.payWay.WechatPhone}]];break
+                default: {
+                    payWayNameStr = payWay;break
+                }
+            }
+            return payWayNameStr;
+        }
+
+    </script>
+</body>
+</html>

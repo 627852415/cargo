@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新增白名单列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="countryName" id="countryName" class="layui-input"
+                               th:placeholder="请输入国家或地区名">
+                    </div>
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">序号</th>
+                <th lay-data="{field:'countryName', align:'center'}">地区及国家</th>
+                <th lay-data="{field:'countryCode', align:'center'}">地区及国家编码</th>
+                <th lay-data="{field:'phoneCode', align:'center'}">地区号</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+
+        <script type="text/html" id="barData">
+            <a class="layui-btn tableBtn layui-btn-sm" lay-event="add"><i
+                    class="layui-icon"></i>加入白名单</a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/commission/extra/whitelist/global/list', 'dataTable', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    layui.use('table', function () {
+        var table = layui.table;
+        table.on('tool(dataTable)', function (obj) {
+            if(obj.event === 'add'){
+                add(obj.data);
+            }
+        });
+    });
+
+    function add(data) {
+        $.ajaxUkey({
+            url: "/commission/extra/whitelist/add",
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                window.location.reload();
+                parent.location.reload();
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+</script>

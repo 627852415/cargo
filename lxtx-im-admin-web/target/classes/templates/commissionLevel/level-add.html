@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>添加等级</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" action="" >
+    <input type="hidden" th:value="${detail} ? ${detail.id}" name="id"/>
+   <!-- <input type="hidden" th:value="USD" name="coinId"/>
+    <input type="hidden" th:value="USD" name="coinName"/>-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">级别类型</label>
+        <div class="layui-input-inline">
+            <select id="type" name="type">
+                <!--<option value="1" th:selected="${detail} ? ${detail.type}==1" >普通</option>-->
+                <option value="2" th:selected="${detail} ? ${detail.type}==2">伙伴</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">级别名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="levelName" name="levelName" th:value="${detail} ? ${detail.levelName}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入级别名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">投入资金(USD)</label>
+        <div class="layui-input-inline">
+            <input type="text" id="amount" name="amount" th:value="${detail} ? ${detail.amount}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入投入资金">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-inline">
+            <input type="text" id="sort" name="sort" th:value="${detail} ? ${detail.sort}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入排序号">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">展示分成比例</label>
+        <div class="layui-input-inline">
+            <input type="text" id="ratio" name="ratio" th:value="${detail} ? ${detail.ratio}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入排序号">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+
+</form>
+<script>
+
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+    });
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        data.field.enable = $("#enable").is(':checked');
+
+        $.ajaxUkey({
+            url: "/commission/level/add",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                parent.layer.closeAll();
+                parent.location.reload();
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

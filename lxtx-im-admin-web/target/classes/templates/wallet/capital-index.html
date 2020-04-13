@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.wallet.capital.title}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+<!--    <script type="text/javascript" th:src="@{/js/buss/wallet/capital-index.js}"></script>-->
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <!--<div class="titleClas">[[#{text.transaction.flow}]]:</div>-->
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <select id="capitalType" name="type" lay-filter="capitalType">
+                            <option value="0">[[#{text.operation.select.tips.transfer.type}]]</option>
+                            <option value="1">[[#{text.wallet.capital.type.withdrawal.transfer}]]</option>
+                            <option value="2">[[#{text.wallet.capital.type.recharge.and.receive}]]</option>
+                            <option value="3">[[#{text.wallet.capital.type.friends.transfer}]]</option>
+                            <option value="4">[[#{text.wallet.capital.type.red.envelope}]]</option>
+                            <option value="5">[[#{text.wallet.capital.type.game}]]</option>
+                            <option value="6">[[#{text.wallet.capital.type.flash}]]</option>
+                            <option value="7">[[#{text.wallet.capital.type.merchant.consumption}]]</option>
+                            <option value="8">[[#{text.wallet.capital.type.merchant.collection}]]</option>
+                            <option value="9">[[#{text.wallet.capital.type.bank.transfer}]]</option>
+                            <option value="10">[[#{text.wallet.capital.type.exchange}]]</option>
+                        </select>
+                    </div>
+
+                    <!--<div class="layui-input-inline" style="display: none" id="gameTypeDiv">-->
+                        <!--<select id="gameType" name="gameType" lay-verify="">-->
+                        <!--</select>-->
+                    <!--</div>-->
+
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userId" class="layui-input" th:placeholder="#{text.operation.input.tips.user.name}">
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" name="coinName" id="coinId" class="layui-input" th:placeholder="#{text.operation.input.tips.coin.name}">
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" name="transferNum" id="transferNum" class="layui-input"
+                               th:placeholder="#{text.operation.input.tips.transaction.number}">
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime"
+                               th:placeholder="#{text.operation.input.tips.transaction.select.start.time}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime"
+                               th:placeholder="#{text.operation.input.tips.transaction.select.end.time}">
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.operation.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.operation.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.operation.export.file}]]</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.wallet.capital.table.user.id}]]</th>
+                <th lay-data="{field:'userName', align:'center', templet: function (data){
+                        return getUserName(data);
+                    }}">[[#{text.wallet.capital.table.user.name}]]</th>
+                <th lay-data="{field:'type', align:'center', width: 90, templet: function (data){
+                        return getTypeStr(data.type, data.reject);
+                    }}">[[#{text.wallet.capital.table.type}]]</th>
+                <th lay-data="{align:'center', width: 90, templet: function (data){
+                        return getGameTypeStr(data.type, data.gameType);
+                    }}">[[#{text.wallet.capital.table.game.type}]]</th>
+                <th lay-data="{align:'center', width: 80, templet: function (data){
+                        return getStatusStr(data.status);
+                    }}">[[#{text.wallet.capital.table.status}]]</th>
+                <th lay-data="{field:'coinName', width: 90, align:'center', templet: function (data){
+                        return getCoinName(data);}}">[[#{text.wallet.capital.table.coin.name}]]</th>
+                <th lay-data="{field:'amount', align:'center', templet: function (data){
+                        return getCoinAmount(data);}}">[[#{text.wallet.capital.table.amount}]]</th>
+                <th lay-data="{field:'fee', align:'center', templet: function (data){
+                        return (data.fee != undefined ? data.fee : '0.00000000');
+                    }}">[[#{text.wallet.capital.table.fee}]]</th>
+                <th lay-data="{field:'fromAddr', align:'center', templet: function (data) {
+                        return getFromOrToAddr(true, data.type, data.reject, data.fromAddr, data.toAddr, data.userId, data.platformUserId, data);
+                    }}">[[#{text.wallet.capital.table.from.address}]]</th>
+                <th lay-data="{field:'toAddr', align:'center', templet: function (data) {
+                        return getFromOrToAddr(false, data.type, data.reject, data.fromAddr, data.toAddr, data.userId, data.platformUserId, data);
+                    }}">[[#{text.wallet.capital.table.to.address}]]</th>
+                <th lay-data="{field:'transferNum', align:'center', templet: function (data){
+                        return getTransferNum(data);}}">[[#{text.wallet.capital.table.transfer.num}]]</th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.wallet.capital.table.transfer.time}]]</th>
+                <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">[[#{text.wallet.capital.table.update.time}]]
+                </th>
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){
+        return renderBtn(data);
+                }}">[[#{text.operation.name}]]
+                </th>
+            </tr>
+            </thead>
+        </table>
+
+    </fieldset>
+</div>
+<script>
+
+    var current = 1;
+    var size = 10;
+    var coinId;
+    var userId;
+    var transferNum;
+    var type;
+    var gameType;
+    var respData;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, updateTime;
+        // [[#{text.time.selection.general.usage}]]
+        laydate.render({
+            elem: '#createTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#updateTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#updateTime").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#updateTime").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+        //[[#{text.cascading.search.criteria}]]
+        // form.on('select(capitalType)', function (data) {
+        //     var type = data.value;
+        //     switch (type) {
+        //         case "5":{
+        //             $("#gameTypeDiv").css("display", "block");
+        //             $("#gameType").empty();
+        //             $("#gameType").append('<option value="0">[[#{text.please.select.a.game.type}]]</option>');
+        //             $("#gameType").append('<option value="1">[[#{text.niu.niu}]]</option>');
+        //             $("#gameType").append('<option value="2">21[[#{text.point}]]</option>');
+        //             $("#gameType").append('<option value="3">[[#{text.minesweeper}]]</option>');
+        //             form.render('select');
+        //             break;
+        //         }
+        //         default:{
+        //             $("#gameType").empty();
+        //             form.render('select');
+        //             $("#gameTypeDiv").css("display", "none");
+        //             break;
+        //         }
+        //
+        //     }
+        // });
+    });
+
+    loadTableWithoutColumns('/capital/listPage', 'dataTable', 'searchForm');
+
+    function getCoinName(data) {
+        return data.type === 15 ? data.payCoin : data.coinName;
+    }
+
+    function getCoinAmount(data) {
+        return data.type === 15 ? (
+                data.realPayAmount != null && data.realPayAmount != 0 && data.payAmount > data.realPayAmount
+                    ? data.payAmount + "(" + data.realPayAmount + ")" : data.payAmount
+            )
+            : data.amount;
+    }
+
+    function getTransferNum(data) {
+        return data.type === 15 ? data.orderNo : (data.transferNum !== undefined ? data.transferNum : '[[#{text.no}]]');
+    }
+
+    function getFromOrToAddr(isFrom, type, reject, fromAddr, toAddr, userId, platformUserId, data) {
+        var fromAddr = fromAddr === undefined ? "" : fromAddr, toAddr = toAddr === undefined ? "" : toAddr;
+        if (type === 5) {
+            fromAddr = userId;
+            toAddr = platformUserId;
+        } else if (type === 6 && reject === true) {
+            fromAddr = userId;
+            toAddr = userId;
+        } else if (type === 6 && reject === false) {
+            fromAddr = platformUserId;
+            toAddr = userId;
+        } else if (type === 15) {
+            if (data.realPayAmount != null && data.realPayAmount != 0) {
+                fromAddr = data.realPayAmount + " " + data.payCoin;
+            } else if (data.payAmount != null && data.payAmount != 0) {
+                fromAddr = data.payAmount + " " + data.payCoin;
+            } else {
+                fromAddr = data.payCoin;
+            }
+
+            if (data.realGotAmount != null && data.realGotAmount != 0) {
+                toAddr = data.realGotAmount + " " + data.gotCoin;
+            } else if (data.gotAmount != null && data.gotAmount != 0) {
+                toAddr = data.gotAmount + " " + data.gotCoin;
+            } else {
+                toAddr = data.gotCoin;
+            }
+        }
+        return isFrom ? fromAddr : toAddr;
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 1) {
+            statusStr = "[[#{text.pending}]]";
+        } else if (status == 2) {
+            statusStr = "[[#{text.processing}]]";
+        } else if (status == 3) {
+            statusStr = "<font color='#adff2f'>[[#{text.placeholder.submitted}]]</font>";
+        } else if (status == 4) {
+            statusStr = "<font color='#ffd700'>[[#{text.success}]]</font>";
+        } else if (status == 5) {
+            statusStr = "<font color='#dc143c'>[[text.failure]]</font>";
+        } else if (status == 6) {
+            statusStr = "<font color='#dc143c'>[[#{text.placeholder.status.part.success}]]</font>";
+        } else {
+            //[[#{text.red.envelope}]]类型默认“操作成功”
+            statusStr = "<font color='#ffd700'>[[#{text.success}]]</font>";
+        }
+        return statusStr;
+    }
+
+    function getTypeStr(type, reject) {
+        //console.log("type is :"+ type);
+        var typeStr = "";
+        if (type == 1) {
+            typeStr = "[[#{text.transfer}]]";
+        } else if (type == 2) {
+            typeStr = "[[#{text.collection}]]";
+        } else if (type == 3) {
+            typeStr = "[[#{text.friends.transfer}]]";
+        } else if (type == 5) {
+            typeStr = "[[#{text.send.red.envelope}]]";
+        } else if (type == 6) {
+            if (reject === true) {
+                typeStr = "[[#{text.refund.red.envelope}]]";
+            } else {
+                typeStr = "[[#{text.receive.red.envelop}]]";
+            }
+        } else if (type == 7 || type == 8 || type == 10) {
+            typeStr = "[[#{text.game}]]";
+        } else if (type == 9) {
+            typeStr = "[[#{text.third-party.game.friend.transfer}]]";
+        } else if (type == 11) {
+            typeStr = "[[#{text.platform.withdrawal}]]";
+        } else if (type == 12) {
+            typeStr = "OTC[[#{text.withdrawal}]]";
+        } else if (type == 13) {
+            typeStr = "OTC[[#{text.recharge}]]";
+        } else if (type == 14) {
+            typeStr = "[[#{text.game.sharing}]]";
+        } else if (type == 15) {
+            typeStr = "[[#{text.flash}]]";
+        } else if (type == 16) {
+            typeStr = "[[#{text.group.owner.rebate}]]";
+        } else if (type == 17) {
+            typeStr = "[[#{text.subordinate.rebates}]]";
+        } else if (type == 18) {
+            typeStr = "[[#{text.game.red.envelope.fee}]]";
+        } else if (type == 19) {
+            typeStr = "[[#{text.scan.code.payment}]]";
+        } else if (type == 20) {
+            typeStr = "[[#{text.collection.code.receipt}]]";
+        } else if (type == 21) {
+            typeStr = "[[#{text.money.transfer.out}]]";
+        } else if (type == 22) {
+            typeStr = "[[#{text.money.transfer}]]";
+        } else if (type == 23) {
+            typeStr = "[[#{text.merchant.consumption}]]";
+        } else if (type == 24) {
+            typeStr = "[[#{text.merchant.collection}]]";
+        } else if (type == 25) {
+            typeStr = "[[#{text.money.transfer.fee}]]";
+        } else if (type == 26) {
+            typeStr = "[[#{text.bank.transfer}]]";
+        } else if (type == 27) {
+            typeStr = "[[#{text.offline.exchange.exchange.deposit.payment}]]";
+        } else if (type == 28) {
+            typeStr = "[[#{text.offline.exchange.exchange.margin.refund}]]";
+        } else if (type == 29) {
+            typeStr = "[[#{text.offline.exchange.commodity.release.funds.freeze}]]";
+        } else if (type == 30) {
+            typeStr = "[[#{text.release.of.offline.exchange.exchange.commodity.release.funds}]]";
+        } else if (type == 32) {
+            typeStr = "[[#{text.offline.exchange.of.funds}]]";
+        } else if (type == 33) {
+            typeStr = "[[#{ext.offline.exchange.exchange.exchange.rebate}]]";
+        } else {
+            typeStr = "[[#{text.unknown}]]";
+        }
+        return typeStr;
+    }
+
+    function getGameTypeStr(type, gameType) {
+        var typeStr = "";
+        if (type == 7) {
+            typeStr = "[[#{text.niu.niuzhuang}]]";
+        } else if (type == 8) {
+            typeStr = "[[#{text.niuniu.play}]]";
+        } else if (type == 10) {
+            if (gameType == 2) {
+                typeStr = "21[[#{text.point}]]";
+            } else if (gameType == 3) {
+                typeStr = "[[#{text.minesweeper}]]";
+            }
+        } else {
+            typeStr = "";
+        }
+        return typeStr;
+    }
+
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/capital/download/list?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+    }
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.operation.see.details}]]</a>';
+    }
+
+    //查看详情
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/capital/detail?id=" + id;
+        openModal("[[#{text.operation.see.details}]]", url, "1000px", "420px");
+    }
+
+    function getUserName(obj) {
+        if (obj.userName == undefined && (obj.type == 23 || obj.type == 24)) {
+            return "SDK [[#{text.merchant}]]"
+        }
+        return obj.userName;
+    }
+</script>
+
+</body>
+</html>

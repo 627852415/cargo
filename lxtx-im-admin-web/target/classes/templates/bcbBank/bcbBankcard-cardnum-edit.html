@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>新增银行卡</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+    <input th:value="${cardNumber.id}" id="id" name="id" hidden>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">银行卡卡种</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="cardId" lay-search="" id="cardId" lay-filter="cardIdFilter">
+                    <option value="">请选择卡种</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">银行卡号</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="number" name="cardNo"
+                       lay-verify="number" th:value="${cardNumber.cardNo}" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:95px;">备注</label>
+            <div class="layui-input-block" style="width:380px;margin-left:130px;">
+                <textarea name="remarks" placeholder="请输入备注" th:text="${cardNumber.remarks}" class="layui-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">提交</button>
+            <button type="reset" class="layui-btn">重置</button>
+        </div>
+    </div>
+</form>
+
+<script th:inline="javascript">
+    var cardtype = [[${cardType}]];
+    var cardNumber = [[${cardNumber}]];
+    console.log(cardNumber);
+    if (cardtype != null && cardtype.length > 0) {
+        for (x in cardtype) {
+            $("select[name='cardId']").append("<option value='" + cardtype[x].id + "'>" + cardtype[x].name + "</option>");
+        }
+    }
+    if (cardNumber != null) {
+        $("select[name='cardId']").val(cardNumber.cardId);
+    }
+
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+    });
+
+    //保存
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        $.ajaxUkey({
+            url: "/bcb/bankcard/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // 提示失败
+                    layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

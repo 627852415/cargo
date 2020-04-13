@@ -1,0 +1,210 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8">
+	<title>系统用户管理</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1, maximum-scale=1">
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<!--<div class="layui-elem-quote">
+	<form id="searchForm" class="layui-form">
+		<div class="layui-input-inline">
+			<select name="type" lay-verify="" id="type">
+				<option value="">请选择类型</option>
+				<option value="0">目录</option>
+				<option value="1">菜单</option>
+				<option value="2">按钮</option>
+			</select>
+		</div>
+		<div class="layui-input-inline">
+			<input type="text" name="menuname" id="menuname"
+				   class="layui-input" placeholder="请输入菜单名称" />
+		</div>
+		<div class="layui-input-inline">
+			<input type="text" name="mobile" id="mobile" class="layui-input"
+				   placeholder="请选择上级菜单" />
+		</div>
+	</form>
+	<button class="layui-btn layui-btn-radius layui-btn-sm" onclick="search()"><i class="layui-icon layui-icon-search"></i>搜索</button>
+</div>-->
+
+<table class="layui-hidden" id="treeTable" lay-filter="treeTable" style="height: 80%"></table>
+<script type="text/html" id="toolbarDemo">
+	<form id="searchForm" class="layui-form" style=" float: left;">
+		<div class="layui-input-inline">
+			<select name="type" lay-verify="" id="type">
+				<option value="">请选择类型</option>
+				<option value="0">目录</option>
+				<option value="1">菜单</option>
+				<option value="2">按钮</option>
+			</select>
+		</div>
+		<div class="layui-input-inline">
+			<input type="text" name="name" id="menuname"
+				   class="layui-input" placeholder="请输入菜单名称" />
+		</div>
+	</form>
+		<div>
+			<button style="margin-left: 15px;" class="layui-btn" onclick="search()"><i class="layui-icon layui-icon-search"></i>搜索</button>
+			<a href="javascript:;" onclick="modifyPage('新增')" class="layui-btn layui-btn-normal"
+			   data-type="tabAdd" data-title="新增"><i class="layui-icon layui-icon-add-1"></i>新增</a>
+		</div>
+</script>
+<script>
+
+    var editObj=null,ptable=null,treeGrid=null,tableId='treeTable',layer=null;
+    layui.config({
+        base : '../../layui/extend/treeGrid/' //静态资源所在路径
+    }).extend({
+        treeGrid:'treeGrid'
+    }).use(['jquery','treeGrid','layer'], function(){
+        var $=layui.jquery;
+        treeGrid = layui.treeGrid;//很重要
+        layer=layui.layer;
+        ptable=treeGrid.render({
+            id:tableId
+            ,elem: '#'+tableId
+            ,url:'/sys/menu/treegridList'
+            ,cellMinWidth: 100
+            ,idField:'menuId'//必須字段
+            ,treeId:'menuId'//树形id字段名称
+            ,treeUpId:'parentId'//树形父id字段名称
+            ,treeShowName:'name'//以树形式显示的字段
+            ,heightRemove:[".dHead",10]//不计算的高度,表格设定的是固定高度，此项不生效
+            ,toolbar: '#toolbarDemo'
+            ,iconOpen:false
+            ,isFilter:false
+            ,loading:true
+            ,method:'post'
+            ,cols: [
+                [
+                    {type:'checkbox',sort:true}
+                    ,{field:'name', title: '菜单名称',sort:false}
+                    ,{field:'url', title: '请求地址', align:'center',sort:false}
+                    ,{field:'textKey', title: '国际化key', align:'center',sort:false}
+                    ,{field:'perms', title: '权限标识', align:'center',sort:false}
+                    ,{field:'type', title: '类型', align:'center',sort:false,templet: function(d){
+							if(d.type == "0"){
+								return "目录";
+							}
+							if(d.type == "1"){
+								return "菜单";
+							}
+							if(d.type == "2"){
+								return "按钮";
+							}
+						}
+                    }
+                    ,{width:200,title: '操作', align:'center'/*toolbar: '#barDemo'*/
+                    ,templet: function(d){
+                        var html ='<a class="layui-btn layui-btn-xs"  lay-event="modify"><i class="layui-icon layui-icon-edit"></i>编辑</a>';
+                        html += '<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del"><i class="layui-icon layui-icon-close"></i>删除</a>';
+                        return html;
+                    }
+                }
+                ]
+            ]
+            ,isPage:false
+            ,parseData:function (res) {//数据加载后回调
+                return res;
+            }
+            ,onClickRow:function (index, o) {
+                //console.log(index,o,"单击！");
+            }
+            ,onDblClickRow:function (index, o) {
+                //console.log(index,o,"双击");
+            }
+        });
+
+        treeGrid.on('tool('+tableId+')',function (obj) {
+            if(obj.event === 'del'){//删除行
+                del(obj);
+            }else if(obj.event==="modify"){//修改
+                modifyPage("编辑", obj);
+            }
+        });
+
+    });
+
+    function  search() {
+        //执行重载
+        treeGrid.query(tableId,{
+            where: $("#searchForm").serializeJson()
+        });
+    }
+
+    $.fn.serializeJson = function() {
+        var serializeObj = {};
+        var array = this.serializeArray();
+        $(array).each(function() {
+            if (serializeObj[this.name]) {
+                if ($.isArray(serializeObj[this.name])) {
+                    serializeObj[this.name].push(this.value);
+                } else {
+                    serializeObj[this.name] = [ serializeObj[this.name], this.value ];
+                }
+            } else {
+                serializeObj[this.name] = this.value;
+            }
+        });
+        return serializeObj;
+    };
+
+    // 编辑、保存
+    function modifyPage(title, obj) {
+        var url = "/sys/menu/add";
+        var title = "新增";
+        if (obj) {
+            url = "/sys/menu/info?menuId=" + obj.data.menuId;
+            title = "编辑";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            title: '<b>' + title +'</b>',
+            area: ['480px', '600px'], //宽高
+            content: url
+        });
+
+    }
+
+    function del(obj) {
+        layer.confirm("你确定删除数据吗？如果存在下级节点则一并删除，删除后将不能回退！", {icon: 3, title:'提示'},
+            function(index){//确定回调
+                layer.close(index);
+                var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+                $.ajaxUkey({
+                    url : '/sys/menu/delete/one',
+                    type : 'POST',
+                    contentType: "application/json",
+                    data : JSON.stringify({"menuId" : obj.data.menuId}),
+                    dataType : 'json',
+                    success : function(data) {
+                        if (data.success) {
+                            layer.alert('删除成功！', {title: '提示信息', icon: 6}, function (index) {
+                                search();
+                            });
+                        } else {
+                            layer.msg("删除失败");
+                        }
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                    },
+                    error : function(e) {
+                        layer.msg('系统升级维护中，请稍后重试');
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                    }
+                });
+            },function (index) {//取消回调
+                layer.close(index);
+            }
+        );
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<title>转账记录</title>
+<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+.layui-body {
+	overflow-y: scroll;
+}
+
+body {
+	overflow-y: scroll;
+}
+
+fieldset.border1 {
+	border-style: solid;
+	border-width: 10px;
+	/*background-color: #1c8de0;*/
+}
+
+.titleClas {
+	font-size: 20px;
+	margin-left: 20px;
+	margin-top: 20px;
+}
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+	<fieldset class="layui-elem-field border1">
+		<!-- <div class="titleClas">转账记录</div> -->
+		<blockquote class="layui-elem-quote">
+			<form class="layui-form" id="searchForm">
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+						<input type="text" name="salaryOrderNo" id="salaryOrderNo"
+							   class="layui-input" th:placeholder="#{text.salary.order.id}">
+					</div>
+
+					<div class="layui-input-inline">
+						<input type="text" name="userId" id="userId"
+							   class="layui-input" th:placeholder="#{text.wallet.user.id}">
+					</div>
+
+					<div class="layui-input-inline">
+						<input type="text" name="userName" id="userName"
+							   class="layui-input" th:placeholder="#{text.column.user.username}">
+					</div>
+
+					<div class="layui-input-inline">
+						<input type="text" name="payAccount" id="payAccount"
+							   class="layui-input" th:placeholder="#{text.account.mobile}">
+					</div>
+				</div>
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+						<input type="text" class="layui-input" id="createTime"
+							   name="createTime" th:placeholder="#{text.creation.time}">
+					</div>
+
+					<div class="layui-input-inline">
+						<select id="coinId" name="coinId" lay-filter="coinId">
+							<option value="">[[#{text.please.select.currency}]]</option>
+						</select>
+					</div>
+					<div class="layui-input-inline">
+						<select id="status" name="status" lay-filter="status">
+							<option value="">[[#{text.please.select.a.status}]]</option>
+							<option value="0">[[#{text.initialization}]]</option>
+							<option value="1">[[#{text.option.processing}]]</option>
+							<option value="2">[[#{text.success}]]</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-form-item search-input" style="margin-top: 10px;">
+					<div class="layui-form-mid layui-word-aux" style="padding: 0">
+						<button type="button" class="layui-btn"
+								onclick="search('searchForm', 'dataLoad')">[[#{text.search.for}]]</button>
+						<button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+						<button type="button" onclick="download()" class="layui-btn">[[#{text.operation.export.file}]]</button>
+					</div>
+
+				</div>
+			</form>
+		</blockquote>
+
+		<table class="layui-table"
+			   lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}"
+			   lay-filter="dataTable">
+			<thead>
+			<tr>
+				<th lay-data="{field:'salaryOrderNo', align:'center'}">[[#{text.salary.order.id}]]</th>
+				<th lay-data="{field:'userId', align:'center'}">[[#{text.wallet.user.id}]]</th>
+				<th lay-data="{field:'userName', align:'center'}">[[#{text.column.user.username}]]</th>
+				<th lay-data="{field:'amount', align:'center'}">[[#{text.transfer.out.amount}]]</th>
+				<th lay-data="{field:'coinName', align:'center'}">[[#{text.transfer.out.coin}]]</th>
+				<th lay-data="{field:'payCountryCode', align:'center'}">[[#{text.transfer.out.person.country.code}]]</th>
+				<th lay-data="{field:'payAccount', align:'center', width: 120}">[[#{text.transfer.out.person.mobile}]]</th>
+				<th lay-data="{field:'payRemark',  align:'center'}">[[#{text.transfer.out.remarks}]]</th>
+				<th lay-data="{field:'status',width: 80, templet: function (data){return getStatusStr(data.status);}}">[[#{text.order.status}]]</th>
+				<th lay-data="{field:'createTime', align:'center',templet: function (data){return formatDateL(data.createTime);}}">[[#{text.column.create.time}]]</th>
+				<th lay-data="{field:'updateTime', align:'center',templet: function (data){return formatDateL(data.updateTime);}}">[[#{text.wallet.capital.table.update.time}]]</th>
+				<th lay-data="{fixed: 'right', align:'center',templet: function(data){return renderBtn(data);}}">[[#{text.operating}]]</th>
+			</tr>
+			</thead>
+		</table>
+
+	</fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var coinId;
+    var userId;
+    var transferNum;
+    var type;
+    var gameType;
+    var respData;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // 时间选择常规用法
+        laydate.render({
+            elem: '#createTimeStart'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不更新时间会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+                    layer.msg("开始交易日期不能大于当前日期");
+                    $("#createTimeStart").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("开始交易日期不能大于结束交易日期");
+                    $("#createTimeStart").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#createTimeEnd'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不更新时间会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+                    layer.msg("结束交易日期不能大于当前日期");
+                    $("#createTimeEnd").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("结束交易日期不能小于开始交易日期");
+                    $("#createTimeEnd").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+        //初始化币种下拉
+        $.ajax({
+            url: "/coin/list",
+            type: "post",
+            contentType : "application/json; charset=utf-8",
+            data: "{\"coinName\":null,\"current\":1,\"size\":1000}",
+            success: function (res) {
+                var msg = res.data;
+                $.each(msg.dataResult.data.records, function (i, v) {
+                    if(!v.hideFlag){
+                        var id = v.id;
+                        var text = v.coinName;
+                        $("#coinId").append("<option value='" + id + "'>" + text + "</option>");
+                    }
+                });
+                form.render();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // alert(errorThrown);
+            }
+        });
+    });
+
+    loadTableWithoutColumns('/transaction/transfer/salary/out/pageList', 'dataTable', 'searchForm');
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 0) {
+            statusStr = '[[#{text.initialization}]]';
+        } else if (status == 1) {
+            statusStr = "<font color='orange'>[[#{text.option.processing}]]</font>";
+        } else if (status == 2) {
+            statusStr = "<font color='green'>[[#{text.success}]]</font>";
+        }else if (status == 3) {
+            statusStr = "<font color='red'>[[#{text.placeholder.status.fail}]]</font>";
+        }
+        return statusStr;
+    }
+
+
+    //申请列表文件导出
+    function download() {
+        var url = "/transaction/transfer/salary/out/download/list?"+ $("#searchForm").serialize();
+        // 获取锁
+        var urlLock = "/transaction/transfer/salary/out/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '提示信息',
+                        icon : 2
+                    });
+                } else {
+                    //获取锁后去下载
+                    //window.location.href = url;
+                    //获取锁后去下载
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode加载完成后要进行的操作
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '提示信息',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode加载完成后要进行的操作
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '提示信息',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("系统异常，导出失败", {
+                    title : '提示信息',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.operation.see.details}]]</a>';
+    }
+
+    //查看详情
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/transaction/transfer/salary/out/detail?id=" + id;
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight>200? ( winHeight - 110) : winHeight;
+        //限制最高高度
+        height = height>maxHeight?maxHeight:height;
+        openModal("[[#{text.operation.see.details}]]", url, "600px", height+"px");
+    }
+
+</script>

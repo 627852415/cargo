@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>会员管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script>var hasDisablePermission = false;</script>
+</head>
+<body>
+<shiro:hasPermission name="status:turn:member">
+    <script>hasDisablePermission = true</script>
+</shiro:hasPermission>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <!--平台用户查询条件-->
+                <div class="layui-input-inline">
+                    <input type="text" name="account" id="account" class="layui-input"
+                           th:placeholder="#{text.placeholder.platform.user.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" id="name" class="layui-input"
+                           th:placeholder="#{text.operation.input.tips.user.name}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="countryCode" id="countryCode" lay-verify="">
+                        <option value="">[[#{text.column.platform.area.code}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" id="telephone" class="layui-input"
+                           th:placeholder="#{text.placeholder.telephone}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="state" id="state" lay-verify="">
+                        <option value="">[[#{text.placeholder.status}]]</option>
+                        <option value="0">[[#{text.status.enable}]]</option>
+                        <option value="1">[[#{text.status.disable}]]</option>
+                        <option value="2">[[#{text.status.freeze}]]</option>
+                    </select>
+                </div>
+                <!--钱包用户查询条件-->
+                <div class="layui-input-inline">
+                    <input type="text" name="userId" id="userId" class="layui-input"
+                           th:placeholder="#{text.placeholder.wallet.user.id}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="platformType" id="platformType" lay-verify="">
+                        <option value="">所有平台</option>
+                        <option value="1">IM</option>
+                        <option value="2">SDK</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search(0,10)">[[#{text.button.search}]]</button>
+                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                    <!--<button type="button" class="layui-btn"  onclick="synchronizeImUser()">同步IM用户</button>-->
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>[[#{text.wallet.member.account.title}]]</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>[[#{text.column.wallet.user.id}]]</th>
+                    <th>[[#{text.column.platform.user.account}]]</th>
+                    <th>[[#{text.column.platform.type}]]</th>
+                    <th>[[#{text.wallet.capital.table.user.name}]]</th>
+                    <th>[[#{text.column.platform.area.code}]]</th>
+                    <th>[[#{text.column.platform.telephone}]]</th>
+                    <th>[[#{text.column.status}]]</th>
+                    <th>[[#{text.column.platform.create.time}]]</th>
+                    <th>[[#{text.column.operate}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="content"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    initCountryCode($('#countryCode'));
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    var current = 1;
+    var size = 10;
+    var respData;
+    $(function () {
+        //初始化加载数据
+        search(current, size);
+    });
+
+
+    function reset() {
+        $('#searchForm')[0].reset();
+    };
+
+
+    function checkCondition() {
+        var account = $("#account").val();
+        var name = $("#name").val();
+        var telephone = $("#telephone").val();
+        var state = $("#state").val();
+        if (!account && !name && !telephone && !email) {
+            layer.msg("请先输入查询条件");
+            return true;
+        }
+        return false;
+    }
+
+    //若core查询条件不为空，先查core再查wallet
+    //否则先查wallet再查core
+    function search(current, size) {
+        if (!size) {
+            size = 10;
+        }
+        if (!current) {
+            current = 1;
+        }
+        var data = $.param({"current": current, "size": size}) + "&" + $("#searchForm").serialize();
+        $.ajax({
+            url: '/member/list',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+
+                var pageTotal = 0;
+
+                if (data.success) {
+
+
+                    // console.info(respData);
+                    var html = '';
+                    if (undefined != data && undefined != data.data && undefined != data.data.records) {
+                        //debugger;
+                        respData = data.data.records;
+
+                        $.each(respData, function (i, item) {
+                            html += '<tr>';
+                            html += '<td>' + item.id + '</td>';
+                            html += '<td>' + item.platformUserId + '</td>';
+                            if (item.platformType == 1) {
+                                html += '<td>IM</td>';
+                            } else {
+                                html += '<td>SDK</td>';
+                            }
+                            if (!item.name) {
+                                item.name = "";
+                            }
+                            ;
+                            if (!item.telephone) {
+                                item.telephone = "";
+                            }
+                            ;
+
+                            if (typeof (item.name) == "undefined") {
+                                item.name = "";
+                            }
+
+                            if (typeof (item.countryCode) == "undefined") {
+                                item.countryCode = "";
+                            }
+
+                            if (typeof (item.telephone) == "undefined") {
+                                item.telephone = "";
+                            }
+
+                            html += '<td>' + item.name + '</td>';
+                            html += '<td>' + item.countryCode + '</td>';
+                            html += '<td>' + item.telephone + '</td>';
+
+                            if (item.status == 1) {
+                                html += '<td>[[#{text.creating}]]</td>';
+                            } else if (item.status == 2) {
+                                html += '<td>[[#{text.normal}]]</td>';
+                            } else if (item.status == 3) {
+                                html += '<td>[[#{text.disable}]]</td>';
+                            } else {
+                                html += '<td>' + item.status + '</td>';
+                            }
+                            html += '<td>' + formatDateL(item.createTime) + '</td>';
+                            html += '<td>';
+                            html += '<a href="javascript:;" onclick="walletDetail(\'' + item.id + '\')" uid=' + item.id + ' data-id="1" data-opt="detail" class="layui-btn layui-btn-normal layui-btn-mini" data-type="tabAdd">[[#{text.menu.wallet.detail}]]</a>';
+                            if (hasDisablePermission) {
+                                if (item.status == 2) {
+                                    html += '<a href="javascript:;" onclick="turnForbidden(\'' + item.id + '\')" class="layui-btn layui-btn-danger layui-btn-mini">[[#{text.button.feature.disabled}]]</a>';
+                                } else if (item.status == 3) {
+                                    html += '<a href="javascript:;" onclick="turnOpen(\'' + item.id + '\')" class="layui-btn layui-btn-mini">[[#{text.button.feature.enable}]]</a>';
+                                }
+                            }
+                            html += '</td>';
+                            html += '</tr>'
+                        });
+                        pageTotal = data.data.total;
+                    }
+                    $("#content").html(html);
+                } else {
+                    $("#content").html('<tr><td colspan="9" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                    pageTotal = 0;
+                }
+
+                <!------- 分页 -------->
+                layui.use(['laypage', 'layer'], function () {
+                    var laypage = layui.laypage
+                        , layer = layui.layer;
+                    laypage.render({
+                        elem: 'page'
+                        , limit: size
+                        , curr: current
+                        , count: pageTotal
+                        , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                        , jump: function (obj, first) {
+                            this.current = obj.curr;
+                            this.size = obj.limit;
+                            if (!first) {
+                                search(obj.curr, obj.limit);
+                            }
+                        }
+                    });
+                });
+
+            }
+        });
+    }
+
+    //钱包详情
+    function walletDetail(obj) {
+        //debugger;
+        // console.info(obj);
+        var e = $(this),
+            i = "/user/coin/detail?userId=" + obj;
+        t = "[[#{text.menu.wallet.detail}]]";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    function turnForbidden(id) {
+        layer.confirm('[[#{text.sure.ban.gongneng}]]</br>' +
+            '[[#{text.withdrwa.and.transfer}]]', {title: '[[#{text.operation.message}]]', icon: 3}, function (index) {
+            var data = {
+                userId: id,
+                forbiddenFlag: 1
+            };
+            sendToTurnForbidden(data)
+        });
+    }
+
+    function turnOpen(id) {
+        layer.confirm('[[#{text.sure.able.gongneng}]]</br>' +
+            '[[#{text.withdrwa.and.transfer}]]', {title: '[[#{text.operation.message}]]', icon: 3}, function (index) {
+            var data = {
+                userId: id,
+                forbiddenFlag: 0
+            };
+            sendToTurnForbidden(data)
+        });
+    }
+
+    function sendToTurnForbidden(data) {
+        $.ajaxUkey({
+            url: '/member/status/turn',
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    if (!$.isEmptyObject(result.data)) {
+                        layer.alert(result.data, {title: '[[#{text.operation.message}]]', icon: 5});
+                        return;
+                    }
+                    layer.alert('[[#{text.operation.success}]]！', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 1
+                    }, function (index) {
+                        layer.close(index);
+                        // 刷新当前页
+                        $(".layui-laypage-btn").click();
+                        ;
+                    });
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.operation.message}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.operation.message}]]', icon: 2});
+                }
+            }
+        });
+    }
+
+    // function synchronizeImUser() {
+    //     layer.msg("同步命令已提交。");
+    //     $.ajaxUkey({
+    //         url: '/member/synchronize/im',
+    //         type: "POST",
+    //         dataType: "json",
+    //         contentType: 'application/json;charset=UTF-8',
+    //         success: function (result) {
+    //             if (result.success) {
+    //                 if (!$.isEmptyObject(result.data)) {
+    //                     layer.alert(result.data, {title: '提示信息', icon: 5});
+    //                     return;
+    //                 }
+    //                 layer.alert('同步IM-钱包用户操作成功！', {title: '提示信息', icon: 1},function (index) {
+    //                     layer.close(index);
+    //                     // 刷新当前页
+    //                     $(".layui-laypage-btn").click();;
+    //                 });
+    //             } else {
+    //                 if (!$.isEmptyObject(result.msg)) {
+    //                     layer.alert(result.msg, {title: '提示信息', icon: 2});
+    //                     return;
+    //                 }
+    //                 layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+    //             }
+    //         }
+    //     });
+    //
+    //
+    // }
+</script>
+
+</body>
+</html>

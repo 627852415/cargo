@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建广告</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" action="" >
+    <input type="hidden" th:value="${detail} ? ${detail.id}" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="adName" name="adName" th:value="${detail} ? ${detail.adName}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入广告名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告类型</label>
+        <div class="layui-input-inline">
+            <select  name="adType">
+                <option value="">[[#{text.select.placeholder}]]</option>
+                <option value="1" th:selected="${detail != null and detail.adType == '1'}">url</option>
+                <option value="2" th:selected="${detail != null and detail.adType == '2'}">跳转群主</option>
+                <option value="3" th:selected="${detail != null and detail.adType == '3'}">跳转模块</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告内容</label>
+        <div class="layui-input-inline">
+            <textarea id="adContent" name="adContent"  th:text="${detail} ? ${detail.adContent}" lay-verify="required"
+                       class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">归属广告位</label>
+        <div class="layui-input-inline">
+            <select name="pid" >
+                <option value="" >请选择</option>
+                <option th:each="adPosition : ${adPositionList}" th:text="${adPosition.adPositionName}" th:value="${adPosition.id}"
+                        th:selected="${(detail != null and detail.pid == adPosition.id) or (adPosition.id == adPositionId)}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px;">广告位素材</label>
+        <div class="layui-input-block">
+            <button type="button"
+                    class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal"
+                    id="adUrlImg">
+                <i class="layui-icon">&#xe67c;</i>上传
+            </button>
+            <input type="hidden" id="adUrl" name="adUrl" th:value="${detail} ? ${detail.adUrl}"/>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布地区</label>
+        <div class="layui-input-inline">
+            <select name="countryCode" xm-select="countryCode" xm-select-direction="up"
+                    lay-verify="required" lay-verType="tips" xm-select-search="" xm-select-show-coun="5">
+                <option th:each="globalCode : ${globalCodeList}" th:text="${globalCode.cnName}" th:value="${globalCode.countryCode}"
+                        th:selected="${detail != null and detail.countryCode == globalCode.countryCode}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">投放时间</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="text" name="startTime" id="startTime" th:placeholder="请选择投放开始时间"
+                   th:value="${detail!=null?detail.startTime:''}" autocomplete="off"/>
+        </div>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="text" name="endTime" id="endTime" th:placeholder="请选择投放结束时间"
+                   th:value="${detail!=null?detail.endTime:''}" autocomplete="off"/>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">客户</label>
+        <div class="layui-input-inline">
+            <input type="text" id="customer" name="customer" th:value="${detail} ? ${detail.customer}"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入客户信息">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+
+</form>
+<script>
+    layui.formSelects.render('countryCode');
+
+    /**
+     * 时间选择器
+     */
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var startTime,endTime;
+        // 手续费统计
+        laydate.render({
+            elem: '#startTime',
+            type: 'datetime',
+            done: function (value, date) {
+                if (value > endTime) {
+                    layer.msg("投放开始日期不能大于结束日期");
+                    $("#startTime").val("");
+                    return;
+                }
+                startTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime' ,
+            type: 'datetime',
+            done: function (value, date) {
+                if (value < startTime) {
+                    layer.msg("投放结束日期不能小于开始日期");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+    });
+
+    layui.use(['layer','upload'], function () {
+        var layer = layui.layer
+            , upload = layui.upload;
+
+        upload.render({
+            elem: '#adUrlImg'
+            , url: '/ad/upload'
+            , method: 'POST'
+            , accept: 'jpg|png'
+            , done: function (res) {
+                if (res.success) {
+                    document.getElementById("adUrl").value = res.data;
+                    layer.msg('[[#{text.uploaded.successfully}]]');
+                }else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+            }
+            , error: function () {
+                layer.msg('[[#{text.upload.failed}]]');
+            }
+        });
+    });
+
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+    });
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        data.field.enable = $("#enable").is(':checked');
+
+        var countryCode = layui.formSelects.value('countryCode', 'val');
+        var adContent = $("#adContent").val();
+
+        $.ajaxUkey({
+            url: "/ad/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        //parent.location.reload();
+                        window.location.href = '/ad/index';
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

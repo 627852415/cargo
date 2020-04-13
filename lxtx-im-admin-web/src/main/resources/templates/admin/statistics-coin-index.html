@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<title>[[#{text.menu.assets.statistics}]]</title>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+	<div class="admin-main fadeInUp animated">
+		<blockquote class="layui-elem-quote">
+			<input id="time" type="hidden" value="1">
+			<form class="layui-form" id="searchForm">
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+						<select id="platformType" name="platformType" lay-verify="" lay-search>
+							<option value="">[[#{text.placeholder.please.platform.type}]]</option>
+							<option value="1">IM</option>
+						</select>
+					</div>
+
+					<div class="layui-form-mid layui-word-aux" style="padding: 0;">
+						<button id="searchFormBtn" type="button" class="layui-btn">[[#{text.operation.search}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.operation.export.file}]]</button>
+					</div>
+				</div>
+			</form>
+		</blockquote>
+		<table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+	</div>
+	<script type="text/html" id="barData" >
+		<a class="layui-btn  layui-btn-sm tableBtn" lay-event="detail" ><i class="layui-icon layui-icon-form"></i>[[#{text.button.fee.details}]]</a>
+	</script>
+
+	<script>
+		var table, url = '/statistics/coin/list', url2 = '/statistics/coin/list/contain/merchant/assets';
+		layui.use('table', function () {
+			table = layui.table;
+			table.render({
+				elem: '#dataTable',
+				cellMinWidth: 100,
+				data: [],
+				text: {none: ""},
+				cols: [
+					[
+						{type: 'numbers', title: '[[#{text.column.number}]]', align: 'center', sort: false},
+						{field: 'coinName', title: '[[#{text.wallet.coin.manage.table.name}]]', align: 'center', sort: false},
+						{field: 'allAmount', title: '[[#{text.column.total.assets}]]', align: 'center', sort: false, width: 205, templet: function(data){
+								return setStyleRed(data.allAmount);
+							}},
+						{field: 'leftAmount', title: '[[#{text.column.available.assets}]]', align: 'center', sort: false, width: 155, templet: function(data){
+								return setStyleRed(data.leftAmount);
+							}},
+						{field: 'frozenAmount', title: '[[#{text.column.frozen.assets}]]', align: 'center', sort: false, width: 155, templet: function(data){
+								return setStyleRed(data.frozenAmount);
+							}},
+                        {field: 'poolAssetAmout', title: '[[#{text.column.fund.pool.assets}]]', align: 'center', sort: false, width: 165, templet: function(data){
+                                return setStyleRed(data.poolAssetAmout);
+                            }},
+						/*{field: 'lockAmount', title: '[[#{text.column.lock.assets}]]', align: 'center', sort: false, templet: function(data){
+								return setStyleRed(data.lockAmount);
+							}},
+						{field: 'outAmount', title: '[[#{text.column.transfer.of.assets.the.same.day}]]', align: 'center', sort: false, templet: function(data){
+								return setStyleRed(data.outAmount);
+							}},
+						{field: 'enterAmount', title: '[[#{text.column.transfer.of.assets.on.the.same.day}]]', align: 'center', sort: false, templet: function(data){
+								return setStyleRed(data.enterAmount);
+							}},
+						{field: 'airdropAmount', title: '[[#{text.column.when.sky.investment}]]', align: 'center', sort: false, templet: function(data){
+								return setStyleRed(data.airdropAmount);
+							}},*/
+						{field: 'topgateRechargeAmount', title: '[[#{text.column.statistics.topgate.amount}]]', align: 'center', sort: false, width: 185, templet: function(data){
+								return (undefined === data.topgateRechargeAmount ? '' : setStyleRed(data.topgateRechargeAmount));
+							}},
+						{field: 'topgateWithdrawAmount', title: '[[#{text.column.statistics.topgate.actual.amount}]]', align: 'center', sort: false, width: 185, templet: function(data){
+								return (undefined === data.topgateWithdrawAmount ? '' : setStyleRed(data.topgateWithdrawAmount));
+							}},
+						{field: 'topgateFastexchangePayAmount', title: '[[#{text.column.statistics.topgate.actual.pay.amount}]]', align: 'center', sort: false, width: 185, templet: function(data){
+								return (undefined === data.topgateFastexchangePayAmount ? '' : setStyleRed(data.topgateFastexchangePayAmount));
+							}},
+						{field: 'topgateFastexchangeGotAmount', title: '[[#{text.column.statistics.topgate.actual.got.amount}]]', align: 'center', sort: false, width: 185, templet: function(data){
+								return (undefined === data.topgateFastexchangeGotAmount ? '' : setStyleRed(data.topgateFastexchangeGotAmount));
+							}},
+						{field: 'businessAmout', title: '[[#{text.column.merchant.assets}]]', align: 'center', sort: false, width: 135, templet: function(data){
+								return (undefined === data.businessAmout ? '' : setStyleRed(data.businessAmout));
+							}},
+						{field: 'gainOrLoss', title: '[[#{text.column.profit.and.loss}]]', align: 'center', sort: false, width: 165, templet: function(data){
+								return (undefined === data.gainOrLoss ? '' : setStyleRed(data.gainOrLoss));
+							}},
+						{title: '[[#{text.column.operate}]]', width: 150, align: 'center', sort: false, toolbar: '#barData'}
+					]
+				],
+				id: 'dataReload',
+				page: false,
+			});
+
+			//监听行工具事件
+			table.on('tool(dataTable)', function (obj) {
+				var data = obj.data;
+				if(obj.event === 'detail'){
+					openTab("[[#{text.fee.statistics}]]", "/statistics/coinCharge/index?coinId=" + obj.data.coinId);
+				}
+			});
+		});
+
+		setTimeout('customReload(table, url, true)', 300);
+
+		$('#searchFormBtn').on('click', function(){
+			customReload(table, url, true);
+		});
+
+		function customReload(table, url3, url1Flag){
+			var platformType = document.getElementById("platformType").value;
+			$.ajaxUkey({
+				url:url3,
+				data: JSON.stringify({platformType: platformType}),
+				type: 'post',
+				dataType : 'json',
+				contentType: 'application/json;charset=UTF-8',
+				success: function(res){
+					if(res.success){
+						if(!$.isEmptyObject(res.data) && undefined != res.data.records && res.data.records.length > 0){
+							table.reload('dataReload', {data: res.data.records, limit: res.data.records.length});
+							if(url1Flag){
+								customReload(table, url2, false);
+							}
+						}else{
+							if(url1Flag){
+								table.reload('dataReload', {data: [], text: {none: '<b style="color: red">[[#{text.no.search.data}]]</b>'}});
+							}
+						}
+					}else{
+						if(url1Flag){
+							table.reload('dataReload', {data: [], text: {none: '<b style="color: red">' + res.msg + '</b>'}});
+						}
+					}
+				},
+				error: function(error){
+					table.reload('dataReload', {data: [], text: {none: '<b style="color: red">[[#{text.no.search.data}]]</b>'}});
+				},
+			});
+		}
+
+	    //文件导出
+        function download() {
+            var platformType = document.getElementById("platformType").value;
+    	    var url = "/statistics/download?platformType="+ platformType;
+            $.ajaxUkey({
+                url:url,
+                type:"get",
+                async:"true",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success:function(responseText){
+                    if(responseText.success == false){
+                        layer.alert(responseText.msg, { title: '提示信息', icon: 2 });
+					}else{
+                        window.location.href = url;
+					}
+                },
+                error:function(){
+                    layer.alert("系统异常，导出失败", { title: '提示信息', icon: 2 });
+                }
+            });
+        }
+
+        //如果资产大于0 显示红色
+        function setStyleRed(obj) {
+            if(obj > 0){
+                return "<b style='color: black'>" + obj +"</b>";
+			}
+            if(obj < 0){
+                return "<b style='color: red'>" + obj +"</b>";
+            }
+            return obj;
+        }
+	</script>
+</body>
+
+</html>

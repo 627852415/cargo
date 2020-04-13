@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.details.of.the.complaint}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label{
+        width: 100px;
+    }
+</style>
+
+<body>
+<fieldset class="layui-elem-field layui-field-title site-demo-button" style="margin-top: 20px;">
+    <legend>[[${detail.id}]] [[#{text.transaction.arbitration}]]</legend>
+</fieldset>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" id="id" th:value="${detail.id}"  class="layui-input">
+    <input type="hidden" id="complaintId" th:value="${detail.complaintId}"  class="layui-input">
+    <input type="hidden" id="initiativeByMerchant" th:value="${detail.initiativeByMerchant}" class="layui-input">
+    <div class="layui-form-item">
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">[[#{text.order.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.orderId}" id="orderId"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label my-label">[[#{text.buyer}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.buyerTelephone}" class="layui-input"  disabled>
+            </div>
+            <label class="layui-form-label my-label my-label">[[#{text.arbitration.status}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.product.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.goodsId}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.business}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.merchantTelephone}" class="layui-input"  disabled>
+            </div>
+
+            <label class="layui-form-label my-label">[[#{text.current.order.status}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.arbitration.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${detail.id}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.complaint.time}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${#dates.format(detail.createTime,'yyyy-MM-dd HH:mm:ss')}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.processing.status}]]</label>
+            <div class="layui-input-inline">
+                <input style="color: #af0000" type="text"  th:value="${detail.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.contact.number}]]</label>
+            <div class="layui-input-inline" th:each="complaint : ${detail.complaintDetailRespList}">
+                <input type="text" th:value="${complaint.fullTelephone}" style="height: 38px;line-height: 1.3;border-width: 1px;border-style: solid;background-color: #fff;border-color: #D2D2D2!important;padding-left: 10px;width: 116px;" disabled>
+                <span  id = "buyerArea" ></span>
+            </div>
+
+        </div>
+        <div class="layui-form-item" >
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.reason.for.complaint}]]:</label>
+        </div>
+        <div class="layui-form-item" th:each="complaint : ${detail.complaintDetailRespList}">
+            <div class="layui-input-block" style="width: 850px;margin-left: 130px;">
+                <label style="width: 100px;color: #1E9FFF" id="byuerExlpArea"></label>
+                <textarea th:text="${complaint.content}" class="layui-textarea" disabled></textarea>
+            </div>
+            <div class="layui-form-item" style="float:left;margin-left: 130px;">
+                <img onclick="imgZoom(this,'[[#{text.complaint.certificate}]]');" th:each="image : ${complaint.images}" class="layui-upload-img" name="image" style="width: 100px;height: 100px;" th:src="${image}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.order.information}]]:</label>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.exchange.amount}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.sourceCurrency}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.amount.received}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.targetCurrency}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.exchange.rate}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.exchangeRateStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.chat.record}]]:</label>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.date.range}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="searchDate" id="searchDate" class="layui-input datetime"   th:placeholder="#{text.search.date.range}"/>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.number.of.query.rows}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  id="limit" class="layui-input" placeholder="默认1000行">
+                <input type="hidden"  id="buyerAccount"  class="layui-input"  th:value="${detail.buyer}" >
+                <input type="hidden"  id="merchantAccount"  class="layui-input"  th:value="${detail.merchant}" >
+            </div>
+            <a href="javascript:;" onclick="searchMsg()" data-id="1" class="layui-btn layui-btn-mini">[[#{text.inquire}]]</a>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">&nbsp;</label>
+            <table>
+                <tr>
+                    <td>
+                        <div class="layui-card" style="height:400px;width:400px;margin-right:15px;overflow-y: auto;">
+                            <div class="layui-card-header">[[#{text.buyer.side}]]</div>
+                            <div id="buyerMessageList" class="layui-card-body"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layui-card" style="height:400px;width:400px;margin-left:15px;overflow-y: auto;">
+                            <div class="layui-card-header">[[#{text.merchant.side}]]</div>
+                            <div id="merchantMessageList" class="layui-card-body"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.processing.records}]]:</label>
+        </div>
+        <div class="layui-form-item" style="margin-left: 60px; margin-right: 100px;">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>[[#{text.processing.time}]]</th>
+                    <th>[[#{text.processing.instructions}]]</th>
+                    <th>[[#{text.operation.source}]]</th>
+                    <th>[[#{text.certificate}]]</th>
+                    <th>[[#{text.operator}]]</th>
+                </tr>
+                </thead>
+                <!--[[#{text.content.container}]]-->
+                <tbody id="con">
+                <tr  th:each=" e: ${records}">
+                    <td style="width: 11%;" th:text="${#dates.format(e.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td style="width: 50%;" th:text="${e.content}"></td>
+                    <td th:text="${e.sourceTypeName}"></td>
+                    <td><img th:each="image:${e.images}" th:src='${image}' onclick="imgZoom(this,'[[#{text.processing.credentials}]]');"></td>
+                    <td th:text="${e.createBy}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.processing.instructions}]]:</label>
+            <div class="layui-upload">
+                <button type="button" class="layui-btn" id="test2">[[#{text.multi-pass.certificate}]]</button>
+                <div class="layui-upload-list" id="demo2" style="margin-left: 130px;"></div>
+                <input type="hidden" id="images" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-input-block" style="width: 850px;margin-left: 130px;">
+                <textarea id="content" class="layui-textarea" th:placeholder="#{text.if.you.need.to.complete.the.processing}" style="height: 200px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+</form>
+<div class="layui-input-block"  style="margin-left: 300px; margin-top: 50px;margin-bottom: 100px;">
+    <button class="layui-btn layui-btn-lg layui-btn-danger" onclick="revocation()">[[#{text.processing.revocation}]]</button>
+    <button class="layui-btn layui-btn-lg layui-btn-normal" onclick="processed()" style="margin-left: 50px;">[[#{text.processing.completed}]]</button>
+    <span class="layui-btn layui-btn-lg layui-btn-normal" onclick="saveRecord()" style="margin-left: 50px;">[[#{text.save}]]</span>
+    <button class="layui-btn layui-btn-lg layui-btn-normal" onclick="cancel()" id="cancel" style="margin-left: 50px;">[[#{text.cancel}]]</button>
+</div>
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img" id="imgId" src="">
+    </div>
+</div>
+<script>
+
+    function handleBuyerArea(){
+        var val = '[[#{text.business}]]';
+        var title = '${complaint.buyerComplain}';
+        if(title!=null||title!=undefined||title!=''){
+            if ($('#initiativeByMerchant').val() == "true") {
+                val = "[[#{text.business}]]"
+            } else {
+                val = "[[#{text.buyer}]]";
+            }
+        }
+        $("#buyerArea").html(val);
+    }
+
+    function handleBuyerExlArea(){
+        var val = '[[#{text.buyer.merchant.application}]]';
+        var title = '${complaint.buyerComplain}';
+        if(title!=null||title!=undefined||title!=''){
+            if ($('#initiativeByMerchant').val() == "true") {
+                val = "[[#{text.buyer.merchant.application}]]";
+            } else {
+                val = "[[#{text.buyer.application}]]";
+            }
+        }
+        $("#byuerExlpArea").html(val);
+    }
+
+    $(function(){
+        handleBuyerArea()
+        handleBuyerExlArea();
+    })
+
+    layui.use(['layer','form', 'layedit', 'upload', 'element'], function() {
+        var $ = layui.jquery
+            ,form = layui.form
+            , layer = layui.layer
+            , upload = layui.upload
+            ,msgTiShi;
+
+        //[[#{text.multi-picture.upload}]]
+        upload.render({
+            elem: '#test2'
+            , url: '/offsite/exchange/complaint/upload/certificate'
+            , accept: 'jpg|png'
+            , multiple: true
+            , before: function (obj) {
+                //加黑幕，保证图片上传成功
+                msgTiShi = layer.load(1, {shade: [0.8, '#393D49']});
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#demo2').append('<img src="' + result + '" alt="' + file.name + '" class="layui-upload-img">')
+                });
+            }
+            , done: function (res) {
+                //[[#{text.upload.completed.callback}]]
+                if (res.success) {
+                    var images = $('#imageUrl').val();
+                    if(!$.isEmptyObject(images)) {
+                        images += "," + res.data;
+                    } else {
+                        images = res.data;
+                    }
+                    $('#images').val(images);
+                    layui.form.render();
+                    layer.msg('[[#{text.uploaded.successfully}]]！');
+                }else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+                layer.close(msgTiShi);
+            }
+            , error: function () {
+                layer.msg('[[#{text.upload.failed}]]');
+                layer.close(msgTiShi);
+            }
+        });
+
+
+
+    });
+
+    //[[#{text.save.processing.records}]]
+    function saveRecord() {
+        var id = document.getElementById("id").value;
+        var content = document.getElementById("content").value;
+        var images = document.getElementById("images").value;
+        if ($.isEmptyObject(content))  {
+            layer.msg('[[#{text.please.enter.processing.instructions}]]');
+        }
+        var sendData = JSON.stringify({"arbitrationId": id,"content":content,"images":images});
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        $.ajaxUkey({
+            url: "/offsite/exchange/complaint/record/save",
+            type: 'POST',
+            data: sendData,
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success : function(data) {
+                if (data.success) {
+                    layer.alert('保存成功', {title: '[[#{text.information}]]', icon: 6},function(index){
+                        tabChangeDef('/offsite/exchange/complaint/index');
+                        tabDeleteCurrent();
+                        location.reload();
+                    });
+
+                } else {
+                    layer.msg(data.msg);
+                }
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+            },
+            error : function(e) {
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+
+    }
+
+    //[[#{text.processing.completed}]]
+    function processed() {
+        var id = document.getElementById("id").value;
+        openModal('[[#{text.processing.complaint.result}]]','/offsite/exchange/complaint/completed/push?arbitrationId=' + id, "500px", "450px");
+    }
+
+    function revocation(){
+        var complaintId = $('#complaintId').val();
+        layer.confirm('[[#{text.processing.revocation.confirm}]]', {icon: 3, title: '[[#{text.information}]]', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({complaintId: complaintId, sourceType: 0}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/offsite/exchange/complaint/revocation',
+                success: function (data) {
+                    if (data.success) {
+                        layer.alert('[[#{text.processing.revocation.success}]]', {title: '[[#{text.information}]]', icon: 6},function(index){
+                            tabChangeDef('/offsite/exchange/complaint/index');
+                            tabDeleteCurrent();
+                            location.reload();
+                        });
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //[[#{text.cancel}]]
+    function cancel() {
+        tabDeleteCurrent();
+        //[[#{text.go.to.homepage}]]
+        tabChangeDef("/offsite/exchange/complaint/index")
+        location.reload();
+    }
+
+    /**
+     * [[#{text.view.original.photo}]]
+     * @param obj
+     * @param title
+     */
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>' + title + '</b>',
+            area: ['1200px', '800px'], //[[#{text.width.height}]]
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //[[#{text.update.all}]]
+    }
+    // [[#{text.initialize.the.date.control}]]
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#searchDate',
+            range: '~',
+            min: -30,
+            max: 0,
+        });
+
+    });
+
+    // [[#{text.search.list.records}]]
+    function searchMsg() {
+        $("#buyerMessageList").text('');
+        $("#merchantMessageList").text('');
+        var buyerAccount = $("#buyerAccount").val();
+        var merchantAccount = $("#merchantAccount").val();
+        var searchDate = $("#searchDate").val();
+        var limit = $("#limit").val();
+        var orderId = $("#orderId").val();
+        if(!searchDate){
+            layer.alert('[[#{text.please.select.a.search.date.range}]]', {title: '[[#{text.information}]]', icon: 2});
+            return;
+        }
+
+        // [[#{text.buyer.and.customer.service.chat.history}]]
+        $.ajaxUkey({
+            url: '/offsite/exchange/complaint/messageList',
+            type: "POST",
+            data: JSON.stringify({userAccount:buyerAccount,searchDate:searchDate,limit:limit,orderId:orderId}),
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    var arr = result.data.list;
+                    if(arr.length > 0){
+                        arr.forEach((item, index, arr) => {
+                            var msgText = item.content;
+                            var timestamp = item.timestamp;
+                            var extra = item.extra;
+                            var senderName ='';
+                            if(extra){
+                                senderName = eval('(' + extra + ')').senderName;
+                            }
+
+                            var html = "<p class='msg'>" +
+                                "<span style='color: #00B83F'>"+formatDateL(timestamp)+"&nbsp;&nbsp;</span><span style='color: #FFB800'>"+senderName+"</span><br><span style='color: mediumblue'>"+msgText+"</span></p>";
+                            $("#buyerMessageList").append(html);
+                        });
+                    }else {
+                        var html = "<p class='msg'><span style='color: red'>[[#{text.no.message.recorded}]]</span></p>";
+                        $("#buyerMessageList").append(html);
+                    }
+
+                    return;
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+
+
+        // [[#{text.business.chat.with.customer.service}]]
+        $.ajaxUkey({
+            url: '/offsite/exchange/complaint/messageList',
+            type: "POST",
+            data: JSON.stringify({userAccount:merchantAccount,searchDate:searchDate,limit:limit,orderId:orderId}),
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    var arr = result.data.list;
+                    if(arr.length > 0){
+                        arr.forEach((item, index, arr) => {
+                            var msgText = item.content;
+                            var timestamp = item.timestamp;
+                            var extra = item.extra;
+                            var senderName ='';
+                            if(extra){
+                                senderName = eval('(' + extra + ')').senderName;
+                            }
+
+                            var html = "<p class='msg'>" +
+                                "<span style='color: #00B83F'>"+formatDateL(timestamp)+"&nbsp;&nbsp;</span><span style='color: #FFB800'>"+senderName+"</span><br><span style='color: mediumblue'>"+msgText+"</span></p>";
+                            $("#merchantMessageList").append(html);
+                        });
+                    }else {
+                        var html = "<p class='msg'><span style='color: red'>[[#{text.no.message.recorded}]]</span></p>";
+                        $("#merchantMessageList").append(html);
+                    }
+
+                    return;
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

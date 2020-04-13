@@ -1,0 +1,307 @@
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>群组管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="groupId" id="groupId" class="layui-input" placeholder="请输入群组ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" id="name" class="layui-input" placeholder="请输入群组名称"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="account" id="account" class="layui-input" placeholder="用户帐号" />
+                    <input type="hidden" id="accountHidden" th:value="${account}"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                    <!--<button type="button" class="layui-btn"  onclick="synchronizeYunxinGroup()">同步云信群</button>-->
+                    <button type="button" onclick="download();return false;" class="layui-btn">导出文件</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">群组列表</span>
+</script>
+<script type="text/html" id="barData">
+    <shiro:hasPermission name="disband:group">
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="disband">解散群</a>
+    </shiro:hasPermission>
+    <a class="layui-btn layui-btn-sm tableBtn" lay-event="groupMember">群成员</a>
+    <shiro:hasPermission name="group:information:flag">
+        {{#  if(!d.informationFlag){ }}
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="updateInformationFlagOpen">私聊开放</a>
+        {{#  } }}
+        {{# if(d.informationFlag){ }}
+        <a class="layui-btn layui-btn-sm tableBtn layui-btn-danger" lay-event="updateInformationFlagClose">私聊关闭</a>
+        {{#  } }}
+    </shiro:hasPermission>
+</script>
+
+<script>
+
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    });
+    layui.use('form', function() {
+        var form = layui.form;
+    });
+
+    $(function () {
+        var account = $("#accountHidden").val();
+        $("#account").val(account);
+    });
+
+    var table;
+    layui.use('table', function () {
+        table = layui.table;
+        table.render({
+            elem: '#dataTable',
+            cellMinWidth: 100,
+            url: '/group/listPage',
+            method: 'post',
+            toolbar: '#toolbarDemo',//筛选、打印、导出
+            initSort: {field: 'createTime', type: 'desc'},
+            request: {
+                pageName: 'current'
+                , limitName: 'size'
+            },
+            cols: [
+                [
+                    {field: 'groupId', title: '群ID', align: 'center', sort: true}
+                    , {
+                    field: 'groupIconPath', align: 'center', title: '群头像', templet: function (data) {
+                        if (data.groupIconPath) {
+                            return '<img class="img" src="' + data.groupIconPath + '" height="30" width="30" lay-event="click"/>'
+                        }
+                    }
+                }
+                    , {field: 'name', title: '群名称', align: 'center', sort: false}
+                    , {field: 'founder', title: '创建者', align: 'center', sort: false}
+                    , {field: 'memberCount', title: '群人数', align: 'center', sort: true}
+                    , {
+                    field: 'createTime', title: '创建时间', align: 'center', sort: true, templet: function (data) {
+                        return formatDateL(data.createTime);
+                    }
+                }
+                    , {width: 250, title: '操作', align: 'center', sort: false, toolbar: '#barData'}
+                ]
+            ]
+            , parseData : function(res) {
+                var msg,code = "1",records,total=0;
+                if(!res.success || $.isEmptyObject(res.data)){
+                    if(res.msg){
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    }else{
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }else{
+                    records = res.data.records;
+                    if(records !=undefined &&  records.length > 0){
+                        code = '0';
+                        total = res.data.total;
+                    }else{
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code" : code,
+                    "msg" : msg,
+                    "count" : total,
+                    "data" : records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+            , where: $("#searchForm").serializeJson()
+        });
+
+        //监听排序事件
+        table.on('sort(dataTable)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var orderF = {
+                field: obj.field //排序字段
+                ,order: obj.type //排序方式
+            };
+            var whereData = $.extend(orderF,$("#searchForm").serializeJson());
+            table.reload('dataReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                ,where: whereData
+            });
+        });
+
+        //监听行工具事件
+        table.on('tool(dataTable)', function (obj) {
+            if (obj.event === 'disband') {
+                disband(obj.data.groupId);
+            } else if (obj.event === 'groupMember') {
+                groupMember(obj.data.groupId);
+            } else if (obj.event === 'updateInformationFlagOpen') {
+                updateInformationFlag(obj.data.groupId, obj, this);
+            } else if (obj.event === 'updateInformationFlagClose') {
+                updateInformationFlag(obj.data.groupId, obj, this);
+            }
+        });
+
+    });
+
+
+
+    //解散群
+    function disband(groupId) {
+        // console.info("解散群id:"+groupId);
+        layer.confirm("确定解散该群吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/group/disband',
+                type: 'POST',
+                data: JSON.stringify({groupId: groupId}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //群成员
+    function groupMember(obj) {
+        console.info(obj);
+        var e = $(this);
+        var i = "/groupMember/index?groupId=" + obj;
+        var t = "群成员";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    function synchronizeYunxinGroup() {
+        layer.msg("同步命令已提交。");
+        $.ajaxUkey({
+            url: '/group/synchronize/yunxin',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    if (!$.isEmptyObject(result.data)) {
+                        layer.alert(result.data, {title: '提示信息', icon: 5});
+                        return;
+                    }
+                    layer.alert('同步网易云信群组操作成功！', {title: '提示信息', icon: 1}, function (index) {
+                        layer.close(index);
+                        // 刷新当前页
+                        $(".layui-laypage-btn").click();
+                        ;
+                    });
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '提示信息', icon: 2});
+                        return;
+                    }
+                    layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                }
+            }
+        });
+    }
+
+    function updateInformationFlag(groupId, obj, item) {
+        var informationFlag = obj.data.informationFlag + "";
+        var newInformationFlag;
+        if (informationFlag === "false") {
+            newInformationFlag = 1;
+        } else if (informationFlag === "true") {
+            newInformationFlag = 0;
+        }
+        $.ajaxUkey({
+            url: '/group/information/flag',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                groupId: groupId,
+                informationFlag: newInformationFlag
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    // 处理成功业务逻辑
+                    if (informationFlag === "false") {
+                        obj.update({
+                            informationFlag: true
+                        });
+                        $(item).text("私聊关闭");
+                    } else if (informationFlag === "true") {
+                        obj.update({
+                            informationFlag: false
+                        });
+                        $(item).text("私聊开放");
+                    }
+
+                    if ($(item).hasClass("layui-btn-danger")) {
+                        $(item).removeClass("layui-btn-danger")
+                    } else {
+                        $(item).addClass("layui-btn-danger")
+                    }
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '提示信息', icon: 2});
+                        return;
+                    }
+                    layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                }
+            }
+        });
+    }
+
+    //列表文件导出
+    function download() {
+        var url = "/group/download/list?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url:url,
+            type:"get",
+            async:"true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success:function(responseText){
+                if(responseText.success == false){
+                    layer.alert(responseText.msg, { title: '提示信息', icon: 2 });
+                }else{
+                    window.location.href = url;
+                }
+                return false;
+            },
+            error:function(){
+                layer.alert("系统异常，导出失败", { title: '提示信息', icon: 2 });
+            }
+        });
+        return false;
+    }
+</script>
+
+</body>
+</html>

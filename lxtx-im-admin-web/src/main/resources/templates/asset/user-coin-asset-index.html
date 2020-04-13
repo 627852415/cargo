@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>申请提款列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.title.fund.flow.list}]]</div>
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="walletUserId" class="layui-input" value="" th:placeholder="#{text.placeholder.wallet.user.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" class="layui-input" value="" th:placeholder="#{text.operation.input.tips.user.name}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="transferNum" class="layui-input" value="" th:placeholder="#{text.placeholder.please.enter.business.transaction.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select lay-filter="coinId" name="coinId" lay-search  th:value="${coinId}">
+                            <option value="" >[[#{text.placeholder.coin}]]</option>
+                            <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}" th:selected="${coinId != null and coinId == coin.id}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="status" lay-verify="" lay-search>
+                            <option value="">[[#{text.placeholder.status}]]</option>
+                            <option value="1">[[#{text.placeholder.pending}]]</option>
+                            <option value="2">[[#{text.placeholder.status.handling}]]</option>
+                            <option value="3">[[#{text.placeholder.submitted}]]</option>
+                            <option value="4">[[#{text.placeholder.status.success}]]</option>
+                            <option value="5">[[#{text.placeholder.status.fail}]]</option>
+                            <option value="6">[[#{text.placeholder.status.part.success}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="type" lay-filter="typeFilter" lay-search>
+                            <option value="">[[#{text.placeholder.type}]]</option>
+                            <option value="1">[[#{text.wallet.capital.type.withdrawal.transfer}]]</option>
+                            <option value="2">[[#{text.wallet.capital.type.recharge.and.receive}]]</option>
+                            <option value="3">[[#{text.wallet.capital.type.friends.transfer}]]</option>
+<!--                            <option value="4">空投</option>-->
+                            <option value="5">[[#{text.wallet.capital.type.red.envelope}]]</option>
+                            <option value="6">[[#{text.wallet.capital.type.game}]]</option>
+                            <option value="7">[[#{text.wallet.capital.type.merchant.consumption}]]</option>
+                            <option value="8">[[#{text.wallet.capital.type.merchant.collection}]]</option>
+                            <option value="9">[[#{text.wallet.capital.type.offline.exchange}]]</option>
+                            <option value="10">[[#{text.wallet.capital.type.commission}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" id="subDiv" style="display: none">
+                        <select name="subtype" id="subtype" lay-filter="subtypeFilter" lay-search>
+                            <option value="">[[#{text.placeholder.select.subtype}]]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-input-inline">
+                        <input lay-filter="startTime" name="startTime" type="text" class="layui-input" id="startTime" th:placeholder="#{text.placeholder.update.start.date}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="endTime" name="endTime" type="text" class="layui-input" id="endTime" th:placeholder="#{text.placeholder.update.end.date}" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.operation.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.operation.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.operation.export.file}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+                <tr>
+                    <th lay-data="{field:'walletUserId', align:'center'}">[[#{text.column.wallet.user.id}]]</th>
+                    <th lay-data="{field:'userName', align:'center'}">[[#{text.wallet.capital.table.user.name}]]</th>
+                    <th lay-data="{field:'coinName', align:'center'}">[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th lay-data="{field:'type', align:'center', templet:function(data){return formatType(data);}}">[[#{text.column.type}]]</th>
+                    <th lay-data="{field:'subtype', align:'center', templet:function(data){return formatSubType(data);}}">[[#{text.column.subtype}]]</th>
+                    <th lay-data="{field:'status', align:'center', templet:function(data){return formatStatus(data);}}">[[#{text.column.status}]]</th>
+                    <th lay-data="{field:'preLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.preLeftAmount);
+                    }}">[[#{text.column.balance.before.processing}]]</th>
+                    <th lay-data="{field:'changeLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.changeLeftAmount);
+                    }}">[[#{text.column.change.balance}]]</th>
+                    <th lay-data="{field:'suffixLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.suffixLeftAmount);
+                    }}">[[#{text.column.processed.balance}]]</th>
+                    <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">[[#{text.column.update.date}]]
+                    </th>
+                    <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.operation.name}]]</th>
+                </tr>
+
+            </thead>
+        </table>
+        <script type="text/html" id="barData">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="detail">[[#{text.operation.see.details}]]</a>
+        </script>
+    </fieldset>
+</div>
+</body>
+<script type="text/javascript">
+    layui.use(['form', 'laydate'], function() {
+        var laydate = layui.laydate;
+        var form = layui.form;
+        var curDate = formatDate(new Date);
+        var startTime,endTime;
+        var updateTime,updateEndTime;
+        laydate.render({
+            elem: '#startTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#startTime").val("");
+                    return;
+                } else if (value > endTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#startTime").val("");
+                    return;
+                }
+                startTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < startTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+        form.on('select(typeFilter)', function (data) {
+            var type = data.value;
+            switch (type) {
+                case "1":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="11">[[#{text.transfer.within.the.station}]]</option>');
+                    $("#subtype").append('<option value="12">[[#{text.withdraw.in.the.station}]]</option>');
+                    $("#subtype").append('<option value="13">[[#{text.cash.withdrawal}]]</option>');
+                    $("#subtype").append('<option value="14">[[#{text.collecting.funds.to.merchants}]]</option>');
+                    $("#subtype").append('<option value="15">OTC[[#{text.withdrawal}]]</option>');
+                    $("#subtype").append('<option value="16">[[#{text.platform.withdrawal}]]</option>');
+                    $("#subtype").append('<option value="17">[[#{text.flash}]]</option>');
+                    $("#subtype").append('<option value="18">[[#{text.scan.code.payment}]]</option>');
+                    $("#subtype").append('<option value="19">[[#{text.yu.e.bao.transfer.out}]]</option>');
+                    $("#subtype").append('<option value="20">[[#{text.yu.e.bao.transfer.fee}]]</option>');
+                    $("#subtype").append('<option value="29">[[#{text.offsite.exchange.user.coin.asset.subtype.29}]]</option>');
+                    $("#subtype").append('<option value="46">BCB[[#{text.application.form.fee}]]</option>');
+                    $("#subtype").append('<option value="45">BCB[[#{text.bank.transfer}]]</option>');
+                    $("#subtype").append('<option value="89">[[#{text.offsite.exchange.user.coin.asset.subtype.89}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "2":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="21">[[#{text.recharge.inside.the.station}]]</option>');
+                    $("#subtype").append('<option value="22">[[#{text.recharge.outside.the.station}]]</option>');
+                    $("#subtype").append('<option value="23">OTC[[#{text.recharge}]]</option>');
+                    $("#subtype").append('<option value="24">[[#{text.collection.code.receipt}]]</option>');
+                    $("#subtype").append('<option value="25">[[#{text.yu.e.bao.transfer}]]</option>');
+                    $("#subtype").append('<option value="26">BCB[[#{text.bank.transfer}]]</option>');
+                    $("#subtype").append('<option value="28">[[#{text.zbpay.recharge}]]</option>');
+                    $("#subtype").append('<option value="89">[[#{text.offsite.exchange.user.coin.asset.subtype.89}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "6":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="31">[[#{text.niu.niu}]]</option>');
+                    $("#subtype").append('<option value="32">21[[#{text.point.game}]]</option>');
+                    $("#subtype").append('<option value="33">[[#{text.game.sharing}]]</option>');
+                    $("#subtype").append('<option value="34">[[#{text.minesweeper.game}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "7":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="61">[[#{text.merchant.consumption}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "8":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="62">[[#{text.merchant.collection}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "5":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="41">[[#{text.red.envelopes}]]</option>');
+                    $("#subtype").append('<option value="42">[[#{text.red.envelope}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "9":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="63">[[#{text.merchant.margin.deduction}]]</option>');
+                    $("#subtype").append('<option value="64">[[#{text.merchant.margin.refund}]]</option>');
+                    $("#subtype").append('<option value="67">[[#{text.merchants.post.deductions.for.conversion.freeze.amount}]]</option>');
+                    $("#subtype").append('<option value="68">[[#{text.merchants.issue.refund.of.exchange.freeze.amount}]]</option>');
+                    $("#subtype").append('<option value="65">[[#{text.buyers.exchange.funds.to.the.account}]]</option>');
+                    $("#subtype").append('<option value="66">[[#{text.merchant.exchange.and.rebate}]]</option>');
+                    $("#subtype").append('<option value="72">[[#{text.offsite.exchange.user.coin.asset.subtype.72}]]</option>');
+                    $("#subtype").append('<option value="73">[[#{text.offsite.exchange.user.coin.asset.subtype.73}]]</option>');
+                    $("#subtype").append('<option value="74">[[#{text.offsite.exchange.user.coin.asset.subtype.74}]]</option>');
+                    $("#subtype").append('<option value="75">[[#{text.offsite.exchange.user.coin.asset.subtype.75}]]</option>');
+                    $("#subtype").append('<option value="76">[[#{text.offsite.exchange.user.coin.asset.subtype.76}]]</option>');
+                    $("#subtype").append('<option value="80">[[#{text.offsite.exchange.user.coin.asset.subtype.80}]]</option>');
+                    $("#subtype").append('<option value="82">[[#{text.offsite.exchange.user.coin.asset.subtype.82}]]</option>');
+                    $("#subtype").append('<option value="83">[[#{text.offsite.exchange.user.coin.asset.subtype.83}]]</option>');
+                    $("#subtype").append('<option value="84">[[#{text.offsite.exchange.user.coin.asset.subtype.84}]]</option>');
+                    $("#subtype").append('<option value="85">[[#{text.offsite.exchange.user.coin.asset.subtype.85}]]</option>');
+                    $("#subtype").append('<option value="86">[[#{text.offsite.exchange.user.coin.asset.subtype.86}]]</option>');
+                    $("#subtype").append('<option value="92">[[#{text.offsite.exchange.user.coin.asset.subtype.92}]]</option>');
+                    $("#subtype").append('<option value="93">[[#{text.offsite.exchange.user.coin.asset.subtype.93}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                case "10":{
+                    $("#subDiv").css("display", "block");
+                    $("#subtype").empty();
+                    $("#subtype").append('<option value="">[[#{text.please.select.a.subtype}]]</option>');
+                    $("#subtype").append('<option value="12001">[[#{text.commission.user.coin.asset.subtype.12001}]]</option>');
+                    $("#subtype").append('<option value="12002">[[#{text.commission.user.coin.asset.subtype.12002}]]</option>');
+                    $("#subtype").append('<option value="12003">[[#{text.commission.user.coin.asset.subtype.12003}]]</option>');
+                    $("#subtype").append('<option value="12004">[[#{text.commission.user.coin.asset.subtype.12004}]]</option>');
+                    $("#subtype").append('<option value="12005">[[#{text.commission.user.coin.asset.subtype.12005}]]</option>');
+                    $("#subtype").append('<option value="12006">[[#{text.commission.user.coin.asset.subtype.12006}]]</option>');
+                    $("#subtype").append('<option value="12007">[[#{text.commission.user.coin.asset.subtype.12007}]]</option>');
+                    $("#subtype").append('<option value="12008">[[#{text.commission.user.coin.asset.subtype.12008}]]</option>');
+                    $("#subtype").append('<option value="12009">[[#{text.commission.user.coin.asset.subtype.12009}]]</option>');
+                    $("#subtype").append('<option value="12010">[[#{text.commission.user.coin.asset.subtype.12010}]]</option>');
+                    form.render('select');
+                    break;
+                }
+                default:{
+                    $("#subtype").empty();
+                    form.render('select');
+                    $("#subDiv").css("display", "none");
+                    break;
+                }
+
+            }
+        });
+    });
+    loadTableWithoutColumns('/user/coin/asset/list/page','dataTable', 'searchForm');
+
+    //如果资产大于0 显示黑色，小于0红色
+    function setStyle(obj) {
+        if(obj > 0){
+            return "<b style='color: black'>" + obj +"</b>";
+        }
+        if(obj < 0){
+            return "<b style='color: red'>" + obj +"</b>";
+        }
+        return obj;
+    }
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool(){
+        layui.use('table', function (){
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function(obj){
+                if(obj.event === 'detail'){
+                    detail("/user/coin/asset/detail?id=" + obj.data.id);
+                }
+            });
+        });
+    }
+
+    //保存，编辑
+    function detail(url){
+        openModal("[[#{text.see.details}]]", url, "700px", "420px");
+    }
+
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/user/coin/asset/download/list?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url:url,
+            type:"get",
+            async:"true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success:function(responseText){
+                if(responseText.success == false){
+                    layer.alert(responseText.msg, { title: '[[#{text.information}]]', icon: 2 });
+                }else{
+                    window.location.href = url;
+                }
+
+            },
+            error:function(){
+                layer.alert("[[#{text.sys.op.fail}]]", { title: '[[#{text.information}]]', icon: 2 });
+            }
+        });
+    }
+    function formatStatus(data) {
+        var str = '';
+        if(data.status === 1){
+            str = '[[#{text.placeholder.pending}]]';
+        }else if(data.status === 2){
+            str = '[[#{text.placeholder.status.handling}]]';
+        }else if(data.status === 3){
+            str = '[[#{text.placeholder.submitted}]]';
+        }else if(data.status === 4){
+            str = '[[#{text.placeholder.status.success}]]';
+        }else if(data.status === 5){
+            str = '[[#{text.placeholder.status.fail}]]';
+        }else if(data.status === 6){
+            str = '[[#{text.placeholder.status.part.success}]]';
+        }
+        return str;
+    }
+    function formatType(data) {
+        var str = '';
+        var type = data.type;
+        if(type === 1){
+            str = '[[#{text.wallet.capital.type.withdrawal.transfer}]]';
+        }else if(type === 2){
+            str = '[[#{text.wallet.capital.type.recharge.and.receive}]]';
+        }else if(type === 3){
+            str = '[[#{text.wallet.capital.type.friends.transfer}]]';
+        }else if(type === 4){
+            str = '空投';
+        }else if(type === 5){
+            str = '[[#{text.wallet.capital.type.red.envelope}]]';
+        }else if(type === 6){
+            str = '[[#{text.wallet.capital.type.game}]]';
+        }else if(type === 7){
+            str = '[[#{text.wallet.capital.type.merchant.consumption}]]';
+        }else if(type === 8){
+            str = '[[#{text.wallet.capital.type.merchant.collection}]]';
+        }else if(type === 9){
+            str = '[[#{text.wallet.capital.type.offline.exchange}]]';
+        }else if(type === 10){
+            str = '[[#{text.wallet.capital.type.commission}]]';
+        } else {
+            str = data.typeValue;
+        }
+        return str;
+    }
+    function formatSubType(data) {
+        var str = '';
+        var type = '' + data.subtype;
+        switch (type) {
+            case "11": {
+                str = '[[#{text.transfer.within.the.station}]]';
+                break;
+            }
+            case "12": {
+                str = '[[#{text.withdraw.in.the.station}]]';
+                break
+            }
+            case "13": {
+                str = '[[#{text.cash.withdrawal}]]';
+                break;
+            }
+            case "14": {
+                str = '[[#{text.collecting.funds.to.merchants}]]';
+                break;
+            }
+            case "15": {
+                str = 'OTC[[#{text.withdrawal}]]';
+                break;
+            }
+            case    "16": {
+                str = '[[#{text.platform.withdrawal}]]';
+                break;
+            }
+            case    "17": {
+                str = '[[#{text.flash}]]';
+                break;
+            }
+            case         "18": {
+                str = '[[#{text.scan.code.payment}]]';
+                break;
+            }
+            case "19": {
+                str = '[[#{text.yu.e.bao.transfer.out}]]';
+                break;
+            }
+            case         "20": {
+                str = '[[#{text.yu.e.bao.transfer.fee}]]';
+                break;
+            }
+            case         "46": {
+                str = 'BCB[[#{text.application.form.fee}]]';
+                break;
+            }
+            case         "45": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case     "21": {
+                str = '[[#{text.recharge.inside.the.station}]]';
+                break;
+            }
+            case   "22": {
+                str = '[[#{text.recharge.outside.the.station}]]';
+                break;
+            }
+            case    "23": {
+                str = 'OTC[[#{text.recharge}]]';
+                break;
+            }
+            case   "24": {
+                str = '[[#{text.collection.code.receipt}]]';
+                break;
+            }
+            case    "25": {
+                str = '[[#{text.yu.e.bao.transfer}]]';
+                break;
+            }
+            case    "26": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case    "28": {
+                str = '[[#{text.zbpay.recharge}]]';
+                break;
+            }
+            case    "29": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.29}]]';
+                break;
+            }
+            case    "31": {
+                str = '[[#{text.niu.niu}]]';
+                break;
+            }
+            case    "32": {
+                str = '[[#{text.point.game}]]';
+                break;
+            }
+            case    "33": {
+                str = '[[#{text.game.sharing}]]';
+                break;
+            }
+            case     "34": {
+                str = '[[#{text.minesweeper.game}]]';
+                break;
+            }
+            case     "61": {
+                str = '[[#{text.merchant.consumption}]]';
+                break;
+            }
+            case      "62": {
+                str = '[[#{text.merchant.collection}]]';
+                break;
+            }
+            case   "41": {
+                str = '[[#{text.red.envelopes}]]';
+                break;
+            }
+            case    "42": {
+                str = '[[#{text.red.envelope}]]';
+                break;
+            }
+            case    "63": {
+                str = '[[#{text.merchant.margin.deduction}]]';
+                break;
+            }
+            case    "64": {
+                str = '[[#{text.merchant.margin.refund}]]';
+                break;
+            }
+            case "67": {
+                str = '[[#{text.merchants.post.deductions.for.conversion.freeze.amount}]]';
+                break;
+            }
+            case "68": {
+                str = '[[#{text.merchants.issue.refund.of.exchange.freeze.amount}]]';
+                break;
+            }
+            case    "65": {
+                str = '[[#{text.buyers.exchange.funds.to.the.account}]]';
+                break;
+            }
+            case   "66": {
+                str = '[[#{text.merchant.exchange.and.rebate}]]';
+                break;
+            }
+            case   "72": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.72}]]';
+                break;
+            }
+            case   "73": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.73}]]';
+                break;
+            }
+            case   "74": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.74}]]';
+                break;
+            }
+            case   "75": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.75}]]';
+                break;
+            }
+            case   "76": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.76}]]';
+                break;
+            }
+            case   "77": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.77}]]';
+                break;
+            }
+            case   "80": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.80}]]';
+                break;
+            }
+            case   "82": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.82}]]';
+                break;
+            }
+            case   "83": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.83}]]';
+                break;
+            }
+            case   "84": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.84}]]';
+                break;
+            }
+            case   "85": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.85}]]';
+                break;
+            }
+            case   "86": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.86}]]';
+                break;
+            }
+            case   "89": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.89}]]';
+                break;
+            }
+            case   "92": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.92}]]';
+                break;
+            }
+            case   "93": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.93}]]';
+                break;
+            }
+            case   "113": {
+                str = '[[#{text.offsite.exchange.user.coin.asset.subtype.113}]]';
+                break;
+            }
+            case   "11000": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11000}]]';
+                break;
+            }
+            case   "11001": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11001}]]';
+                break;
+            }
+            case   "11002": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11002}]]';
+                break;
+            }
+            case   "11003": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11003}]]';
+                break;
+            }
+            case   "11004": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11004}]]';
+                break;
+            }
+            case   "11005": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11005}]]';
+                break;
+            }
+            case   "11006": {
+                str = '[[#{text.lock.mining.user.coin.asset.subtype.11006}]]';
+                break;
+            }
+            case   "12001":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12001}]]';
+                break;
+            }
+            case   "12002":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12002}]]';
+                break;
+            }
+            case   "12003":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12003}]]';
+                break;
+            }
+            case   "12004":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12004}]]';
+                break;
+            }
+            case   "12005":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12005}]]';
+                break;
+            }
+            case   "12006":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12006}]]';
+                break;
+            }
+            case   "12007":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12007}]]';
+                break;
+            }
+            case   "12008":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12008}]]';
+                break;
+            }
+            case   "12009":{
+                str = '[[#{text.commission.user.coin.asset.subtype.12009}]]';
+                break;
+            }
+            case   "12010": {
+                str = '[[#{text.commission.user.coin.asset.subtype.12010}]]';
+                break;
+            }
+            default: {
+                break;
+            }
+
+        }
+        return str;
+    }
+</script>
+</html>

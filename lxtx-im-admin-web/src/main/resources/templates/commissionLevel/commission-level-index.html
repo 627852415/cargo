@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>级别管理列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" onclick="add()" class="layui-btn">添加等级</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">序号</th>
+                <th lay-data="{field:'type', align:'center',toolbar: '#typeData'}">级别类型</th>
+                <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                <th lay-data="{field:'amount', align:'center'}">投入金额</th>
+                <th lay-data="{field:'coinName', align:'center'}">币种</th>
+                <th lay-data="{field:'ratio', align:'center'}">展示分佣比例</th>
+                <th lay-data="{field:'createTime', align:'center'}">创建时间</th>
+                <th lay-data="{field:'sort', align:'center'}">排序</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+
+        <script type="text/html" id="typeData">
+            {{#if (d.type == 1) { }}
+            <span>普通</span>
+            {{# }else if(d.type == 2){ }}
+            <span>伙伴</span>
+            {{# } }}
+        </script>
+        <script type="text/html" id="barData">
+            {{#if (d.type == 2) { }}
+            <a class="layui-btn tableBtn layui-btn-sm" lay-event="edit">
+                <i class="layui-icon layui-icon-edit"></i>编辑
+            </a>
+            {{# } }}
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/commission/level/list', 'dataTable', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    layui.use('table', function () {
+        var table = layui.table;
+        table.on('tool(dataTable)', function (obj) {
+            if(obj.event === 'edit'){
+                add(obj.data.id);
+            }
+        });
+    });
+
+    //新增或编辑
+    function add(obj) {
+        var id = obj;
+        var url;
+        var title = '[[#{text.add}]]';
+        if (id != undefined) {
+            url = "/commission/level/toEdit?id=" + id.toString();
+            title = '[[#{text.edit}]]';
+        } else {
+            url = "/commission/level/toAdd";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['560px', '600px'], //宽高
+            content: url
+        });
+    }
+
+</script>

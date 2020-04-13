@@ -1,0 +1,101 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<head>
+    <title>新增/编辑平台提款配置</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/wallet/platform/platform-withdraw-config-index.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 450px;
+        margin-right: 10px;
+    }
+
+    .layui-form-item .layui-form-label {
+        float: left;
+        display: block;
+        padding: 9px 15px;
+        width: 150px;
+        font-weight: 400;
+        line-height: 20px;
+        text-align: right;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" th:value="${config} ? ${config.id}" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">币种名称</label>
+        <div class="layui-input-inline">
+            <select name="coinId" lay-verify="required">
+                <option value="">请选择相应币种</option>
+                <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}" th:selected="${config != null and config.coinId == coin.id}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">有效时长</label>
+        <div class="layui-input-inline">
+            <input type="text" name="validTime" th:value="${config} ? ${config.validTime}"
+                   autocomplete="off" class="layui-input" placeholder="请输入有效时长" lay-verify="required">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">最小限额</label>
+        <div class="layui-input-inline">
+            <input type="text" name="minMoney" th:value="${config} ? ${config.minMoney}"
+                   autocomplete="off" class="layui-input" placeholder="请输入最小限额" lay-verify="required">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">最大限额</label>
+        <div class="layui-input-inline">
+            <input type="text" name="maxMoney" th:value="${config} ? ${config.maxMoney}"
+                   autocomplete="off" class="layui-input" placeholder="请输入最大限额" lay-verify="required">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手续费方式</label>
+        <div class="layui-input-inline">
+            <select name="feeType" lay-verify="required">
+                <option value="">手续费方式</option>
+                <option value="1" th:selected="${config != null and config.feeType == 1} ">百分比</option>
+                <option value="2" th:selected="${config != null and config.feeType == 2} ">固定值</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">提现手续费</label>
+        <div class="layui-input-inline">
+            <input type="text" name="feeValue" th:value="${config} ? ${config.feeValue}"
+                   autocomplete="off" class="layui-input" placeholder="请输入提现手续费" lay-verify="required">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序加权</label>
+        <div class="layui-input-inline">
+            <input type="text" name="idx" th:value="${config} ? ${config.idx}"
+                   autocomplete="off" class="layui-input" placeholder="请输入排序加权">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-block">
+            <input type="radio" name="display" th:checked="${config != null and config.display} " value="true" title="是">
+            <input type="radio" name="display" th:checked="${config != null and !config.display}" value="false" title="否">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 300px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">确定</button>
+            <button class="layui-btn" onclick="parent.layer.closeAll();">取消</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

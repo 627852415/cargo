@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>交易流水详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 120px;
+    }
+	.my-inline{
+		width: 320px !important;
+	}
+	.my-inline-remark{
+		width: 320px !important;
+	}
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">ID</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.column.transfer.out.user.wallet.id}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.userId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.out.user.username}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.out.user.wallet.countryCodeOut}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.countryCodeOut}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.out.user.wallet.telephoneOut}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.telephoneOut}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.in.user.wallet.id}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.receiverId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.in.user.username}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.receiverUserName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.in.user.wallet.countryCodeIn}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.countryCodeIn}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.in.user.wallet.telephoneIn}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.telephoneIn}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.status}]]</label>
+        <div class="layui-input-inline my-inline">
+           <input type="text" id="statusVaule" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.amount}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="amount" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.fee}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="fee" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.coin}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="coinName" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.trade.date}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="transferDate" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.update.date}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="updateDate" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.remarks}]]</label>
+	    <div class="layui-input-inline my-inline-remark">
+	      <textarea th:placeholder="${detail.remarks}" th:value="${detail.remarks}" class="layui-textarea" disabled></textarea>
+	    </div>
+    </div>
+</form>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+
+    //$('input[name=typeName]').val(getTypeStr(detail.type, detail.reject));
+    //$('input[name=gameTypeName]').val(getGameTypeStr(detail.type, detail.gameType));
+    //$('input[name=statusName]').val(getStatusStr(detail.status));
+    $('input[name=coinName]').val(getCoinName(detail));
+    $('input[name=amount]').val(detail.amount);
+	$('input[name=fee]').val(detail.fee);
+    $('input[name=transferFrom]').val(getFromOrToAddr(true, detail.type, detail.reject, detail.fromAddr, detail.toAddr,
+        detail.userId, detail.platformUserId, detail));
+    $('input[name=transferTo]').val(getFromOrToAddr(false, detail.type, detail.reject, detail.fromAddr, detail.toAddr,
+        detail.userId, detail.platformUserId, detail));
+    $('input[name=transferNum]').val( getTransferNum(detail));
+    $('input[name=transferDate]').val(detail.createTime);
+    $('input[name=updateDate]').val(detail.updateTime);
+    $('input[id=statusVaule]').val(getStatusStr(detail.statusVaule));
+
+
+    function getCoinName(data) {
+        return data.type === 15 ? data.payCoin : data.coinName;
+    }
+
+    function getCoinAmount(data) {
+        return data.type === 15 ? (
+                data.realPayAmount != null && data.realPayAmount != 0 && data.payAmount > data.realPayAmount
+                    ? data.payAmount + "(" + data.realPayAmount + ")" : data.payAmount
+            )
+            : data.amount;
+    }
+
+    function getTransferNum(data) {
+        return data.type === 15 ? data.orderNo : (data.transferNum !== undefined ? data.transferNum : '无');
+    }
+
+    function getFromOrToAddr(isFrom, type, reject, fromAddr, toAddr, userId, platformUserId, data) {
+        var fromAddr = fromAddr === undefined ? "" : fromAddr, toAddr = toAddr === undefined ? "" : toAddr;
+        if (type === 5) {
+            fromAddr = userId;
+            toAddr = platformUserId;
+        } else if (type === 6 && reject === true) {
+            fromAddr = userId;
+            toAddr = userId;
+        } else if (type === 6 && reject === false) {
+            fromAddr = platformUserId;
+            toAddr = userId;
+        } else if (type === 15) {
+            if (data.realPayAmount != null && data.realPayAmount != 0) {
+                fromAddr = data.realPayAmount + " " + data.payCoin;
+            } else if (data.payAmount != null && data.payAmount != 0) {
+                fromAddr = data.payAmount + " " + data.payCoin;
+            } else {
+                fromAddr = data.payCoin;
+            }
+
+            if (data.realGotAmount != null && data.realGotAmount != 0) {
+                toAddr = data.realGotAmount + " " + data.gotCoin;
+            } else if (data.gotAmount != null && data.gotAmount != 0) {
+                toAddr = data.gotAmount + " " + data.gotCoin;
+            } else {
+                toAddr = data.gotCoin;
+            }
+        }
+        return isFrom ? fromAddr : toAddr;
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 1) {
+            statusStr = [[#{text.placeholder.pending}]];
+        } else if (status == 2) {
+            statusStr = [[#{text.option.processing}]];
+        } else if (status == 3) {
+            statusStr = [[#{text.placeholder.submitted}]];
+        } else if (status == 4) {
+            statusStr = [[#{text.success}]];
+        } else if (status == 5) {
+            statusStr = [[#{text.failure}]];
+        } else if (status == 6) {
+            statusStr = [[#{text.placeholder.status.part.success}]];
+        } else {
+            //红包类型默认“操作成功”
+            statusStr = [[#{text.success}]];
+        }
+        return statusStr;
+    }
+
+   /* function getTypeStr(type, reject) {
+        //console.log("type is :"+ type);
+        var typeStr = "";
+        if (type == 1) {
+            typeStr = "转账";
+        } else if (type == 2) {
+            typeStr = "收款";
+        } else if (type == 3) {
+            typeStr = "好友转账";
+        } else if (type == 5) {
+            typeStr = "发送红包";
+        } else if (type == 6) {
+            if (reject === true) {
+                typeStr = "退款红包";
+            } else {
+                typeStr = "接收红包";
+            }
+        } else if (type == 7 || type == 8 || type == 10) {
+            typeStr = "游戏";
+        } else if (type == 9) {
+            typeStr = "第三方游戏好友转账";
+        } else if (type == 11) {
+            typeStr = "平台提款";
+        } else if (type == 12) {
+            typeStr = "OTC提款";
+        } else if (type == 13) {
+            typeStr = "OTC充值";
+        } else if (type == 14) {
+            typeStr = "游戏分佣";
+        } else if (type == 15) {
+            typeStr = "闪兑";
+        } else if (type == 16) {
+            typeStr = "群主返佣";
+        } else if (type == 17) {
+            typeStr = "下级返佣";
+        } else if (type == 18) {
+            typeStr = "游戏红包费用";
+        } else if (type == 19) {
+            typeStr = "扫码付款";
+        } else if (type == 20) {
+            typeStr = "收款码收款";
+        } else if (type == 21) {
+            typeStr = "余额宝转出";
+        } else if (type == 22) {
+            typeStr = "余额宝转入";
+        } else if (type == 23) {
+            typeStr = "商户消费";
+        } else if (type == 24) {
+            typeStr = "商户收款";
+        } else if (type == 25) {
+            typeStr = "余额宝转出手续费";
+        } else if (type == 26) {
+            typeStr = "银行转账";
+        } else if (type == 27) {
+            typeStr = "线下换汇-保证金缴纳";
+        } else if (type == 28) {
+            typeStr = "线下换汇-保证金返还";
+        } else if (type == 29) {
+            typeStr = "线下换汇-商品发布资金冻结";
+        } else if (type == 30) {
+            typeStr = "线下换汇-商品发布资金解冻";
+        } else if (type == 32) {
+            typeStr = "线下换汇-换汇资金到账";
+        } else if (type == 33) {
+            typeStr = "线下换汇-换汇交易返利";
+        } else {
+            typeStr = "未知";
+        }
+        return typeStr;
+    }*/
+
+    function getGameTypeStr(type, gameType) {
+        var typeStr = "";
+        if (type == 7) {
+            typeStr = "牛牛（庄）";
+        } else if (type == 8) {
+            typeStr = "牛牛（玩）";
+        } else if (type == 10) {
+            if (gameType == 2) {
+                typeStr = "21点";
+            } else if (gameType == 3) {
+                typeStr = "扫雷";
+            }
+        } else {
+            typeStr = "";
+        }
+        return typeStr;
+    }
+</script>
+</body>
+</html>

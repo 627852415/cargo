@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>编辑表情包</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/wallet/sticker/sticker-edit.js}"></script>
+</head>
+<body>
+
+    <form class="layui-form" id="searchForm" style="margin-top: 20px; margin-left: 20px;">
+        <div style="float: left" class="layui-form-item">
+            <input type="hidden" id="coverHidden" name="cover" th:value="${sticker} ? ${sticker.cover}"/>
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" id="demo1" name="cover" style="width: 120px;height: 120px;" th:src="${sticker} ? ${sticker.cover}">
+            </div>
+        </div>
+        <div style="float: left">
+            <input type="hidden" th:value="${sticker} ? ${sticker.id}" th:name="${sticker != null && sticker.id != null} ? 'id'"/>
+            <div class="layui-form-item">
+                <label class="layui-form-label">表情包名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" lay-verify="required" th:value="${sticker} ? ${sticker.name}"
+                           autocomplete="off" class="layui-input" placeholder="表情包名称">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">表情包宽度</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="width"  lay-verify="required|number" th:value="${sticker} ? ${sticker.width}"
+                           autocomplete="off" class="layui-input" placeholder="表情包宽度">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">表情包高度</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="height"  lay-verify="required|number" th:value="${sticker} ? ${sticker.height}"
+                           autocomplete="off" class="layui-input" placeholder="表情包高度">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">定价</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="price" lay-verify="" th:value="${sticker} ? ${sticker.price}"
+                           autocomplete="off" class="layui-input" placeholder="表情包定价">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" id="cover">更改封面图</button>
+                    <button class="layui-btn" lay-submit="" lay-filter="sub-btn">保存</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <form class="layui-form" id="searchDetailForm" style="margin-top: 20px; margin-left: 20px;">
+        <input type="hidden" th:value="${sticker} ? ${sticker.id}" th:name="${sticker != null && sticker.id != null} ? 'id'"/>
+    </form>
+    <div style="clear:both">
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', align:'center'}" >序号</th>
+                <th lay-data="{field:'name', align:'center', edit: 'text'}" >名称</th>
+                <th lay-data="{field:'url', align:'center',templet: function (data) {
+                             return '<img width=\'40px\' height=\'40px\' src=\'' + data.url + '\'>';
+                            }}">表情图片</th>
+                <th lay-data="{field:'extraPicUrl', align:'center',templet: function (data) {
+                             return '<img width=\'40px\' height=\'40px\' src=\'' + data.extraPicUrl + '\'>';
+                            }}">表情开场动画gif</th>
+                <th lay-data="{field:'sort', align:'center', edit: 'text'}" >排序(越小越靠前)</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</body>
+</html>

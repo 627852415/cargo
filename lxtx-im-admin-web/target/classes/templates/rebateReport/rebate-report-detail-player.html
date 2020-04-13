@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>对局详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">对局详情:</div>
+        <blockquote class="layui-elem-quote">
+        </blockquote>
+        用户<span th:text="${req.playerUserName}" style="color:blue;font-weight:bold;"/> <span th:text="${req.reportDate}"/>对局详情
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataTable'}"
+               lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', align:'center'}">序号</th>
+                <th lay-data="{field:'taskId', align:'center'}">对局ID</th>
+                <th lay-data="{field:'remarks', align:'center'}">标题</th>
+                <th lay-data="{field:'gameCoinName', align:'center'}">币种</th>
+                <th lay-data="{field:'gameFeeAmount', align:'center'}">当局总手续费</th>
+                <th lay-data="{field:'rebateTotalAmount', align:'center'}">当局总返佣数额</th>
+                <th lay-data="{field:'gamePlayerNum', align:'center'}">参与人数</th>
+                <th lay-data="{field:'rebateAmount', align:'center'}">返佣数额</th>
+                <th lay-data="{field:'stopTime', align:'center'}">游戏结束时间</th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+
+<script th:inline="javascript">
+    let account = [[${req.account}]];
+    let reportDate = [[${req.reportDate}]];
+    let playerAccount = [[${req.playerAccount}]];
+</script>
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+        laydate.render({
+            elem: '#createTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("开始日期不能大于当前日期");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > endTime) {
+                    layer.msg("开始日期不能大于结束日期");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("结束日期不能大于当前日期");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("结束日期不能小于开始日期");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+    });
+    loadTableWithoutColumns('/rebateReport/playerGameDetail?account=' + account + '&reportDate=' + reportDate + '&playerAccount=' + playerAccount,'dataTable', 'searchForm');
+
+</script>
+</body>
+</html>

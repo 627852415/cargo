@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<title>资产统计</title>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+	fieldset.border1 {
+		border-style: solid;
+		border-width: 10px;
+		/*background-color: #1c8de0;*/
+	}
+	.titleClas {
+		font-size: 20px;
+		margin-left: 20px;
+		margin-top: 20px;
+	}
+</style>
+<body>
+	<div class="admin-main fadeInUp animated">
+		<blockquote class="layui-elem-quote">
+			<input id="time" type="hidden" value="1">
+			<form class="layui-form" id="searchForm">
+				<input th:value="${recordsDate}" name="recordsDate" id ="recordsDate" hidden>
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+						<select lay-filter="coinId" id="coinId" name="coinId" lay-search  th:value="${coinId}">
+							<option value="" >全部币种:</option>
+							<option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}" th:selected="${coinId != null and coinId == coin.id}"></option>
+						</select>
+					</div>
+					<div class="layui-form-mid layui-word-aux" style="padding: 0;">
+						<button type="button" class="layui-btn"  onclick="search('searchForm', 'dataLoad')">搜索</button>
+                        <button type="button" onclick="download()" class="layui-btn">导出文件</button>
+					</div>
+				</div>
+			</form>
+		</blockquote>
+		<table class="layui-table" lay-data="{cellMinWidth: 80, page: true,id: 'dataLoad'}" lay-filter="dataTable">
+			<thead>
+				<tr>
+					<th lay-data="{type:'numbers', align:'center'}">[[#{text.column.number}]]</th>
+					<th lay-data="{field:'coinName', align:'center'}">[[#{text.wallet.coin.manage.table.name}]]</th>
+					<th lay-data="{field:'allAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.totalAssets);
+                    }}">[[#{text.column.total.assets}]]</th>
+					<th lay-data="{field:'leftAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.availableAssets);
+                    }}">[[#{text.column.available.assets}]]</th>
+					<th lay-data="{field:'frozenAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.frozenAssets);
+                    }}">[[#{text.column.frozen.assets}]]</th>
+					<th lay-data="{field:'poolAssetAmout', align:'center',templet: function (data) {
+                        return setStyleRed(data.poolAssetAmout);
+                    }}">[[#{text.column.fund.pool.assets}]]</th>
+
+					<th lay-data="{field:'topgateRechargeAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.topgateRechargeAmount);
+                    }}">[[#{text.column.statistics.topgate.amount}]]</th>
+					<th lay-data="{field:'topgateWithdrawAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.topgateWithdrawAmount);
+                    }}">[[#{text.column.statistics.topgate.actual.amount}]]</th>
+					<th lay-data="{field:'topgateFastexchangePayAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.topgateFastexchangePayAmount);
+                    }}">[[#{text.column.statistics.topgate.actual.pay.amount}]]</th>
+					<th lay-data="{field:'topgateFastexchangeGotAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.topgateFastexchangeGotAmount);
+                    }}">[[#{text.column.statistics.topgate.actual.got.amount}]]</th>
+
+					<th lay-data="{field:'businessAmout', align:'center',templet: function (data) {
+                        return setStyleRed(data.merchantAssets);
+                    }}">[[#{text.column.merchant.assets}]]</th>
+					<th lay-data="{field:'gainOrLoss', align:'center',templet: function (data) {
+                        return setStyleRed(data.profitAndLoss);
+                    }}">[[#{text.column.profit.and.loss}]]</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/html" id="barData" >
+	</script>
+
+	<script>
+        loadTableWithoutColumns('/asset/coin/statistics/detail/data','dataTable', 'searchForm');
+
+	    //文件导出
+        function download() {
+    	    var url = "/asset/coin/statistics/detail/excel?"+ $("#searchForm").serialize();
+            $.ajaxUkey({
+                url:url,
+                type:"get",
+                async:"true",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success:function(responseText){
+                    if(responseText.success == false){
+                        layer.alert(responseText.msg, { title: '提示信息', icon: 2 });
+					}else{
+                        window.location.href = url;
+					}
+
+                },
+                error:function(){
+                    layer.alert("系统异常，导出失败", { title: '提示信息', icon: 2 });
+                }
+            });
+
+            //window.location.href =  '/statistics/download';
+        }
+
+        //如果资产大于0 显示红色
+        function setStyleRed(obj) {
+            if(obj > 0){
+                return "<b style='color: black'>" + obj +"</b>";
+			}
+            if(obj < 0){
+                return "<b style='color: red'>" + obj +"</b>";
+            }
+            return obj;
+        }
+	</script>
+</body>
+
+</html>

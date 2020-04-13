@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>邀请注册直系关系</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="account" id="account" class="layui-input" placeholder="关系链中上级用户帐号"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="otherAccount" id="otherAccount" class="layui-input" placeholder="关系链中下级用户帐号"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload', 'true')">搜索
+                    </button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <blockquote class="layui-elem-quote">
+        注：列表由上级往下级排序，最上级排第一位，最下级排最后。中间显示他们直系关系中包含
+        的人（中间最多显示24位）。
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80,id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">用户名</th>
+            <th lay-data="{field:'account', align:'center'}">用户帐号</th>
+            <th lay-data="{field:'countryCode', align:'center'}">地区</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                       return formatDateL(data.createTime);
+                     }}">注册时间
+            </th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+
+    //查询数据
+    loadTableWithoutColumns('/inviteRelation/direct/list', 'tableData', 'searchForm');
+
+    //如果资产大于0 显示红色
+    function setStyleRed(obj) {
+        if (obj > 0) {
+            return "<b style='color: black'>" + obj + "</b>";
+        }
+        if (obj < 0) {
+            return "<b style='color: red'>" + obj + "</b>";
+        }
+        return obj;
+    }
+</script>
+</body>
+</html>

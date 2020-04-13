@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>邀请关系转移操作日志</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="changeAccount" id="changeAccount" class="layui-input" placeholder="被转移帐号"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="acceptAccount" id="acceptAccount" class="layui-input"
+                           placeholder="接受转移帐号"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                       return formatDateL(data.createTime);
+                     }}">操作时间
+            </th>
+            <th lay-data="{field:'changeAccount', align:'center'}">被转移帐号</th>
+            <th lay-data="{field:'acceptAccount', align:'center'}">接受转移帐号</th>
+            <th lay-data="{field:'changeTypeDesc', align:'center'}">转移类型</th>
+            <th lay-data="{field:'createBy', align:'center'}">操作人</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+
+    //查询数据
+    loadTableWithoutColumns('/invite/relation/change/log/list/page', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                var data = obj.data;
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

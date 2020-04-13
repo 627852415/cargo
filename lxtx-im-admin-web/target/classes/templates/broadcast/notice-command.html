@@ -1,0 +1,111 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>广播指令</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" name="name" id="name" th:placeholder="请输入查询指令名"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" name="operator" id="operator" th:placeholder="请输入查询操作"/>
+                </div>
+                <div class="layui-input-inline">
+                    <button type="button" class="layui-btn" onclick="search('searchForm','dataLoad')">搜索</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>指令列表</legend>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'6%',align:'center',style:'height:65px;'}">序号
+                </th>
+                <th lay-data="{field:'name',align:'center', width:'24%',templet:function(data){
+                        return data.name == null ? '' : data.name;
+                    }}">指令名称
+                </th>
+                <th lay-data="{field:'operator',align:'center',templet:function(data){
+                        return data.operator == null ? '' : data.operator;
+                    }}">指令描述
+                </th>
+                <th lay-data="{ width:'20%',align:'center',toolbar: '#barData'}">操作</th>
+            </tr>
+            </thead>
+        </table>
+
+        <script type="text/html" id="barData">
+            <a class="layui-btn tableBtn" lay-event="send"><i
+                    class="layui-icon"></i>发送</a>
+        </script>
+    </fieldset>
+</div>
+
+<script>
+    var layer;
+    layui.use('layer', function () {
+        layer = layui.layer;
+    });
+
+    loadTableWithoutColumns('/notice/command/page', 'dataTable', 'searchForm');
+
+    setTimeout('rowTool()', 1000);
+    function rowTool() {
+        layui.use('table', function () {
+            table.on('tool(dataTable)', function (obj) {
+                if (obj.event === 'send') {
+                    console.log(obj.data)
+                    sendMsg(obj.data);
+                }
+            });
+        });
+    }
+
+    function sendMsg(data) {
+        console.log(data.instructId);
+        layer.confirm('您确定要向所有在线用户发送改指令吗？', {icon: 3, offset: 100}, function (index) {
+            layer.close(index);
+            var formData = JSON.stringify({"instructId": data.instructId});
+            $.ajaxUkey({
+                url: '/notice/command/push',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('操作成功！', {title: '提示信息', icon: 1}, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+        });
+
+    }
+</script>
+
+</body>
+</html>

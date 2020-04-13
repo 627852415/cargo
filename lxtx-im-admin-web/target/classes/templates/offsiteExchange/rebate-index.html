@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.payment.method.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <shiro:hasPermission name="add:offsite:exchange:rebate">
+                    <button type="button" class="layui-btn" onclick="save(this)">[[#{text.add}]]</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', width:'12%',align:'center',style:'height:65px;'}">[[#{text.serial.number}]]</th>
+            <th lay-data="{align:'center',templet: function (data) {
+                           return data.payTypeName;
+                        }}">[[#{text.payment.method}]]</th>
+            <th lay-data="{align:'center',templet: function (data) {
+                           return '<img width=30 height=30 src='+data.payTypeLogo+' />';
+                        }}">[[#{text.payment.method}]]logo</th> 
+            <th lay-data="{align:'center',templet: function (data) {
+                           return (data.rebateRate  * 100) + '%';
+                        }}">[[#{text.rebate.ratio}]]</th>
+            <th lay-data="{align:'center',templet: function (data) {
+                           return (data.inviteRebateRate  * 100) + '%';
+                        }}">[[#{text.invite.rebate.ratio}]]</th>
+            <th lay-data="{align:'center',templet: function (data) {
+                           return data.sort;
+                        }}">[[#{text.sort}]]</th>
+            <th lay-data="{align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="edit" shiro:hasPermission="'edit:offsite:exchange:rebate'">
+            <i class="layui-icon"></i>[[#{text.edit}]]</a>
+        <a class="layui-btn tableBtn" lay-event="del" shiro:hasPermission="'del:offsite:exchange:rebate'">
+            <i class="layui-icon"></i>[[#{text.delete}]]</a>
+    </script>
+</div>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //[[#{text.query.data}]]
+    loadTableWithoutColumns('/offsite/exchange/rebate/list/page', 'tableData', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'edit') {
+                    save(obj.data);
+                } else if (obj.event === 'del') {
+                    del(obj.data.id);
+                }
+            });
+        });
+    }
+
+    //[[#{text.add.or.edit}]]
+    function save(obj) {
+        var aid = $(obj).attr("id");
+        var url;
+        var title = "[[#{text.add}]]";
+        if (aid != undefined) {
+            url = "/offsite/exchange/rebate/edit?id=" + aid.toString();
+            title = "[[#{text.edit}]]";
+        } else {
+            url = "/offsite/exchange/rebate/add";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['540px', '550px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    //[[#{text.delete}]]
+    function del(id) {
+        layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {icon: 3, title: '[[#{text.operation.alert}]]', offset: 100}, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/offsite/exchange/rebate/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

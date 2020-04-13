@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>字典管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/dict/dict-index.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="description" id="key" class="layui-input" placeholder="请输入描述">
+                </div>
+
+                <div class="layui-input-inline">
+                    <input type="text" name="domain" id="domain" class="layui-input" placeholder="请输入模块">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="ikey" id="ikey" class="layui-input" placeholder="请输入key">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="value" id="value" class="layui-input" placeholder="请输入value">
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="reset" class="layui-btn site-demo-active">清空搜索</button>
+                    <a onclick="dictSave()" class="layui-btn site-demo-active"
+                       data-type="tabAdd" data-title="新增">新增</a>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">字典列表</span>
+</script>
+<script type="text/html" id="barData" >
+    <a class="layui-btn layui-btn-sm tableBtn"  lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del" ><i class="layui-icon layui-icon-close"></i>删除</a>
+</script>
+</body>
+</html>

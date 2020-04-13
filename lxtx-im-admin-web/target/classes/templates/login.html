@@ -1,0 +1,330 @@
+<!DOCTYPE>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>IM[[#{text.management.system}]]</title>
+    <script th:src="@{/js/jquery.js}"></script>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/css/login.css?v=0.0.1}" />
+    <script type="text/javascript" th:src="@{/js/login.js}"></script>
+    <script type="text/javascript" th:src="@{/js/core-min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/cipher-core-min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/aes-min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/mode-ecb-min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/enc-base64-min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/aes-core.js}"></script>
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/layui/lay/modules/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ukey.js}"></script>
+    <script type="text/javascript" th:src="@{/js/sha256.js}"></script>
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <style type="text/css">
+        element.style {
+            z-index: 19891015;
+            width: 650px;
+            height: 390px;
+            left: 626.5px;
+        }
+    </style>
+    <script>
+        if(window !=top){
+            top.location.href = location.href;
+        }
+    </script>
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="layadmin-user-login layadmin-user-display-show"
+         id="LAY-user-login" style="">
+        <ul class="layui-nav layui-bg-gray layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" style="COLOR:#666">[[#{text.language}]]</a>
+                <dl class="layui-nav-child">
+                    <dd><a th:href="@{/locale(lang=zh_CN)}" th:text="#{text.language.chinese}">中文</a></dd>
+                    <dd><a th:href="@{/locale(lang=en_US)}" th:text="#{text.language.english}">英语</a></dd>
+                </dl>
+            </li>
+        </ul>
+        <div class="layadmin-user-login-main">
+            <div class="layadmin-user-login-box layadmin-user-login-header">
+                <h2>[[#{text.management.system}]]</h2>
+            </div>
+            <div
+                    class="layadmin-user-login-box layadmin-user-login-body layui-form">
+                <div class="layui-form-item">
+
+                    <label
+                            class="layadmin-user-login-icon layui-icon layui-icon-username"
+                            for="LAY-user-login-phone"></label> <input autocomplete="off"
+                                                                       type="text" name="username" id="LAY-user-login-phone"
+                                                                       lay-verify="required" th:placeholder="#{text.username}" class="layui-input"
+                                                                       value="">
+                </div>
+                <div class="layui-form-item">
+                    <label
+                            class="layadmin-user-login-icon layui-icon layui-icon-password"
+                            for="LAY-user-login-password"></label> <input autocomplete="off"
+                                                                          type="password" name="password" id="LAY-user-login-password"
+                                                                          lay-verify="required" th:placeholder="#{text.password}" class="layui-input" value="">
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" lay-submit
+                            lay-filter="LAY-user-login-submit">[[#{text.sign.in}]]</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-trans layadmin-user-login-footer">
+
+            <p>
+                © 2019 <a href="javascript:;" target="#">Secret IMS</a>
+            </p>
+        </div>
+
+    </div>
+</form>
+<!--  [[#{text.google.verification}]] -->
+<div id="googleAuthenticator" style="display: none;">
+    <form class="layui-form" action="" id=""
+          style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width: 180px;">[[#{text.google.authentication.code}]]</label>
+                <div class="layui-input-block"
+                     style="width: 350px; margin-left: 210px;">
+                    <input type="number" name="qrCode" th:placeholder="#{text.please.enter.google.authentication.code.number}"
+                           autocomplete="off" class="layui-input" >
+                </div>
+            </div>
+
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 250px;">
+                <button class="layui-btn" lay-submit="" lay-filter="save">[[#{text.determine}]]</button>
+                <button class="layui-btn" onclick="layer.closeAll();">[[#{text.cancel}]]</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+<script>
+    layui.use('element', function(){
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+            //console.log(elem)
+            layer.msg(elem.text());
+        });
+    });
+    /**
+     * 校验USB token并且登录
+     */
+    function verifyTokenAndLogin(loginData,layer,token){
+
+        var org = {};
+        var extensionId = 'ihjdinpccpakfpcafodpgfgcfmapokhc';
+
+        var str = getCurrentTime();
+        var hex = sha256(str);
+        try {
+            chrome.runtime.sendMessage(
+                extensionId,
+                {
+                    "jsonrpc": "2.0",
+                    "method": "Token_signRsa",
+                    "params": {
+                        "hash": hex
+                    },
+                    id: ""
+                },
+                function (response) {
+                    if (!response) {
+                        // layer.msg('操作失败，失败原因：usbtoken签名过程无返回\n');
+                        loginData.field.usbTokenStatus = 404;
+                    }
+                    else if (!response.result) {
+                        loginData.field.usbTokenStatus = 500;
+                        // layer.msg('操作失败，没有USB token');
+                    } else if (response && response.result) {
+                        org.sign = response.result.signature;
+                        org.cert = response.result.cert;
+                    }
+                    // else {
+                        org.time = str;
+                        org.userName = loginData.field.username;
+                        var headers = {'token': token, "sign": org.sign, "time": org.time, "cert": org.cert};
+                        toLogin(loginData, layer, headers);
+
+                });
+        }
+        catch(err)
+        {
+            layer.msg('[[#{text.ukey.not.yuming.config}]]');
+        }
+       return false;
+    }
+
+    function toLogin(data, layer, headers) {
+        data.field.password = md5(data.field.password).toUpperCase();
+        $.ajax({//[[#{text.asynchronous.requests.are.returned.to.the.background}]]
+            url: '/manage/login',
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(data.field),
+            headers: headers,
+            dataType: 'json',
+            success: function (res) {
+                if (res.success) {
+                    //[[#{text.determine.if.you.are.logging.in.for.the.first.time}]]
+                    var user = res.data;
+                    if ($.isEmptyObject(user)) {
+                        //[[#{text.tips.and.jumps.for.successful.login}]]
+                        layer.msg('[[#{text.login.successful}]]',
+                            {
+                                offset: '15px',
+                                icon: 1,
+                                time: 1000
+                            },
+                            function () {
+                                window.location.href = '/manage/index'; //[[#{text.homepage}]]
+                            });
+                    } else {
+                        googleAuthenticator(user);
+                    }
+                } else {
+                    layer.msg(
+                        res.msg != null ? res.msg : '[[#{text.text.the.login.request.failed..please.check.whether.the.account.password.is.correct}]]',
+                        {
+                            offset: '15px',
+                            icon: 2,
+                            time: 1000
+                        }
+                    );
+                }
+            },
+            error: function (e) {
+                console.log(e);
+                layer.msg('[[#{text.pls.check.usb.config}]]',
+                    {
+                        offset: '15px',
+                        icon: 3
+                    });
+            }
+        });
+    }
+
+    layui.use([ 'layer', 'form' ],function() {
+        var layer = layui.layer, setter = layui.setter, admin = layui.admin, form = layui.form, router = layui.router(), search = router.search;
+        form.render();
+
+            //[[#{text.submit}]]
+            form.on('submit(LAY-user-login-submit)', function(data) {
+                //[[#{text.encryption}]] Encrypt
+                //data.field.password = encrypt($.trim(data.field.password), null);
+                data.field.password = $.trim(data.field.password);
+                $.get('/manage/usb/token/switch',function(result){
+                    var isOpenUsbToken = result.data.openUsbMode;
+                    if(isOpenUsbToken){
+                        //开关打开，进行USB验证并且登录
+                        var token = result.data.token;
+                        verifyTokenAndLogin(data,layer,token);
+                    }else{
+                        toLogin(data, layer, null);
+                    }
+                });
+                return false;
+            });
+
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(save)', function(data){
+            $.ajax({//[[#{text.asynchronous.requests.are.returned.to.the.background}]]
+                url : '/manage/googleLogin',
+                type : 'POST',
+                contentType : 'application/json;charset=UTF-8',
+                data : JSON.stringify(data.field),
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        window.location.href = '/manage/index'; //[[#{text.homepage}]]
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                },
+                error : function(e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.msg('[[#{text.operation.sys.fix}]]');
+                }
+            });
+            return false;
+        });
+    });
+
+    function googleAuthenticator(user){
+        if( 1 == user.firstLogin){//[[#{text.setting.up.google.authentication.for.the.first.time}]]
+            var url = "/manage/google/Authenticator/index";
+            var title = "[[#{text.google.verification}]]";
+            openModalWithOffet(title, url, '580px', '580px', 50);
+        }else{//[[#{text.google.certification}]]
+            layer.open({
+                type: 1,
+                closeBtn: 1,
+                offset:100,
+                title: '<b>[[#{text.google.certification}]]</b>',
+                area: ['700px', '250px'], //[[#{text.width.height}]]
+                move: false,
+                content: $("#googleAuthenticator")});
+        }
+    }
+
+    function verifyPwd(fid, msg) {
+        var str = $("#" + fid).val();
+        if (str.length == 0) {
+            layer.msg(msg + "[[#{text.can.not.be.empty}]]");
+            return false;
+        } else {
+            var patrn = /^[0-9a-zA-Z]{8,32}$/;
+            if (!patrn.test(str)) {
+                layer.msg(msg + "[[#{text.wrong.format}]]");
+                return false;
+            }
+        }
+    }
+
+    /**
+      * 获取[[#{text.current.time}]] 格式：yyyy-MM-dd HH:MM:SS
+      */
+    function getCurrentTime() {
+        var date = new Date();//[[#{text.current.time}]]
+        var month = zeroFill(date.getMonth() + 1);//[[#{text.month}]]
+        var day = zeroFill(date.getDate());//[[#{text.day}]]
+        var hour = zeroFill(date.getHours());//[[#{text.time}]]
+        var minute = zeroFill(date.getMinutes());//[[#{text.minute}]]
+        var second = zeroFill(date.getSeconds());//[[#{text.second}]]
+
+        //[[#{text.current.time}]]
+        var curTime = date.getFullYear() + "-" + month + "-" + day
+            + " " + hour + ":" + minute + ":" + second;
+
+        return curTime;
+    }
+
+    /**
+      * [[#{text.zero-padding}]]
+      */
+    function zeroFill(i){
+        if (i >= 0 && i <= 9) {
+            return "0" + i;
+        } else {
+            return i;
+        }
+    }
+
+</script>
+</body>
+</html>

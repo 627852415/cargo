@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.user.asset.transaction.task.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <!--[[#{text.platform.user.query.conditions}]]-->
+                <!--<div class="layui-input-inline">-->
+                <!--<input type="text" name="account" class="layui-input" placeholder="[[#{text.user.account}]]"/>-->
+                <!--</div>-->
+                <!--<div class="layui-input-inline">-->
+                <!--<input type="text" name="telephone" class="layui-input" placeholder="[[#{text.mobile.phone.number}]]"/>-->
+                <!--</div>-->
+                <!--<div class="layui-input-inline">-->
+                <!--<input type="text" name="name" class="layui-input" placeholder="[[#{text.username}]]"/>-->
+                <!--</div>-->
+                <!--[[#{text.wallet.user.query.conditions}]]-->
+                <div class="layui-input-inline">
+                    <input type="text" name="id" class="layui-input" placeholder="ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="userId" class="layui-input" th:placeholder="#{text.wallet.user.id}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="status" lay-verify="">
+                        <option value="">[[#{text.please.select.a.processing.status}]]</option>
+                        <option value="0">[[#{text.unprocessed}]]</option>
+                        <option value="1">[[#{text.processing.failed}]]</option>
+                        <option value="2">[[#{text.processing.succeeded}]]</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">[[#{text.search.for}]]</button>
+                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">[[#{text.serial.number}]]</th>
+            <th lay-data="{field:'id', align:'center'}">ID111</th>
+            <th lay-data="{field:'userId', align:'center'}">[[#{text.wallet.user}]]ID</th>
+            <th lay-data="{field:'coinName', align:'center'}">[[#{text.currency}]]</th>
+            <th lay-data="{field:'typeName', align:'center', templet:function(data){return formatType(data);}}">[[#{text.types.of}]]</th>
+            <th lay-data="{field:'subTypeName', align:'center', templet:function(data){return formatSubType(data);}}">[[#{text.subtype}]]</th>
+            <th lay-data="{field:'amount', align:'center'}">[[#{text.need.to.increase.the.amount}]]</th>
+            <th lay-data="{field:'failTimes', align:'center'}">[[#{text.number.of.failures}]]</th>
+            <th lay-data="{field:'status', align:'center', templet:function(data){return formatStatus(data);}}">[[#{text.status}]]</th>
+            <th lay-data="{field:'createTime', align:'center',templet:function(data){
+                return formatDateL(data.createTime);
+             }}">[[#{text.creation.time}]]
+            </th>
+            <th lay-data="{width: 100, align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        {{# if(d.status == 1) { }}
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="handle"><i class="layui-icon"></i>[[#{text.deal.with}]]</a>
+        {{# }}}
+    </script>
+</div>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(sub-btn)', function (data) {
+            return false;
+        });
+    });
+    function formatStatus(data) {
+        var str = '';
+        if (data.status === 0){
+            str = '[[#{text.option.unprocessed}]]';
+        }else if(data.status === 1){
+            str = '[[#{text.processing.failed}]]';
+        }else if(data.status === 2){
+            str = '[[#{text.processing.succeeded}]]';
+        }
+        return str;
+    }
+    function formatType(data) {
+        var str = '';
+        var type = data.type;
+        if(type === 1){
+            str = '[[#{text.wallet.capital.type.withdrawal.transfer}]]';
+        }else if(type === 2){
+            str = '[[#{text.wallet.capital.type.recharge.and.receive}]]';
+        }else if(type === 3){
+            str = '[[#{text.wallet.capital.type.friends.transfer}]]';
+        }else if(type === 4){
+            str = '空投';
+        }else if(type === 5){
+            str = '[[#{text.wallet.capital.type.red.envelope}]]';
+        }else if(type === 6){
+            str = '[[#{text.wallet.capital.type.game}]]';
+        }else if(type === 7){
+            str = '[[#{text.wallet.capital.type.merchant.consumption}]]';
+        }else if(type === 8){
+            str = '[[#{text.wallet.capital.type.merchant.collection}]]';
+        }else if(type === 9){
+            str = '[[#{text.wallet.capital.type.offline.exchange}]]';
+        }
+        return str;
+    }
+    function formatSubType(data) {
+        var str = '';
+        var type = '' + data.subType;
+        switch (type) {
+            case "11": {
+                str = '[[#{text.transfer.within.the.station}]]';
+                break;
+            }
+            case "12": {
+                str = '[[#{text.withdraw.in.the.station}]]';
+                break
+            }
+            case "13": {
+                str = '[[#{text.cash.withdrawal}]]';
+                break;
+            }
+            case    "14": {
+                str = '[[#{text.collecting.funds.to.merchants}]]';
+                break;
+            }
+            case    "15": {
+                str = 'OTC[[#{text.withdrawal}]]';
+                break;
+            }
+            case    "16": {
+                str = '[[#{text.platform.withdrawal}]]';
+                break;
+            }
+            case    "17": {
+                str = '[[#{text.flash}]]';
+                break;
+            }
+            case         "18": {
+                str = '[[#{text.scan.code.payment}]]';
+                break;
+            }
+            case         "19": {
+                str = '[[#{text.yu.e.bao.transfer.out}]]';
+                break;
+            }
+            case         "20": {
+                str = '[[#{text.yu.e.bao.transfer.fee}]]';
+                break;
+            }
+            case         "46": {
+                str = 'BCB[[#{text.application.form.fee}]]';
+                break;
+            }
+            case         "45": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case     "21": {
+                str = '[[#{text.recharge.inside.the.station}]]';
+                break;
+            }
+            case   "22": {
+                str = '[[#{text.recharge.outside.the.station}]]';
+                break;
+            }
+            case    "23": {
+                str = 'OTC[[#{text.recharge}]]';
+                break;
+            }
+            case   "24": {
+                str = '[[#{text.collection.code.receipt}]]';
+                break;
+            }
+            case    "25": {
+                str = '[[#{text.yu.e.bao.transfer}]]';
+                break;
+            }
+            case    "26": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case    "31": {
+                str = '[[#{text.niu.niu}]]';
+                break;
+            }
+            case    "32": {
+                str = '[[#{text.point.game}]]';
+                break;
+            }
+            case    "33": {
+                str = '[[#{text.game.sharing}]]';
+                break;
+            }
+            case     "34": {
+                str = '[[#{text.minesweeper.game}]]';
+                break;
+            }
+            case     "61": {
+                str = '[[#{text.merchant.consumption}]]';
+                break;
+            }
+            case      "62": {
+                str = '[[#{text.merchant.collection}]]';
+                break;
+            }
+            case   "41": {
+                str = '[[#{text.red.envelopes}]]';
+                break;
+            }
+            case    "42": {
+                str = '[[#{text.red.envelope}]]';
+                break;
+            }
+            case    "63": {
+                str = '[[#{text.merchant.margin.deduction}]]';
+                break;
+            }
+            case    "64": {
+                str = '[[#{text.merchant.margin.refund}]]';
+                break;
+            }
+            case "67": {
+                str = '[[#{text.merchants.post.deductions.for.conversion.freeze.amount}]]';
+                break;
+            }
+            case "68": {
+                str = '[[#{text.merchants.issue.refund.of.exchange.freeze.amount}]]';
+                break;
+            }
+            case    "65": {
+                str = '[[#{text.buyers.exchange.funds.to.the.account}]]';
+                break;
+            }
+            case   "66": {
+                str = '[[#{text.merchant.exchange.and.rebate}]]';
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+        return str;
+    }
+
+    //[[#{text.query.data}]]
+    loadTableWithoutColumns('/user/coin/trade/task/listPage', 'tableData', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'handle') {
+                    handle(obj.data);
+                }
+            });
+        });
+    }
+
+    //[[#{text.deal.with}]]
+    function handle(obj) {
+        let id = obj.id;
+        layer.confirm("[[#{text.are.you.sure.you.want.to.reprocess}]]？", {icon: 3, title: '[[#{text.operation.alert}]]', offset: 100}, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/user/coin/trade/task/reprocessTask',
+                type: 'POST',
+                data: JSON.stringify({id: id}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

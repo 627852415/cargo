@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>系統提现详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .span-space{
+        padding-top: 10px;
+    }
+</style>
+<body>
+<div class="admin-main fadeInUp animated">
+        <div class="layui-form-item" style="margin-left:30px;">
+            <div class="layui-text span-space">
+                <div class="layui-inline">
+                    <b>用户账号：</b>
+                    <span th:text="${detail.telephone}"></span>
+                </div>
+                <div class="layui-inline">
+                    <b>流水号：</b>
+                    <span id="id" th:text="${detail.id}"></span>
+                </div>
+            </div>
+            <hr/>
+            <div class="layui-text">
+                <div class="layui-inline">
+                    <b>申请汇率：</b>
+                    ￥<span th:text="${detail.currentPrice}"></span>
+                </div>
+                <div class="layui-inline"  th:if="${detail.priceCompare == 1}" style="color: red">
+                    <b th:if="${detail.status == 3}">实时汇率：</b>
+                    <b th:if="${detail.status != 3}">当时汇率：</b>
+                    <span>￥</span>
+                    <span th:text="${detail.auditedPrice}"></span>
+                </div>
+                <div class="layui-inline"  th:if="${detail.priceCompare != 1}">
+                    <b th:if="${detail.status == 3}">实时汇率：</b>
+                    <b th:if="${detail.status != 3}">当时汇率：</b>
+                    <span>￥</span>
+                    <span th:text="${detail.auditedPrice}"></span>
+                </div>
+            </div>
+            <div class="layui-text span-space">
+                <div class="layui-inline">
+                    <b>交易币种：</b>
+                    <span th:text="${detail.coinName}"></span>
+                </div>
+                <div class="layui-inline">
+                    <b>交易数量：</b>
+                    <span th:text="${detail.amount}"></span>
+                </div>
+            </div>
+            <div class="layui-text span-space">
+                <div class="layui-inline">
+                    <b>手续费：</b>
+                    <span th:text="${detail.fee}"></span>&nbsp;<span th:text="${detail.coinName}"></span>
+                </div>
+                <div class="layui-inline">
+                    <b>交易总额：</b>
+                    <span>￥</span>
+                    <span th:text="${detail.totalMoney}"></span>
+                </div>
+            </div>
+            <hr/>
+            <div class="layui-text">
+                <div class="layui-inline">
+                    <b>申请银行：</b>
+                    <span th:text="${detail.bank}"></span>
+                </div>
+                <div class="layui-inline">
+                    <b>所属支行：</b>
+                    <span th:text="${detail.subbranch}"></span>
+                </div>
+            </div>
+            <div class="layui-text span-space">
+                <div class="layui-inline">
+                    <b>账号姓名：</b>
+                    <span th:text="${detail.realname}"></span>
+                </div>
+                <div class="layui-inline">
+                    <b>银行卡号：</b>
+                    <span th:text="${detail.account}"></span>
+                </div>
+            </div>
+            <hr/>
+            <div class="layui-text">
+                <div class="layui-inline">
+                    <b>申请时间：</b>
+                    <span th:text="${detail.createFormatTime}"></span>
+                </div>
+                <div th:if="${detail.status != 3}" class="layui-inline">
+                    <b>处理时间：</b>
+                    <span style="color: #1E9FFF" th:text="${detail.updateFormatTime}"></span>
+                </div>
+            </div>
+            <div th:if="${detail.status == 4}" align="center" class="layui-text" style="font-size: 26px; padding-top: 20px;">已确认打款</div>
+            <div th:if="${detail.status == 5}" align="center" class="layui-text" style="font-size: 26px; padding-top: 20px;">已驳回申请</div>
+            <div th:if="${detail.status == 3}" align="center" class="layui-text" style="font-size: 26px; padding-top: 20px;">
+                <button class="layui-btn" onclick="audit('4', '确认打款')">确认打款</button>
+                <button class="layui-btn" onclick="audit('5', '申请驳回')">申请驳回</button>
+            </div>
+        </div>
+
+</div>
+<script>
+
+    function audit(status, operate){
+        var id = $("#id").text();
+        var tip = layer.load(1, {shade: [0.8, '#393D49']});
+        $.ajax({
+            url : '/platform/withdraw/apply/audit',
+            type : 'POST',
+            data : {
+                id : id,
+                status : status
+            },
+            dataType : 'json',
+            success : function(data) {
+                layer.close(tip);
+                if (data.success) {
+                    layer.msg(operate + '成功！',function() {
+                        parent.layer.closeAll();
+                        parent.$(".layui-laypage-btn")[0].click();
+                    });
+                } else {
+                    layer.msg(operate + '失败');
+                }
+            },
+            error : function(e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tip);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

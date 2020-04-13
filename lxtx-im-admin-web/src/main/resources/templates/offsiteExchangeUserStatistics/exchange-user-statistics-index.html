@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.offsite.exchange.user.statistics}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <!--平台用户查询条件-->
+                <div class="layui-input-inline">
+                    <input type="text" id="account" name="account" class="layui-input" th:placeholder="#{text.column.user.id}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="name" class="layui-input" th:placeholder="#{text.column.user.username}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" id="telephone" name="telephone" class="layui-input" th:placeholder="#{text.column.platform.telephone}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select lay-filter="waveRate" id="waveRateId" name="waveRateId">
+                        <option value="">[[#{text.placeholder.waveRate}]]</option>
+                        <option th:each="waveRate : ${waveRateList}"
+                                th:value="${waveRate.waveRateId}"
+                                th:text="${waveRate.targetCoin}+' => '+${waveRate.sourceCoin}"></option>
+                    </select>
+                </div>
+                <!-- 钱包查询条件-->
+                <div class="layui-input-inline">
+                    <input id="startDateTime" name="startDateTime" type="text" class="layui-input" th:placeholder="#{text.starting.time}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input id="endDateTime" name="endDateTime" type="text" class="layui-input" th:placeholder="#{text.end.time}" lay-search>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">[[#{text.search.for}]]</button>
+                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                    <button type="button" class="layui-btn" onclick="download()">[[#{text.export.file}]]</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+            <tr>
+                <th lay-data="{field:'account', align:'center'}">[[#{text.column.user.id}]]</th>
+                <th lay-data="{field:'name', align:'center'}">[[#{text.column.user.username}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.column.platform.telephone}]]</th>
+                <th lay-data="{field:'sourceCoin', align:'center', width:'7%', templet: function(data){
+                        return data.sourceCoin+' => '+data.targetCoin;
+                    }}">[[#{text.offsite.exchange.wave.rate}]]</th>
+                <th lay-data="{field:'orderCompletedVolume', width:'7%', align:'center'}">[[#{text.offsite.exchange.order.completed.volume}]]</th>
+                <th lay-data="{field:'orderCancelVolume', width:'7%', align:'center'}">[[#{text.offsite.exchange.order.cancel.volume}]]</th>
+                <th lay-data="{field:'completedVolume', align:'center', templet: function(data){
+                        return data.completedVolume+data.targetCoin;
+                    }}">[[#{text.volume}]]</th>
+                <th lay-data="{field:'completedAmount', align:'center', templet: function(data){
+                        return data.completedAmount+data.sourceCoin;
+                    }}">[[#{text.amount}]]</th>
+                <th lay-data="{field:'avgExchangeRate', width:'6%', align:'center'}">[[#{text.offsite.exchange.avg.exchange.rate}]]</th>
+                <th lay-data="{field:'floatScopePercent', width:'6%', align:'center', templet: function(data){
+                        return data.floatScopePercent + '%';
+                    }}">[[#{text.exchange.rate.fluctuations}]]</th>
+                <th lay-data="{field:'statisticsTime', align:'center'}">[[#{text.offsite.exchange.statistics.time}]]</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var laydate = layui.laydate;
+        var curDateTime,tmpDateTime;
+        laydate.render({
+            elem: '#startDateTime'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                curDateTime = formatDateL(new Date);
+                tmpDateTime = $('#endDateTime').val();
+                if (value > curDateTime) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    setTimeout(function(){
+                        $("#startDateTime").val("");
+                    }, 100);
+                    return;
+                } else if (tmpDateTime != '' && value > tmpDateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    setTimeout(function(){
+                        $("#startDateTime").val("");
+                    }, 100);
+                    return;
+                }
+            }
+        });
+        laydate.render({
+            elem: '#endDateTime'
+            ,type: 'datetime'
+            , done: function (value,  date) {
+                curDateTime = formatDateL(new Date);
+                tmpDateTime = $('#startDateTime').val();
+                if (value > curDateTime) {
+                    layer.msg("[[#{text.operation.begin.more.than.end}]]");
+                    setTimeout(function(){
+                        $("#endDateTime").val("");
+                    }, 1);
+                    return;
+                } else if (tmpDateTime != '' && value < tmpDateTime) {
+                    layer.msg("[[#{text.operation.end.less.begin.time}]]");
+                    setTimeout(function(){
+                        $("#endDateTime").val("");
+                    }, 100);
+                    return;
+                }
+            }
+        });
+
+    });
+
+    //查询数据
+    loadTableWithoutColumns('/exchange/user/statistics/list/page', 'tableData', 'searchForm');
+
+    function download() {
+        var url = "/exchange/user/statistics/export/excel?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

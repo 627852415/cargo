@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>地区分佣比例编辑</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<form id="searchForm" class="layui-form" action="" >
+    <div class="admin-main fadeInUp animated">
+        <fieldset class="layui-elem-field border1">
+            <table class="layui-table" lay-data="{cellMinWidth: 80, id: 'dataTable'}" lay-filter="dataTable">
+                <thead>
+                <tr>
+                    <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">序号</th>
+                    <th lay-data="{field:'id', align:'center',hide}">ID</th>
+                    <th lay-data="{field:'levelId', align:'center',hide}">级别ID</th>
+                    <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                    <th lay-data="{field:'ratio', align:'center',edit: 'text'}">额外比例</th>
+                </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">保存</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    var form;
+    layui.use(['form','table'], function () {
+        form = layui.form;
+    });
+
+    //debugger;
+    loadTable('/commission/extra/config/list', 'dataTable', 'searchForm');
+
+    function loadTable(url, filter, fid){
+        if(fid == undefined){
+            fid = "searchForm";
+        }
+        layui.use('table', function (){
+            table = layui.table;
+            table.init(filter, {
+                method: 'post'
+                , url: url
+                ,parseData : function(res) {
+                    console.log(res.data);
+                    var msg,code = "1",records, total=0;
+                    if(!res.success || $.isEmptyObject(res.data)){
+                        if(res.msg){
+                            msg = '<b style="color: red">' + res.msg + '</b>';
+                        }else{
+                            msg = '<b style="color: red">未查询到相关数据</b>';
+                        }
+                    }else{
+                        records = res.data.list;
+                        if(records !=undefined &&  records.length > 0){
+                            code = '0';
+                        }else{
+                            msg = '<b style="color: red">未查询到相关数据</b>';
+                        }
+                    }
+                    return {
+                        "code" : code,
+                        "msg" : msg,
+                        "count" : total,
+                        "data" : records
+                    }
+                }
+                , where: $("#" + fid).serializeJson()
+
+            });
+        });
+    }
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(sub-btn)', function (data) {
+            save(layui.table.cache.dataTable);
+            return false;
+        });
+    });
+
+    function save(data) {
+        $.ajaxUkey({
+            url: "/commission/extra/config/add",
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        window.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

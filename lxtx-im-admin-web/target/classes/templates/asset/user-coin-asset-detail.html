@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.system.withdrawal.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 200px;
+    }
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.wallet.user}]]ID</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.walletUserId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.flow.id}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.flow.refId}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.refId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.user.name}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.currency.name}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.coinName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.types.of}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.type}" id="type-id" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.subtype}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.subtype}" id="subtype-id" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.balance.before.processing}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.preLeftAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.status}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.status}" id="status-id" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.change.balance}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.changeLeftAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.processed.balance}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.suffixLeftAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.amount.frozen.before.processing}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.preFrozenAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.change.frozen.amount}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.changeFrozenAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.business.platform.number}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.transferNum}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.internal.fee}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.innerFee}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.external.fee}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.thirdFee}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.locked.amount.after.processing}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.suffixLockAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.change.lock.amount}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.changeLockAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.lock.amount.before.processing}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.preLockAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.amount.frozen.after.processing}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.suffixFrozenAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.remark}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.remarks}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.update.time}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.updateStrTime}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.transferee.wallet.address}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.toAddr}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.outbound.wallet.address}]]</label>
+        <div class="layui-input-inline" style="width: 300px;">
+            <input type="text" th:value="${detail.fromAddr}" class="layui-input" disabled>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        var status = $('#status-id');
+        var type = $('#type-id');
+        var subtype = $('#subtype-id');
+        status.val(formatStatus({status: status.val()}));
+        type.val(formatType({type: type.val()}));
+        subtype.val(formatSubType({subtype: subtype.val()}));
+    })
+
+    function formatStatus(data) {
+        var str = '';
+        if (data.status == 1) {
+            str = '[[#{text.placeholder.pending}]]';
+        } else if (data.status == 2) {
+            str = '[[#{text.placeholder.status.handling}]]';
+        } else if (data.status == 3) {
+            str = '[[#{text.placeholder.submitted}]]';
+        } else if (data.status == 4) {
+            str = '[[#{text.placeholder.status.success}]]';
+        } else if (data.status == 5) {
+            str = '[[#{text.placeholder.status.fail}]]';
+        } else if (data.status == 6) {
+            str = '[[#{text.placeholder.status.part.success}]]';
+        }
+        return str;
+    }
+
+    function formatType(data) {
+        var str = '';
+        var type = data.type;
+        if (type == 1) {
+            str = '[[#{text.wallet.capital.type.withdrawal.transfer}]]';
+        } else if (type == 2) {
+            str = '[[#{text.wallet.capital.type.recharge.and.receive}]]';
+        } else if (type == 3) {
+            str = '[[#{text.wallet.capital.type.friends.transfer}]]';
+        } else if (type == 4) {
+            str = '空投';
+        } else if (type == 5) {
+            str = '[[#{text.wallet.capital.type.red.envelope}]]';
+        } else if (type == 6) {
+            str = '[[#{text.wallet.capital.type.game}]]';
+        } else if (type == 7) {
+            str = '[[#{text.wallet.capital.type.merchant.consumption}]]';
+        } else if (type == 8) {
+            str = '[[#{text.wallet.capital.type.merchant.collection}]]';
+        } else if (type == 9) {
+            str = '[[#{text.wallet.capital.type.offline.exchange}]]';
+        } else if (type == 10) {
+            str = '[[#{text.commission}]]';
+        }
+        return str;
+    }
+
+    function formatSubType(data) {
+        var str = '';
+        var type = '' + data.subtype;
+        switch (type) {
+            case "11": {
+                str = '[[#{text.transfer.within.the.station}]]';
+                break;
+            }
+            case "12": {
+                str = '[[#{text.withdraw.in.the.station}]]';
+                break
+            }
+            case "13": {
+                str = '[[#{text.cash.withdrawal}]]';
+                break;
+            }
+            case "14": {
+                str = '[[#{text.collecting.funds.to.merchants}]]';
+                break;
+            }
+            case "15": {
+                str = 'OTC[[#{text.withdrawal}]]';
+                break;
+            }
+            case    "16": {
+                str = '[[#{text.platform.withdrawal}]]';
+                break;
+            }
+            case    "17": {
+                str = '[[#{text.flash}]]';
+                break;
+            }
+            case         "18": {
+                str = '[[#{text.scan.code.payment}]]';
+                break;
+            }
+            case "19": {
+                str = '[[#{text.yu.e.bao.transfer.out}]]';
+                break;
+            }
+            case         "20": {
+                str = '[[#{text.yu.e.bao.transfer.fee}]]';
+                break;
+            }
+            case         "46": {
+                str = 'BCB[[#{text.application.form.fee}]]';
+                break;
+            }
+            case         "45": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case     "21": {
+                str = '[[#{text.recharge.inside.the.station}]]';
+                break;
+            }
+            case   "22": {
+                str = '[[#{text.recharge.outside.the.station}]]';
+                break;
+            }
+            case    "23": {
+                str = 'OTC[[#{text.recharge}]]';
+                break;
+            }
+            case   "24": {
+                str = '[[#{text.collection.code.receipt}]]';
+                break;
+            }
+            case    "25": {
+                str = '[[#{text.yu.e.bao.transfer}]]';
+                break;
+            }
+            case    "26": {
+                str = 'BCB[[#{text.bank.transfer}]]';
+                break;
+            }
+            case    "31": {
+                str = '[[#{text.niu.niu}]]';
+                break;
+            }
+            case    "32": {
+                str = '[[#{text.point.game}]]';
+                break;
+            }
+            case    "33": {
+                str = '[[#{text.game.sharing}]]';
+                break;
+            }
+            case     "34": {
+                str = '[[#{text.minesweeper.game}]]';
+                break;
+            }
+            case     "61": {
+                str = '[[#{text.merchant.consumption}]]';
+                break;
+            }
+            case      "62": {
+                str = '[[#{text.merchant.collection}]]';
+                break;
+            }
+            case   "41": {
+                str = '[[#{text.red.envelopes}]]';
+                break;
+            }
+            case    "42": {
+                str = '[[#{text.red.envelope}]]';
+                break;
+            }
+            case    "63": {
+                str = '[[#{text.merchant.margin.deduction}]]';
+                break;
+            }
+            case    "64": {
+                str = '[[#{text.merchant.margin.refund}]]';
+                break;
+            }
+            case "67": {
+                str = '[[#{text.merchants.post.deductions.for.conversion.freeze.amount}]]';
+                break;
+            }
+            case "68": {
+                str = '[[#{text.merchants.issue.refund.of.exchange.freeze.amount}]]';
+                break;
+            }
+            case    "65": {
+                str = '[[#{text.buyers.exchange.funds.to.the.account}]]';
+                break;
+            }
+            case   "66": {
+                str = '[[#{text.merchant.exchange.and.rebate}]]';
+                break;
+            }
+            case  "72": {
+                str = '[[#{offsite_create_goods_platform_user_income}]]';
+                break;
+            }
+            case  "73": {
+                str = '[[#{offsite_buyer_receive_amount_platform_user_deduct}]]';
+                break;
+            }
+            case  "74": {
+                str = '[[#{offsite_merchant_rebate_amount_platform_user_deduct}]]';
+                break;
+            }
+            case  "75": {
+                str = '[[#{offsite_off_goods_platform_user_deduct}]]';
+                break;
+            }
+            case  "76": {
+                str = '[[#{offsite_buy_orders_platform_user_income}]]';
+                break;
+            }
+            case  "77": {
+                str = '[[#{offsite_buy_orders_platform_user_deduct}]]';
+                break;
+            }
+            case  "80": {
+                str = '[[#{offsite_exchange_buyer_transfer_deduct}]]';
+                break;
+            }
+            case  "84": {
+                str = '[[#{offsite_exchange_buyer_transfer_return}]]';
+                break;
+            }
+            case  "82": {
+                str = '[[#{offsite_exchange_platform_user_transfer_income}]]';
+                break;
+            }
+            case  "83": {
+                str = '[[#{offsite_exchange_platform_user_transfer_deduct}]]';
+                break;
+            }
+            case  "85": {
+                str = '[[#{offsite_exchange_buyer_transfer_pay}]]';
+                break;
+            }
+            case  "86": {
+                str = '[[#{offsite_exchange_merchant_transfer_income}]]';
+                break;
+            }
+            case  "90": {
+                str = '[[#{offsite_merchant_deposit_platform_user_income}]]';
+                break;
+            }
+            case  "91": {
+                str = '[[#{offsite_merchant_deposit_platform_user_deduct}]]';
+                break;
+            }
+            case  "92": {
+                str = '[[#{rebate_offsite_exchange}]]';
+                break;
+            }
+            case  "93": {
+                str = '[[#{rebate_offsite_exchange_deduct}]]';
+                break;
+            }
+            case  "113": {
+                str = '[[#{offsite_thaw_part_amount_merchant_income}]]';
+                break;
+            }
+            case "11000": {
+                str = '[[#{lock_mining_inner_freeze}]]';
+                break;
+            }
+            case "11006": {
+                str = '[[#{lock_mining_inner_recharge}]]';
+                break;
+            }
+            case "11001": {
+                str = '[[#{lock_mining_out_withdraw}]]';
+                break;
+            }
+            case "11002": {
+                str = '[[#{lock_mining_unfreeze}]]';
+                break;
+            }
+            case "11003": {
+                str = '[[#{lock_mining_out_daily_interest}]]';
+                break;
+            }
+            case "11004": {
+                str = '[[#{lock_mining_out_agent_rebate}]]';
+                break;
+            }
+            case "11005": {
+                str = '[[#{lock_mining_inner_fee}]]';
+                break;
+            }
+            case "12001": {
+                str = '[[#{commission_offsite_exchange_deduct}]]';
+                break
+            }
+            case "12002": {
+                str = '[[#{commission_offsite_exchange_income}]]';
+                break
+            }
+            case "12003": {
+                str = '[[#{commission_yeb_deduct}]]';
+                break
+            }
+            case "12004": {
+                str = '[[#{commission_yeb_income}]]';
+                break
+            }
+            case "12005": {
+                str = '[[#{commission_withdraw_deduct}]]';
+                break
+            }
+            case "12006": {
+                str = '[[#{commission_withdraw_income}]]';
+                break
+            }
+            case "12007": {
+                str = '[[#{commission_pay_deduct}]]';
+                break
+            }
+            case "12008": {
+                str = '[[#{commission_pay_income}]]';
+                break
+            }
+            case "12009": {
+                str = '[[#{commission_user_apply_deduct}]]';
+                break
+            }
+            case "12010": {
+                str = '[[#{commission_user_apply_income}]]';
+                break
+            }
+            default: {
+                break;
+            }
+
+        }
+        return str;
+    }
+</script>
+</body>
+</html>

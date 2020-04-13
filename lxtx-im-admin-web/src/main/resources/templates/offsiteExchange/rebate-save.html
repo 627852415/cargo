@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.payment.method.save}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+    <input type="hidden" th:value="${rebateModel} ? ${rebateModel.id}" name="id"/>
+    <input type="hidden" th:value="${rebateModel} ? ${rebateModel.payType}" id="payTypeVal"/>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.payment.method}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="payType" lay-search="" lay-filter="payType">
+                    <option th:each="enumPayType : ${enumPayTypes}" th:text="${enumPayType.description}" th:value="${enumPayType.code}"
+                            th:selected="${rebateModel != null and enumPayType != null and enumPayType.code == rebateModel.payType}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+	<div class="layui-form-item">
+			<label class="layui-form-label" style="width: 85px;">[[#{text.payment.method}]]logo</label>
+			<div class="layui-input-block">
+				<button type="button"
+					class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal"
+					id="coinImg">
+					<i class="layui-icon">&#xe67c;</i>[[#{text.upload.icon}]]
+				</button>
+				<input type="hidden" id="icoUrl" name="icoUrl" />
+			</div>
+	</div>
+
+	<div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.rebate.ratio.p}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="width: 220px" type="number" name="rebateRate" th:value="${rebateModel} ? (${rebateModel.rebateRate} * 100)"
+                       lay-verify="number" th:placeholder="#{text.pls.enter.percent}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.invite.rebate.ratio}]](%)</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="width: 220px" type="number" name="inviteRebateRate" th:value="${rebateModel} ? (${rebateModel.inviteRebateRate} * 100)"
+                       lay-verify="number" th:placeholder="#{text.pls.enter.percent}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item" id="showQrCodeDiv" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.show.qr.code}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="checkbox" id="showQrCode" value="0" name="showQrCode" lay-skin="switch" lay-text="展示|隐藏"
+                       th:checked="${rebateModel} ? ${rebateModel.showQrCode} == true">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.sort}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="width: 220px" type="number" name="sort" th:value="${rebateModel} ? ${rebateModel.sort}"
+                       lay-verify="number" th:placeholder="#{text.please.enter.sort}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    var payTypeVal = $('#payTypeVal').val();
+    if(payTypeVal == "5" || payTypeVal == "6"){
+        $('#showQrCodeDiv').show();
+    }
+
+    layui.use(['layer','upload'], function () {
+        var layer = layui.layer
+          , upload = layui.upload;
+
+        upload.render({
+            elem: '#coinImg'
+            , url: '/offsite/exchange/rebate/upload/'
+            , method: 'POST'
+            , accept: 'jpg|png'
+            , done: function (res) {
+                if (res.success) {
+                    document.getElementById("icoUrl").value = res.data;
+                    layer.msg('[[#{text.uploaded.successfully}]]');
+                }else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+            }
+            , error: function () {
+                layer.msg('[[#{text.upload.failed}]]');
+            }
+        });
+
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+        form.on('select(payType)', function(data){
+            if(data.value != "5" && data.value != "6"){
+                $('#showQrCodeDiv').hide();
+            }else{
+                $('#showQrCodeDiv').show();
+            }
+        })
+
+    });
+
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        if(formData.icoUrl === ""){
+            delete formData.icoUrl;
+        }
+        if(formData.payType != "5" && formData.payType != "6"){
+            delete formData.showQrCode;
+        }else{
+            formData.showQrCode = $('#showQrCode').is(':checked');
+        }
+        data.field.rebateRate = data.field.rebateRate/100;
+        data.field.inviteRebateRate = data.field.inviteRebateRate/100;
+        console.log(JSON.stringify(formData));
+        $.ajaxUkey({
+            url: "/offsite/exchange/rebate/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {title: '[[#{text.operation.message}]]', icon: 6}, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>交易流水详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 100px;
+    }
+
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.capital.table.user.id}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.userId}" class="layui-input" disabled>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.user.name}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.type}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="typeName" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.game.type}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="gameTypeName" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.status}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="statusName" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.coin.name}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="coinName" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.amount}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="amount" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.fee}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="fee" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.from.address}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="transferFrom" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.to.address}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="transferTo" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.transfer.num}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="transferNum" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.transfer.time}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="transferDate" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.update.time}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="updateDate" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.wallet.capital.table.remark}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.remarks}" class="layui-input" disabled>
+            </div>
+        </div>
+    </div>
+
+</form>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+
+    $('input[name=typeName]').val(getTypeStr(detail.type, detail.reject));
+    $('input[name=gameTypeName]').val(getGameTypeStr(detail.type, detail.gameType));
+    $('input[name=statusName]').val(getStatusStr(detail.status));
+    $('input[name=coinName]').val(getCoinName(detail));
+    $('input[name=amount]').val(getCoinAmount(detail));
+    $('input[name=fee]').val((detail.fee != undefined ? detail.fee : '0.00000000'));
+    $('input[name=transferFrom]').val(getFromOrToAddr(true, detail.type, detail.reject, detail.fromAddr, detail.toAddr,
+        detail.userId, detail.platformUserId, detail));
+    $('input[name=transferTo]').val(getFromOrToAddr(false, detail.type, detail.reject, detail.fromAddr, detail.toAddr,
+        detail.userId, detail.platformUserId, detail));
+    $('input[name=transferNum]').val( getTransferNum(detail));
+    $('input[name=transferDate]').val(detail.createTime);
+    $('input[name=updateDate]').val(detail.updateTime);
+
+    function getCoinName(data) {
+        return data.type === 15 ? data.payCoin : data.coinName;
+    }
+
+    function getCoinAmount(data) {
+        return data.type === 15 ? (
+                data.realPayAmount != null && data.realPayAmount != 0 && data.payAmount > data.realPayAmount
+                    ? data.payAmount + "(" + data.realPayAmount + ")" : data.payAmount
+            )
+            : data.amount;
+    }
+
+    function getTransferNum(data) {
+        return data.type === 15 ? data.orderNo : (data.transferNum !== undefined ? data.transferNum : '无');
+    }
+
+    function getFromOrToAddr(isFrom, type, reject, fromAddr, toAddr, userId, platformUserId, data) {
+        var fromAddr = fromAddr === undefined ? "" : fromAddr, toAddr = toAddr === undefined ? "" : toAddr;
+        if (type === 5) {
+            fromAddr = userId;
+            toAddr = platformUserId;
+        } else if (type === 6 && reject === true) {
+            fromAddr = userId;
+            toAddr = userId;
+        } else if (type === 6 && reject === false) {
+            fromAddr = platformUserId;
+            toAddr = userId;
+        } else if (type === 15) {
+            if (data.realPayAmount != null && data.realPayAmount != 0) {
+                fromAddr = data.realPayAmount + " " + data.payCoin;
+            } else if (data.payAmount != null && data.payAmount != 0) {
+                fromAddr = data.payAmount + " " + data.payCoin;
+            } else {
+                fromAddr = data.payCoin;
+            }
+
+            if (data.realGotAmount != null && data.realGotAmount != 0) {
+                toAddr = data.realGotAmount + " " + data.gotCoin;
+            } else if (data.gotAmount != null && data.gotAmount != 0) {
+                toAddr = data.gotAmount + " " + data.gotCoin;
+            } else {
+                toAddr = data.gotCoin;
+            }
+        }
+        return isFrom ? fromAddr : toAddr;
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 1) {
+            statusStr = "[[#{text.pending}]]";
+        } else if (status == 2) {
+            statusStr = "[[#{text.processing}]]";
+        } else if (status == 3) {
+            statusStr = "<font color='#adff2f'>[[#{text.placeholder.submitted}]]</font>";
+        } else if (status == 4) {
+            statusStr = "<font color='#ffd700'>[[#{text.success}]]</font>";
+        } else if (status == 5) {
+            statusStr = "<font color='#dc143c'>[[text.failure]]</font>";
+        } else if (status == 6) {
+            statusStr = "<font color='#dc143c'>[[#{text.placeholder.status.part.success}]]</font>";
+        } else {
+            //[[#{text.red.envelope}]]类型默认“操作成功”
+            statusStr = "<font color='#ffd700'>[[#{text.success}]]</font>";
+        }
+        return statusStr;
+    }
+    function getTypeStr(type, reject) {
+        //console.log("type is :"+ type);
+        var typeStr = "";
+        if (type == 1) {
+            typeStr = "[[#{text.transfer}]]";
+        } else if (type == 2) {
+            typeStr = "[[#{text.collection}]]";
+        } else if (type == 3) {
+            typeStr = "[[#{text.friends.transfer}]]";
+        } else if (type == 5) {
+            typeStr = "[[#{text.send.red.envelope}]]";
+        } else if (type == 6) {
+            if (reject === true) {
+                typeStr = "[[#{text.refund.red.envelope}]]";
+            } else {
+                typeStr = "[[#{text.receive.red.envelop}]]";
+            }
+        } else if (type == 7 || type == 8 || type == 10) {
+            typeStr = "[[#{text.game}]]";
+        } else if (type == 9) {
+            typeStr = "[[#{text.third-party.game.friend.transfer}]]";
+        } else if (type == 11) {
+            typeStr = "[[#{text.platform.withdrawal}]]";
+        } else if (type == 12) {
+            typeStr = "OTC[[#{text.withdrawal}]]";
+        } else if (type == 13) {
+            typeStr = "OTC[[#{text.recharge}]]";
+        } else if (type == 14) {
+            typeStr = "[[#{text.game.sharing}]]";
+        } else if (type == 15) {
+            typeStr = "[[#{text.flash}]]";
+        } else if (type == 16) {
+            typeStr = "[[#{text.group.owner.rebate}]]";
+        } else if (type == 17) {
+            typeStr = "[[#{text.subordinate.rebates}]]";
+        } else if (type == 18) {
+            typeStr = "[[#{text.game.red.envelope.fee}]]";
+        } else if (type == 19) {
+            typeStr = "[[#{text.scan.code.payment}]]";
+        } else if (type == 20) {
+            typeStr = "[[#{text.collection.code.receipt}]]";
+        } else if (type == 21) {
+            typeStr = "[[#{text.money.transfer.out}]]";
+        } else if (type == 22) {
+            typeStr = "[[#{text.money.transfer}]]";
+        } else if (type == 23) {
+            typeStr = "[[#{text.merchant.consumption}]]";
+        } else if (type == 24) {
+            typeStr = "[[#{text.merchant.collection}]]";
+        } else if (type == 25) {
+            typeStr = "[[#{text.money.transfer.fee}]]";
+        } else if (type == 26) {
+            typeStr = "[[#{text.bank.transfer}]]";
+        } else if (type == 27) {
+            typeStr = "[[#{text.offline.exchange.exchange.deposit.payment}]]";
+        } else if (type == 28) {
+            typeStr = "[[#{text.offline.exchange.exchange.margin.refund}]]";
+        } else if (type == 29) {
+            typeStr = "[[#{text.offline.exchange.commodity.release.funds.freeze}]]";
+        } else if (type == 30) {
+            typeStr = "[[#{text.release.of.offline.exchange.exchange.commodity.release.funds}]]";
+        } else if (type == 32) {
+            typeStr = "[[#{text.offline.exchange.of.funds}]]";
+        } else if (type == 33) {
+            typeStr = "[[#{ext.offline.exchange.exchange.exchange.rebate}]]";
+        } else {
+            typeStr = "[[#{text.unknown}]]";
+        }
+        return typeStr;
+    }
+
+    function getGameTypeStr(type, gameType) {
+        var typeStr = "";
+        if (type == 7) {
+            typeStr = "[[#{text.niu.niuzhuang}]]";
+        } else if (type == 8) {
+            typeStr = "[[#{text.niuniu.play}]]";
+        } else if (type == 10) {
+            if (gameType == 2) {
+                typeStr = "21[[#{text.point}]]";
+            } else if (gameType == 3) {
+                typeStr = "[[#{text.minesweeper}]]";
+            }
+        } else {
+            typeStr = "";
+        }
+        return typeStr;
+    }
+</script>
+</body>
+</html>

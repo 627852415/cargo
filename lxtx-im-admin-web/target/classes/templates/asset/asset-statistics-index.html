@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>资产统计列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+
+    <script type="text/javascript" th:src="@{/js/fileDownload.js}" ></script>
+    <script type="text/javascript" th:src="@{/js/buss/wallet/asset/asset-statistics-index.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="id" class="layui-input" value="" placeholder="请输入快照ID">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="startTime" name="startTime" type="text" class="layui-input" id="startTime" placeholder="更新日期开始" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="endTime" name="endTime" type="text" class="layui-input" id="endTime" placeholder="更新日期结束" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="redoDateTimes" name="redoDateTimes" type="text" class="layui-input" id="redoDateTimes" placeholder="快照生成时间" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">搜索</button>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="reDoData()">快照生成</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+                <tr>
+                    <th lay-data="{type:'numbers', align:'center'}">序号</th>
+                    <th lay-data="{field:'id', align:'center'}">资产快照ID</th>
+                    <th lay-data="{field:'recordsDate', align:'center',templet: function (data) {
+                           return formatDate(data.recordsDate);
+                        }}">日期
+                    </th>
+                    <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间
+                    </th>
+                    <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">操作</th>
+                </tr>
+
+            </thead>
+        </table>
+        <script type="text/html" id="barData">
+            <!--<a class="layui-btn layui-btn-sm tableBtn"  lay-event="detail">查看详情</a>-->
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="download">下载</a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>

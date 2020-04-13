@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>查询绑定关系</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-table th {
+        text-align: center;
+        font-weight: 400;
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="account" id="account" class="layui-input" placeholder="用户帐号"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" id="telephone" class="layui-input" placeholder="手机号码"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search()">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <div class="titleClas">上级玩家</div>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:false, id: 'higherTableData'}"
+           lay-filter="higherTableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">用户名</th>
+            <th lay-data="{field:'account', align:'center'}">用户帐号</th>
+            <th lay-data="{field:'countryCode', align:'center'}">地区</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                return formatDateL(data.createTime);
+                }}">注册时间
+            </th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barDataHigher'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barDataHigher">
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="checkThisPlayerHigher"><i class="layui-icon"></i>查询该玩家</a>
+    </script>
+
+    <div class="titleClas">下级情况</div>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'lowerTableDataId'}"
+           lay-filter="lowerTableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">用户名</th>
+            <th lay-data="{field:'account', align:'center'}">用户帐号</th>
+            <th lay-data="{field:'countryCode', align:'center'}">地区</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                       return formatDateL(data.createTime);
+                     }}">注册时间
+            </th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barDataLower'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barDataLower">
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="checkThisPlayerLower"><i class="layui-icon"></i>查询该玩家</a>
+    </script>
+</div>
+
+<script>
+
+    loadTableWithoutColumns('/inviteRelation/directHigher', 'higherTableData', 'searchForm');
+    loadTableWithoutColumns('/inviteRelation/bind/lowerList', 'lowerTableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(higherTableData)', function (obj) {
+                if (obj.event === 'checkThisPlayerHigher') {
+                    checkPlayer(obj.data.account);
+                }
+            });
+            table.on('tool(lowerTableData)', function (obj) {
+                if (obj.event === 'checkThisPlayerLower') {
+                    checkPlayer(obj.data.account);
+                }
+            });
+        });
+    }
+
+    //查询数据
+    function search() {
+        loadTableWithoutColumns('/inviteRelation/directHigher', 'higherTableData', 'searchForm');
+        loadTableWithoutColumns('/inviteRelation/bind/lowerList', 'lowerTableData', 'searchForm');
+    }
+
+    //查询该玩家
+    function checkPlayer(account) {
+        $("#account").empty();
+        $("#telephone").empty();
+        $("#telephone").val("");
+        $("#account").val(account);
+        loadTableWithoutColumns('/inviteRelation/directHigher', 'higherTableData', 'searchForm');
+        loadTableWithoutColumns('/inviteRelation/bind/lowerList', 'lowerTableData', 'searchForm');
+    }
+
+</script>
+</body>
+</html>

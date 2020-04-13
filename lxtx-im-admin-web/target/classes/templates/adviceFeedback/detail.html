@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>反馈详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 100px;
+    }
+
+    .my-telephone {
+        position: absolute;
+        top: 30px;
+        left: 150px;
+    }
+
+    .my-version {
+        position: absolute;
+        top: 85px;
+        left: 150px;
+    }
+
+    .layui-col-md2 {
+        width: 13.66666667%;
+    }
+
+    .img-css{
+        width: 100%;
+        height: 1200px;
+        object-fit:cover;
+    }
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" id="id" th:value="${detail.id}" class="layui-input">
+    <div class="layui-form-item">
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">联系方式</label>
+            <div class="layui-input-inline my-telephone" th:text="${detail.fullTelephone}"></div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">版本</label>
+            <div class="layui-input-inline my-version" th:text="${detail.version}"></div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">反馈内容</label>
+            <div class="layui-input-inline" style="width:880px;margin-left:20px;">
+                <textarea th:text="${detail.issue}" class="layui-textarea" disabled></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">问题截图</label>
+            <div class="layui-fluid layadmin-cmdlist-fluid" style="margin-left: 45px">
+                <div class="layui-row layui-col-space30" name="images_div">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<!-- 图片查看原图-->
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img img-css" id="imgId" src="">
+    </div>
+</div>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+    var images_div = jQuery('div[name=images_div]');
+    if (detail.images != '' && detail.images != null) {
+        var imageArr = detail.images.split(',');
+        for (var x in imageArr) {
+            var html = '<div class="layui-col-md2 layui-col-sm4">';
+            html += '<div class="cmdlist-container">';
+            html += '<a href="javascript:;">';
+            html += '<img class="layui-upload-img" style="width: 200px;height: 200px;margin: 0 10px 10px 0;" onclick="imgZoom(this,\'查看原图\');"  src="'+imageArr[x]+'">';
+            html += '</a>';
+            html += '</div>';
+            html += '</div>';
+            images_div.append(html);
+        }
+    }
+
+    /**
+     * 查看原图
+     * @param obj
+     * @param title
+     */
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>' + title + '</b>',
+            area: ['1000px', '800px'], //宽高
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //更新全部
+    }
+</script>
+</body>
+</html>

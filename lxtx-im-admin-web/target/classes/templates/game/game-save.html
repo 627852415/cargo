@@ -1,0 +1,91 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<!DOCTYPE html>
+<head>
+    <title>新增/编辑游戏</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/game/game-save.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 450px;
+        margin-right: 10px;
+    }
+
+    .layui-form-item .layui-form-label {
+        float: left;
+        display: block;
+        padding: 9px 15px;
+        width: 150px;
+        font-weight: 400;
+        line-height: 20px;
+        text-align: right;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" th:value="${game} ? ${game.id}" name="id"/>
+    <input type="hidden" th:value="${viewUrl} ? ${viewUrl}" id="viewHost"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏类型</label>
+        <div class="layui-input-inline">
+            <select  name="type" lay-verify="">
+                <option value="">请选择游戏类型</option>
+                <option th:each="gameType : ${gameTypes}" th:text="${gameType.description}" th:value="${gameType.code}" th:selected="${game != null and gameType != null and game.type == gameType.code}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="name" th:value="${game} ? ${game.name}"
+                   autocomplete="off" class="layui-input" placeholder="请输入游戏名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏备注</label>
+        <div class="layui-input-inline">
+            <input type="text"  name="remarks" th:value="${game} ? ${game.remarks}"
+                   autocomplete="off" class="layui-input" placeholder="请输入游戏备注内容">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏图片</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="gameIconImgId">
+                <i class="layui-icon">&#xe67c;</i>上传游戏图片
+            </button>
+            <input type="hidden" id="icon" name="icon" th:value="${game} ? ${game.icon}"/>
+        </div>
+        <div><img th:src="${game} ? ${game.viewHost + game.icon}" class="layui-upload-img" style="width: 60px;height: 60px;margin: 0 10px 10px 0;" id="gameIconImgIdShow"></div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏类型图标</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="gameImageId">
+                <i class="layui-icon">&#xe67c;</i>上传类型图标
+            </button>
+            <input type="hidden" id="image" name="image" th:value="${game} ? ${game.image}"/>
+        </div>
+        <div><img th:src="${game != null and game.image != ''} ? ${game.viewHost + game.image}" class="layui-upload-img" style="width: 60px;height: 60px;margin: 0 10px 10px 0;" id="gameImageIdShow"></div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-block">
+            <input type="radio" name="display" th:checked="${game != null and game.display} " value="true" title="是">
+            <input type="radio" name="display" th:checked="${game != null and !game.display}" value="false" title="否">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 300px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">确定</button>
+            <button class="layui-btn" onclick="parent.layer.closeAll();">取消</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

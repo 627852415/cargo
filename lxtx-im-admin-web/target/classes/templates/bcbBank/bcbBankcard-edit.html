@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>新增报警</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<input type="hidden" th:value="${viewUrl} ? ${viewUrl}" id="viewHost"/>
+<form class="layui-form" action="" id="addForm" style="padding-top: 10px">
+    <input th:value="${cardtype.id}" id="id" name="id" hidden>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:95px;">币种</label>
+            <div class="layui-input-block" style="width:380px;margin-left:130px;">
+                <select lay-filter="coinId" name="coinId" lay-search th:value="${coinId}">
+                    <option value="">请选择币种:</option>
+                    <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}"
+                            th:selected="${coinId != null and coinId == coin.id}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="legalCoinName" th:value="${cardtype.legalCoinName}"/>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:95px;">银行卡类型</label>
+            <div class="layui-input-block" style="width:380px;margin-left:130px;">
+                <select id="cardType" name="cardType">
+                    <option value="">请选择银行卡类型</option>
+                    <option value="1">银联</option>
+                    <option value="2">visa</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:95px;">金钱符号</label>
+            <div class="layui-input-block" style="width:380px;margin-left:130px;">
+                <input type="text" name="symbol" lay-verify="required" placeholder="请输入金钱符号" autocomplete="off"
+                       class="layui-input" th:value="${cardtype.symbol}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">银行卡图片URL</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="cardTypeImg">
+                <i class="layui-icon">&#xe67c;</i>上传图标
+            </button>
+            <input type="hidden" id="cardImgUrl" name="cardImgUrl" th:value="${cardtype.cardImgUrl}"/>
+        </div>
+        <div><img th:src="${cardtype} ? ${viewUrl + cardtype.cardImgUrl}" class="layui-upload-img"
+                  style="width: 60px;height: 60px;margin: 0 10px 10px 0;" id="gameIconImgIdShow"></div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:95px;">备注</label>
+            <div class="layui-input-block" style="width:380px;margin-left:130px;">
+                <textarea name="remarks" placeholder="请输入备注" class="layui-textarea"
+                          th:text="${cardtype.remarks}"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">提交</button>
+            <button type="reset" class="layui-btn">重置</button>
+        </div>
+    </div>
+</form>
+
+<script th:inline="javascript">
+    var cardtype = [[${cardtype}]];
+    //console.log(cardtype);
+    jQuery('select[name=cardType]').val(cardtype.cardType);
+    jQuery('select[name=coinId]').val(cardtype.coinId);
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use(['form', 'upload', 'element'], function () {
+        var form = layui.form;
+        var element = layui.element;
+        var upload = layui.upload;
+        form.on('select(coinId)', function (data) {
+            jQuery('input[name=legalCoinName]').val($(data.elem).find("option:selected").text());
+        });
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+        //上传图标
+        upload.render({
+            elem: '#cardTypeImg' //绑定元素
+            , url: '/bcb/bankcard/upload/' //上传接口
+            , method: 'POST'
+            , accept: 'jpg|png'
+            , done: function (res) {
+                //上传完毕回调
+                if (res.success) {
+                    document.getElementById("cardImgUrl").value = res.data;
+                    $("#gameIconImgIdShow").attr("src", $("#viewHost").val() + res.data);
+                    layer.msg('上传成功！');
+                } else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+            }
+            , error: function () {
+                layer.msg('上传失败');
+            }
+        });
+    });
+
+    //保存
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        $.ajaxUkey({
+            url: "/bcb/bankcard/type/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // 提示失败
+                    layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

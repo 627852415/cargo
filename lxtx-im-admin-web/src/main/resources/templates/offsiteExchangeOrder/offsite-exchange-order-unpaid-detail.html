@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.system.withdrawal.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label{
+        width: 100px;
+    }
+
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <div class="layui-row">
+        <input type="hidden"  th:value="${detail.expireTime}"  id="expireTime">
+        <label class="layui-form-label my-label my-label">[[#{text.order.status}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.statusStr}" class="layui-input" style="color: #af0000" disabled>
+
+        </div>
+        <div class="layui-inline" style="margin-top: 10px; margin-left: 60px; ">
+            <div id="test2"></div>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.order.number}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="orderId" th:value="${detail.orderId}"  class="layui-input" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.whether.the.buyer.has.paid}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"    th:if="${detail.payed}" class="layui-input" th:value="#{text.yes}" disabled>
+            <input type="text"    th:unless="${detail.payed}"  class="layui-input" th:value="#{text.not}" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.whether.there.is.a.complaint}]]：</label>
+        <div class="layui-input-inline">
+            <input type="text"    th:if="${detail.complainted}" class="layui-input" th:value="#{text.yes}" disabled>
+            <input type="text"    th:unless="${detail.complainted}"  class="layui-input" th:value="#{text.not}" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.product.number}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.goodsId}"  class="layui-input" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.buyer.account}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.userId}"  class="layui-input" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.exchange.amount}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.targetAmount} +  ${detail.targetCurrency}"  class="layui-input" disabled>
+        </div>
+        </div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.edit.exchange.rate}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${detail.rate}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.fee}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="(${detail.commission}) ? (${detail.commission} + ${detail.sourceCurrency}) : (0 + ${detail.sourceCurrency})" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.amount.received}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.sourceAmount} + ${detail.sourceCurrency}"  class="layui-input" disabled>
+        </div></div>
+        <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.creation.time}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${#dates.format(detail.createTime,'yyyy-MM-dd HH:mm:ss')}"  class="layui-input" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.seller.account}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.sellerUserId}"  class="layui-input" disabled>
+        </div></div><div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.payment.method}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.payTypeName}"  class="layui-input" disabled>
+        </div></div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.seller.address}]]</label>
+            <div class="layui-input-inline">
+                <textarea name="desc"  class="layui-textarea" th:text = "${detail.address}"></textarea>
+            </div>
+        </div>
+    </div>
+
+</form>
+<script>
+    layui.use(['util', 'laydate', 'layer'], function() {
+        var $ = layui.$
+            ,util = layui.util
+            ,element = layui.element
+            ,layer = layui.layer;
+
+        var thisTimer, setCountdown = function (y, M, d, H, m, s) {
+            var endTime = new Date(y, M || 0, d || 1, H || 0, m || 0, s || 0)/
+            clearTimeout(thisTimer);
+            util.countdown(endTime, serverTime, function (date, serverTime, timer) {
+                var str = date[0] + '天' + date[1] + '时' + date[2] + '分' + date[3] + '秒';
+                str = str + "<span id=\"finishOrder\" class=\"layui-btn\">[[#{text.close.transaction}]]</span>";
+                lay('#test2').html(str);
+                thisTimer = timer;
+            });
+        };
+
+        var pullOffDate = document.getElementById("expireTime").value;
+        var endDate = new Date(pullOffDate);
+        setCountdown(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), endDate.getHours(), endDate.getMinutes(), endDate.getSeconds());
+
+        $(document).on('click','#finishOrder',function(){
+            var orderId = document.getElementById("orderId").value;
+            var data = JSON.stringify({orderId: orderId,});
+            endOrder('/offsite/exchange/order/end', data, '/offsite/exchange/order/list');
+        });
+
+        function endOrder(url, data, redirectUrl) {
+            $.ajaxUkey({
+                url : url,
+                type : 'POST',
+                contentType : 'application/json;charset=UTF-8',
+                data : data,
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        var message = data.data;
+                        if($.isEmptyObject(message)){
+                            message = "[[#{text.successful.operation}]]";
+                        }
+                        layer.alert(message, {title: '[[#{text.information}]]', icon: 6}, function (index) {
+                            if(redirectUrl){
+                                window.parent.location.reload();
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index)
+                                location.reload();
+                            }else{
+                                parent.layer.closeAll();
+                            }
+
+                        });
+
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                },
+                error : function(e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                }
+            });
+            return false;
+        }
+
+    });
+
+
+</script>
+</body>
+</html>

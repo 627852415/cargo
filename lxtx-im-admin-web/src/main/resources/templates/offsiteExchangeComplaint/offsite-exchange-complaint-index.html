@@ -1,0 +1,161 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>[[#{text.offline.exchange.complaint.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+
+                <div class="layui-input-inline">
+                    <input lay-filter="createTime" name="createTime" type="text" class="layui-input"
+                           id="createTime" th:placeholder="#{text.bengin.of.creation.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input lay-filter="endTime" name="endTime" type="text" class="layui-input"
+                           id="endTime" th:placeholder="#{text.end.of.creation.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchantAccount" id="merchantAccount" class="layui-input"
+                           th:placeholder="#{text.buyer.seller.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="keyword" id="keyword" class="layui-input"
+                           th:placeholder="#{text.complaint.order.number}"/>
+                </div>
+
+                <div class="layui-input-inline">
+                    <select id="status" name="status" lay-verify="" lay-search>
+                        <option value="">[[#{text.order.status}]]</option>
+                        <option value="0">[[#{text.unprocessed}]]</option>
+                        <option value="1">[[#{text.processing}]]</option>
+                        <option value="2">[[#{text.processed}]]</option>
+                        <option value="3">[[#{text.order.status.close}]]</option>
+                        <option value="4">[[#{text.order.status.revocation}]]</option>
+                    </select>
+                </div>
+
+
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">[[#{text.search.for}]]</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}"
+           lay-filter="dataTable">
+        <thead>
+        <tr>
+            <th lay-data="{field:'id', align:'center',style:'height:65px;'}">[[#{text.arbitration.number}]]</th>
+            <th lay-data="{field:'orderId', align:'center'}">[[#{text.order.number}]]</th>
+            <th lay-data="{field:'buyer', align:'center'}">[[#{text.buyer}]]</th>
+            <th lay-data="{field:'merchant', align:'center'}">[[#{text.business}]]</th>
+            <th lay-data="{width:'10%', field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.complaint.time}]]
+            </th>
+            <th lay-data="{width:'10%', field:'finishTime', align:'center',templet: function (data) {
+                           return formatDateL(data.finishTime);
+                        }}">[[#{text.processing.time}]]
+            </th>
+            <th lay-data="{field:'status', align:'center',templet: function (data) {
+                           return formatStatus(data)
+                        }}">[[#{text.processing.status}]]
+            </th>
+            <th lay-data="{width:'13%', align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="detail">[[#{text.view}]]</a>
+        {{#  if(d.status == 0 || d.status == 1){ }}
+        <a class="layui-btn tableBtn" shiro:hasPermission="'processing:offsite:exchange:complaint'" lay-event="edit">[[#{text.deal.with}]]</a>
+        {{#  } }}
+    </script>
+</div>
+</div>
+</body>
+
+<script>
+
+    function formatStatus(data){
+        if(data.status === 0) {
+            return '[[#{text.unprocessed}]]';
+        } else if(data.status === 1) {
+            return '[[#{text.processing}]]';
+        } else if(data.status === 2) {
+            return '[[#{text.processed}]]';
+        }else if(data.status === 3) {
+            return '[[#{text.order.status.close}]]';
+        }else if(data.status === 4) {
+            return '[[#{text.order.status.revocation}]]';
+        }
+    }
+
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+
+        laydate.render({
+            elem: '#createTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > endTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.operation.end.less.current.time}]]");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.operation.end.less.begin.time}]]");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+    });
+    loadTableWithoutColumns('/offsite/exchange/complaint/list', 'dataTable', 'searchForm');
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    //订单详情
+    function rowTool(){
+        layui.use('table', function (){
+            //监听行工具事件
+            table.on('tool(dataTable)', function(obj){
+                var data = obj.data;
+                if(obj.event === 'detail'){
+                    openTab("[[#{text.details.of.the.complaint}]]", "/offsite/exchange/complaint/detail?id=" + obj.data.id);
+                } else if (obj.event === 'edit') {
+                    openTab("[[#{text.complain.handle}]]", "/offsite/exchange/complaint/processing?id=" + obj.data.id);
+                }
+            });
+        });
+    }
+
+</script>
+</html>

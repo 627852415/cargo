@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>新建法币币种</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-form-label {
+        width: 100px;
+    }
+</style>
+<body>
+<blockquote class="layui-elem-quote">
+    <form class="layui-form" action="">
+        <input type="hidden" th:value="${legalCoin} ? ${legalCoin.id}"
+               th:name="${legalCoin != null && legalCoin.id != null} ? 'id'"/>
+        <input type="hidden" th:value="${viewUrl} ? ${viewUrl}" id="viewHost"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">币种名称</label>
+            <div class="layui-input-inline">
+                <input type="text" id="legalCoinName" name="legalCoinName"
+                       th:value="${legalCoin} ? ${legalCoin.legalCoinName}"
+                       lay-verify="required|legalCoinName"
+                       autocomplete="off" class="layui-input" placeholder="请输入币种名称">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">关联币种</label>
+            <div class="layui-input-inline">
+                <select name="relationCoinId" lay-search="" lay-verify="relationCoinId">
+                    <option value="">请选择币种</option>
+                    <option th:each="coin : ${coinList}" th:text="${coin.coinName}" th:value="${coin.id}"
+                            th:selected="${legalCoin != null and coin != null and coin.id == legalCoin.relationCoinId}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">币种图标</label>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="coinImg">
+                    <i class="layui-icon">&#xe67c;</i>上传图标
+                </button>
+                <input type="hidden" id="icoUrl" name="icoUrl" th:value="${legalCoin} ? ${legalCoin.icoUrl}"/>
+            </div>
+            <div><img th:src="${legalCoin} ? ${legalCoin.icoUrlView}" class="layui-upload-img" th:if="${legalCoin}"
+                      style="width: 60px;height: 60px;margin: 0 10px 10px 0;" id="coinImageIdShow"></div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">币种描述</label>
+            <div class="layui-input-inline">
+                <input type="text" id="description" name="description"
+                       th:value="${legalCoin} ? ${legalCoin.description}"
+                       lay-verify="required|description"
+                       autocomplete="off" class="layui-input" placeholder="请输入币种描述">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</blockquote>
+<script>
+    layui.use(['form', 'layedit', 'upload', 'element'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , element = layui.element
+            , upload = layui.upload;
+        //自定义验证规则
+        form.verify({
+            // coinName: function (value) {
+            //     if (!/^[A-Z]+$/.test(value)) {
+            //         return '币种名称必须是英文大写！';
+            //     }
+            // },
+            numberLength: function (value) {
+                var regex = /^[\S]{0,16}$/;
+                if (!regex.test($.trim(value))) {
+                    return '长度必须是0-16位之间！';
+                }
+            },
+            numberVerify: function (value) {
+                if ($.trim(value) != "") {
+                    var regex = /^\d+(\.\d+)?$/;
+                    if (!regex.test(value)) {
+                        return '必须是整数或小数！';
+                    }
+                }
+
+            },
+            relationCoinId: function (value) {
+                if (value == null || value === "") {
+                    return '关联币种不能为空！';
+                }
+            }
+        });
+
+        //上传图标
+        upload.render({
+            elem: '#coinImg' //绑定元素
+            , url: '/coin/upload/' //上传接口
+            , method: 'POST'
+            , accept: 'jpg|png'
+            , done: function (res) {
+                //上传完毕回调
+                if (res.success) {
+                    document.getElementById("icoUrl").value = res.data;
+                    $("#coinImageIdShow").attr("src", $("#viewHost").val() + res.data);
+                    layer.msg('上传成功！');
+                } else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+            }
+            , error: function () {
+                layer.msg('上传失败');
+            }
+        });
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            var formData = data.field;
+            $.ajaxUkey({
+                data: JSON.stringify(formData),
+                type: "POST",
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/legal/coin/save',
+                success: function (result) {
+                    if (result.success) {
+                        layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                            // 刷新并切换tab回列表
+                            layer.close(index);
+                            tabChangeDef('/legal/coin/index');
+                            tabDeleteCurrent();
+                            location.reload();
+                        });
+                    } else if (result.msg != null) {
+                        layer.msg(result.msg);
+                    } else {
+                        // 提示失败
+                        layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                    }
+                }
+            }); // end ajax
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>

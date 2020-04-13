@@ -1,0 +1,384 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>商家对账列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="userId" id="userId" class="layui-input" placeholder="请输入用户ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="cycle" lay-verify="" id="cycle">
+                        <option value="">请选择结算周期</option>
+                        <option value="1">日结</option>
+                        <option value="2">周结</option>
+                        <option value="3">月结</option>
+                        <option value="4">实时</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="start" id="start" class="layui-input datetime"
+                           placeholder="起始日期"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="end" id="end" class="layui-input datetime"
+                           placeholder="结束日期"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" lay-filter="search" lay-submit="">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+
+                    <button type="button" class="layui-btn" onclick="download()">导出文件</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+
+<!--  新增或修改币种手续费 -->
+<div id="modifyData" style="display: none;">
+    <form class="layui-form" action="" id="modifyForm" style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;"><strong>账单周期</strong></label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <select name="state" lay-verify="" id="state" cycleId="" userId="">
+                        <option value="">请选择结算周期</option>
+                        <option value="1">日结</option>
+                        <option value="2">周结</option>
+                        <option value="3">月结</option>
+                        <option value="4">实时</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;"><strong>结算手续费</strong></label>
+            </div>
+        </div>
+        <div id="flag">
+
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" lay-filter="edit" lay-submit="">确定</a>
+                <a class="layui-btn" onclick="cancelModify()">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">群组列表</span>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-blue layui-btn-xs" lay-event="detail">对账详情</a>
+    <!--<a class="layui-btn layui-btn-blue layui-btn-xs" lay-event="editBtn">编辑</a>-->
+</script>
+
+<script>
+
+
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+
+    // 初始化日期控件
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#start',
+            min: -30,
+            max: 0
+        });
+
+        laydate.render({
+            elem: '#end',
+            min: -30,
+            max: 0
+        });
+    });
+
+    // 初始化列表
+    var table;
+    var intable;
+    layui.use('table', function () {
+        table = layui.table;
+        intable = table.render({
+            elem: '#dataTable'
+            , cellMinWidth: 100
+            , url: '/billcheck/list'
+            , method: 'post'
+            , toolbar: '#toolbarDemo'
+            , contentType: 'application/json'
+            , request: {
+                pageName: 'current'
+                , limitName: 'size'
+            }
+            , cols: [
+                [
+                    {width: 100, title: '序号', align: 'center', type: 'numbers'}
+                    , {field: 'userName', title: '用户名', align: 'center', sort: false}
+                    , {field: 'walletUserId', title: '用户ID', align: 'center', sort: false}
+                    , {field: 'area', title: '地区', align: 'center', sort: false}
+                    , {field: 'phoneNum', title: '手机号', align: 'center', sort: false}
+                    , {field: 'createTime', title: '创建时间', align: 'center', sort: false}
+                    , {field: 'cycle', title: '结算周期', align: 'center', sort: false}
+                    , {
+                    field: 'fee', title: '结算手续费', align: 'center', sort: false,
+                    templet: function (d) {
+                        var arr = d.fee
+                        var str = "";
+                        if (!$.isEmptyObject(arr)) {
+                            var arrJson = $.parseJSON(arr)
+                            $.each(arrJson, function (i, item) {
+                                if (!$.isEmptyObject(item)) {
+                                    str += item.coinName + ":" + item.feeRate*100+"%" + "\n"
+                                }
+                            })
+                        }
+
+                        return str
+                    }
+                }
+                    , {title: '操作', align: 'center', toolbar: '#barDemo'}
+
+                    //, {width: 250, title: '操作', align: 'center', sort: false, toolbar: '#barData'}
+                ]
+            ]
+            , parseData: function (res) {
+                var msg, code = "1", records, total = 0;
+                if (!res.success || $.isEmptyObject(res.data)) {
+                    if (res.msg) {
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                } else {
+                    records = res.data.records;
+                    if (records != undefined && records.length > 0) {
+                        code = '0';
+                        total = res.data.total;
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": total,
+                    "data": records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+        });
+
+        //监听行工具事件
+        table.on('tool(dataTable)', function (obj) {
+
+            if (obj.event === 'detail') {
+                var url = "/billcheck/detail?userId=" + obj.data.walletUserId;
+                var e = $(this), i = url;
+                var t = '对账详情';
+                layui.router();
+                var l = parent === self ? layui : top.layui;
+                l.index.openTabsPage(i, t || e.text());
+            }
+
+            if (obj.event === 'editBtn') {
+                var data = JSON.stringify({userId: obj.data.userId})
+                $.ajaxUkey({
+                    url: "/billcheck/pre/edit",
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.success) {
+                            var arr = data.data.coinList
+                            //console.log(data)
+                            $("#state").attr("cycleId", data.data.cycleId).attr("userId", data.data.userId)
+                            $("#state option[value=" + data.data.cycle + "]").attr("selected", "selected")
+                            /*$("#state").find('option').each(function (i, item) {
+                                var i = $(item)
+                                var v = i.val()
+                                if (v == data.data.cycle) {
+                                    i.attr("selected", true)
+                                    $("#state").val(v)
+                                }
+                            })*/
+                            console.log(data.data.cycle)
+                            if (!$.isEmptyObject(arr)) {
+                                $.each(arr, function (i, item) {
+                                    // console.log(item)
+                                    $("#flag").append("<div class=\"layui-form-item\">\n" +
+                                        "            <div class=\"layui-inline\">\n" +
+                                        "                <label class=\"layui-form-label\" style=\"width:80px;\">" + item.coinName + "</label>\n" +
+                                        "                <div class=\"layui-input-block\" style=\"width:350px;margin-left:110px;\" id=\"\">\n" +
+                                        "                    <input type=\"text\" name=\"" + data.data.userId + "\"\n" +
+                                        "                           placeholder=\"\" autocomplete=\"off\" lay-verify=\"numberVerify\" class=\"layui-input\"\n" +
+                                        "                           id=\"" + item.id + "\" value=\"" + item.feeRate * 100 + "\" coinId=\"" + item.coinId + "\">\n" +
+                                        "                </div>\n" +
+                                        "            </div>\n" +
+                                        "        </div>")
+                                })
+                            }
+                            openModify(obj);
+
+                        } else {
+                            layer.msg(data.msg);
+                        }
+                    },
+                    error: function (e) {
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                        layer.msg('系统升级维护中，请稍后重试');
+                    }
+                });
+
+            }
+        });
+
+    });
+
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.verify({
+            numberVerify: function (value) {
+                if ($.trim(value) != "") {
+                    // var regex = /^\d+(\.\d+)?$/;
+                    // if (!regex.test(value)) {
+                    //     return '手续费必须是整数或小数！';
+                    // }
+                    var reg = new RegExp("^(\\d|[1-9]\\d|100)$");
+                    if (!reg.test(value)) {
+                        return "请输入0-100的整数！";
+                    }
+                }
+            }
+        });
+
+        form.on('submit(search)',
+            function (data) {
+                intable.reload({
+                    where: {
+                        userId: data.field.userId
+                        , start: data.field.start
+                        , end: data.field.end
+                        , cycle: data.field.cycle
+                    }
+                });
+            });
+        form.on('submit(edit)', function (data) {
+            var sle = $("#state")
+            var cycleId = sle.attr("cycleId")
+            var userId = sle.attr("userId")
+            var cycle = sle.val()
+            console.log(cycle)
+            var list = new Array()
+            var userId = "";
+            $('#flag').find('.layui-form-item').each(function () {
+                var a = $(this).find('.layui-inline').find('input').each(function (i, item) {
+                    var coinId = $(item).attr("coinId")
+                    var id = $(item).attr("id")
+                    var feeRate = $(item).val()
+                    userId = $(item).attr("name")
+                    list.push({id: id, feeRate: feeRate + "%", coinId: coinId})
+                })
+            })
+            var editData = JSON.stringify({userId: userId, cycleId: cycleId, cycle: cycle, coinList: list})
+            $.ajaxUkey({
+                url: "/billcheck/edit",
+                type: 'POST',
+                data: editData,
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功！",
+                            {
+                                //offset: '15px',
+                                time: 1000
+                            },
+                            function () {
+                                $("#addBankcardDiv").attr("style", "display: none;");
+                                $("#flag").empty()
+                                layer.closeAll();
+                                $(".layui-laypage-btn")[0].click();
+                                intable.reload()
+                            });
+                    } else {
+                        layer.msg(data.msg);
+                    }
+
+                },
+                error: function (e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                    layer.msg('系统升级维护中，请稍后重试');
+                }
+            });
+
+        })
+    });
+
+    //打开修改用户弹窗
+    function openModify(obj) {
+        layer.open({
+            type: 1,
+            closeBtn: 0,
+            title: '<b>系统用户信息修改</b>',
+            area: ['540px', '400px'], //宽高
+            content: $("#modifyData")
+        });
+        layui.form.render(); //更新全部
+        layui.form.render('select'); //刷新select选择框渲染
+    }
+
+    function cancelModify() {
+        $("#flag").empty()
+        this.layer.closeAll();
+    }
+
+    //excel文件导出
+    function download() {
+        var url = "/billcheck/export/list/excel?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '提示信息', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("系统异常，导出失败", {title: '提示信息', icon: 2});
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

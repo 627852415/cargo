@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>白名单管理列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" onclick="add()" class="layui-btn">新增白名单</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">序号</th>
+                <th lay-data="{field:'countryName', align:'center'}">地区及国家</th>
+                <th lay-data="{field:'extraConfig', align:'center'}">额外分佣比例</th>
+                <th lay-data="{field:'updateTime', align:'center'}">最后编辑时间</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+
+        <script type="text/html" id="barData">
+            <a class="layui-btn tableBtn layui-btn-sm" lay-event="edit">
+                <i class="layui-icon layui-icon-edit"></i>编辑
+            </a>
+            <a class="layui-btn tableBtn" lay-event="del">
+                <i class="layui-icon"></i>移出白名单
+            </a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    var form;
+    layui.use(['form','table'], function () {
+        form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/commission/extra/whitelist/page/list', 'dataTable', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    layui.use('table', function () {
+        var table = layui.table;
+        table.on('tool(dataTable)', function (obj) {
+            if(obj.event === 'edit'){
+                add(obj.data);
+            }else if (obj.event === 'del') {
+                del(obj.data);
+            }
+        });
+    });
+
+
+    //新增或编辑
+    function add(obj) {
+        var url;
+        var title = '[[#{text.add}]]';
+        if (obj != undefined) {
+            url = "/commission/extra/whitelist/toEdit?id=" + obj.id.toString()+"&countryName="+obj.countryName.toString();
+            title = '地区分佣比例编辑';
+        } else {
+            url = "/commission/extra/whitelist/toAdd";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['760px', '800px'], //宽高
+            content: url
+        });
+    }
+
+    //删除
+    function del(obj) {
+        console.log(obj);
+        layer.confirm("确认将 "+obj.countryName +" 移出白名单?", {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]',
+            offset: 100
+        }, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({
+                    id: obj.id
+                }),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/commission/extra/whitelist/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+</script>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>返佣伙伴详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 120px;
+    }
+	.my-inline{
+		width: 320px !important;
+	}
+	.my-inline-remark{
+		width: 320px !important;
+	}
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.id}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.platformUserId}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="platformUserId" th:value="${detail.platformUserId}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.userId}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="userId" th:value="${detail.userId}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.name}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="name" th:value="${detail.name}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.cnName}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="cnName" th:value="${detail.cnName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.telephone}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="telephone" th:value="${detail.telephone}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.certificateType}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="certificateTypeStr" th:value="${detail.certificateType}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.commission.user.certificateNo}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="certificateNo" th:value="${detail.certificateNo}" class="layui-input" disabled>
+        </div>
+    </div>
+</form>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.levelName}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="levelId" th:value="${detail.levelName}" class="layui-input" disabled>
+        </div>
+    </div>
+  <!--  <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.ratio}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="ratio" th:value="${detail.ratio}" class="layui-input" disabled>
+        </div>
+    </div>-->
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.coin.name}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="coinName" th:value="${detail.coinName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.paymentAmount}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="paymentAmount" th:value="${detail.paymentAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+</form>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.directLowerNumber}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="directLowerNumber" th:value="${detail.directLowerNumber}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.directLowerNewNumber}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="directLowerNewNumber" th:value="${detail.directLowerNewNumber}" class="layui-input" disabled>
+        </div>
+    </div>
+   <!-- <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.amountOfMonth}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="amountOfMonth" th:value="${detail.amountOfMonth}" class="layui-input" disabled>
+        </div>
+    </div>-->
+    <div class="layui-form-item" th:each="statis : ${detail.commissionOrderStatisResps}" >
+        <label class="layui-form-label my-label"><option th:text="${statis.coinName}"></option>[[#{text.commission.user.amountOfMonth}]]</label>
+        <div class="layui-input-inline" >
+            <input type="text"  th:value="${statis.amount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item"  th:if=" ${detail.commissionOrderStatisResps == null}">
+        <label class="layui-form-label my-label">[[#{text.commission.user.amountOfMonth}]]</label>
+        <div class="layui-input-inline" >
+            <input type="text"  th:value="0" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.createTime}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="createTime" name="createTime" th:value="${detail.createTime}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.commission.user.update}]]</label>
+    </div>
+    <div class="layui-form-item" th:each="item,stat:${detail.adminCommissionUserUpdateListResp}">
+    	<label class="layui-form-label my-label my-label"></label>
+        <div class="layui-input-inline my-inline">
+            <div class="layui-form-item">
+		        <div class="layui-input-inline my-inline">
+		            <input type="text" name="createTime" th:value="${item.levelName}" class="layui-input" disabled>
+		        </div>
+		        <div class="layui-input-inline my-inline">
+		            <input type="text" name="createTime" th:value="${item.createTime}" class="layui-input" disabled>
+		        </div>
+		    </div>
+        </div>
+    </div>
+</form>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+    console.log(detail)
+    $('input[id=createTime]').val(formatDateL(detail.createTime));
+
+    $('input[id=certificateTypeStr]').val(getCertificateTypeStr(detail.certificateType));
+
+
+    function getCertificateTypeStr(certificateType) {
+        var certificateTypeStr = "";
+        if (certificateType == 0) {
+            certificateTypeStr = "身份证";
+        }else if (certificateType == 1) {
+            certificateTypeStr = "护照";
+        }
+        return certificateTypeStr;
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>[[#{text.offline.exchange.product.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="goodsId" id="goodsId" class="layui-input"
+                           th:placeholder="#{text.product.id}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchantId" id="merchantId" class="layui-input"
+                           th:placeholder="#{text.merchant.id}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" id="telephone" class="layui-input"
+                           th:placeholder="#{text.telephone.number}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input lay-filter="startTime" name="startTime" type="text" class="layui-input"
+                           id="startTime" th:placeholder="#{text.start.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input lay-filter="endTime" name="endTime" type="text" class="layui-input"
+                           id="endTime" th:placeholder="#{text.end.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="pullOffFlag" name="pullOffFlag" lay-verify="" lay-search>
+                        <option value="">[[#{text.shelves.status}]]</option>
+                        <option value="0">[[#{text.shelves}]]</option>
+                        <option value="1">[[#{text.take.off}]]</option>
+                        <option value="2">[[#{text.shut.down}]]</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">
+                        [[#{text.search.for}]]
+                    </button>
+                    <shiro:hasPermission name="download:offsite:exchange:goods">
+                        <button type="button" onclick="download(this)" class="layui-btn">[[#{text.export.file}]]
+                        </button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="dataTable">
+        <thead>
+        <tr>
+            <th lay-data="{field:'goodsId', align:'center', width:'12%',style:'height:65px;'}">[[#{text.product.id}]]
+            </th>
+            <th lay-data="{field:'merchantId', width:'12%', align:'center'}">[[#{text.merchant.id}]]</th>
+            <th lay-data="{field:'fullTelephone', align:'center', width:'10%',templet: function (data) {
+                           return telephoneHandle(data.fullTelephone);
+                        }}">[[#{text.busse.home}]]
+            </th>
+            <th lay-data="{field:'totaltAmount', align:'center', width:'8%'}">[[#{text.total}]]</th>
+            <th lay-data="{field:'totaltSourceAmount', align:'center', width:'8%'}">[[#{text.trading.volume}]]</th>
+            <th lay-data="{field:'transactionAmount', align:'center', width:'8%'}">[[#{text.volume}]]</th>
+            <th lay-data="{field:'progressRate',align:'center'}">[[#{text.complete.schedule}]]</th>
+            <th lay-data="{field:'limitRange', align:'center',width:'12%',templet: function (data) {
+                           return limitRangeHandle(data.limitRange);
+                        }}">[[#{text.limit}]]
+            </th>
+            <th lay-data="{field:'exchangeRate', align:'center'}">[[#{text.exchange.rate}]]</th>
+            <th lay-data="{field:'totalRebateAmount', align:'center',templet: function (data) {
+                           return data.merchantRebateAmount + data.inviteRebateAmount;
+                        }}">[[#{text.cash.back}]]
+            </th>
+            <th lay-data="{field:'platformRebateAmount', align:'center'}">[[#{text.profit}]]</th>
+            <th lay-data="{field:'pullOffDay', align:'center', width:'6%'}">[[#{text.shelf.timedays}]]</th>
+            <th lay-data="{width:'10%', field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.release.date}]]
+            </th>
+            <th lay-data="{field:'pullOffFlag', align:'center',templet: function (data) {
+                           return formatStatus(data)
+                        }}">[[#{text.status}]]
+            </th>
+            <th lay-data="{width:'20%', align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="detail">[[#{text.details}]]</a>
+        {{#  if(d.pullOffFlag == 1){ }}
+<!--        <a class="layui-btn tableBtn" lay-event="goods-up"-->
+<!--           shiro:hasPermission="'up:offsite:exchange:goods'">[[#{text.shelves}]]</a>-->
+        <a class="layui-btn tableBtn" lay-event="goods-closeGoodsByAdmin"  shiro:hasPermission="'close:offsite:exchange:goods'">[[#{text.shut.down}]]</a>
+        {{#  } }}
+        {{#  if(d.pullOffFlag == 0){ }}
+        <a class="layui-btn tableBtn" lay-event="goods-closeGoodsByAdmin"  shiro:hasPermission="'close:offsite:exchange:goods'">[[#{text.shut.down}]]</a>
+        <a class="layui-btn tableBtn" lay-event="goods-down" shiro:hasPermission="'down:offsite:exchange:goods'">[[#{text.take.off}]]</a>
+        {{#  } }}
+    </script>
+</div>
+</div>
+</body>
+<script>
+
+    function formatStatus(data) {
+        if (data.pullOffFlag === 0) {
+            return '[[#{text.shelves}]]';
+        } else if (data.pullOffFlag === 1) {
+            return '[[#{text.take.off}]]';
+        } else if (data.pullOffFlag === 2) {
+            return '[[#{text.shut.down}]]';
+        }
+    }
+
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+
+        laydate.render({
+            elem: '#startTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#startTime").val("");
+                    createTime = '';
+                    return;
+                } else if (endTime != "" && value > endTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#startTime").val("");
+                    createTime = '';
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endTime").val("");
+                    endTime = '';
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endTime").val("");
+                    endTime = '';
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+    });
+    loadTableWithoutColumns('/offsite/exchange/goods/list', 'dataTable', 'searchForm');
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function (obj) {
+                var goods = obj.data;
+                var userId = goods.userId;
+                var merchantId = goods.merchantId;
+                var goodsId = goods.goodsId;
+                var detail = JSON.stringify(goods);
+                if (obj.event === 'detail') {
+                    openModal("[[#{text.offinline.exechange.goods.details}]]", "/offsite/exchange/goods/detail?detail=" + encodeURIComponent(detail, 'utf-8'), 700, 500);
+                }
+                if (obj.event === 'goods-up') {
+                    goodsUp(userId, merchantId, goodsId, this);
+                }
+                if (obj.event === 'goods-closeGoodsByAdmin') {
+                    closeGoodsByAdmin(goodsId, this);
+                }
+                if (obj.event === 'goods-down') {
+                    goodsDown(userId, merchantId, goodsId, this);
+                }
+            });
+        });
+    }
+
+    //[[#{text.export.fee.list.file}]]
+    function download(obj) {
+        console.info();
+        var goodsId = document.getElementById("goodsId").value;
+        var merchantId = document.getElementById("merchantId").value;
+        var endTime = document.getElementById("endTime").value;
+        var startTime = document.getElementById("startTime").value;
+        var telephone = document.getElementById("telephone").value;
+        var pullOffFlag = document.getElementById("pullOffFlag").value;
+        var url = "/offsite/exchange/goods/download?goodsId=" + goodsId + "&startTime=" + startTime + "&endTime=" + endTime
+            + "&merchantId=" + merchantId + "&telephone=" + telephone + "&pullOffFlag=" + pullOffFlag;
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {
+                    title: '[[#{text.information}]]',
+                    icon: 2
+                });
+            }
+        });
+    }
+
+    function goodsUp(userId, merchantId, goodsId, item) {
+        $.ajaxUkey({
+            url: '/offsite/exchange/goods/up',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                'userId': userId,
+                'merchantId': merchantId,
+                'goodsId': goodsId
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.information}]]',
+                        icon: 1
+                    }, function (index) {
+                        layer.close(index);
+                        //location.reload();
+                    });
+                    search('searchForm', 'dataReload')
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail }]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+    }
+
+    function closeGoodsByAdmin(goodsId, item) {
+        $.ajaxUkey({
+            url: '/offsite/exchange/goods/closeGoodsByAdmin',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                'goodsId': goodsId
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.information}]]',
+                        icon: 1
+                    }, function (index) {
+                        layer.close(index);
+                        //location.reload();
+                    });
+                    search('searchForm', 'dataReload')
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail }]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+    }
+
+
+
+    function goodsDown(userId, merchantId, goodsId, item) {
+        $.ajaxUkey({
+            url: '/offsite/exchange/goods/down',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                'userId': userId,
+                'merchantId': merchantId,
+                'goodsId': goodsId
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.information}]]',
+                        icon: 1
+                    }, function (index) {
+                        layer.close(index);
+                        //location.reload();
+                    });
+                    search('searchForm', 'dataReload')
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail }]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+    }
+
+    function telephoneHandle(data) {
+        return data.replace(' ', '+');
+        // return "1234"qishi
+    }
+
+    function limitRangeHandle(data) {
+        return data.replace('-', ' ~ ');
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,221 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>账单详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="hidden" name="billId" id="billId" class="layui-input" th:value="${billId}"/>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">收款笔数：</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" th:value="${totalCount}" readonly>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">账单日期：</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" th:value="${billTime}" readonly>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="infoTable" lay-filter="dataTable"></table>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">账单详情</span>
+</script>
+
+<script>
+
+
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+
+
+    // 初始化列表
+    var table;
+    layui.use('table', function () {
+        table = layui.table;
+        table.render({
+            elem: '#dataTable'
+            , cellMinWidth: 100
+            , url: '/billcheck/pay/order/list'
+            , method: 'post'
+            , initSort: {field: 'id', type: 'desc'}
+            , where: {
+                billId: $('#billId').val(),
+            }
+            , request: {
+                pageName: 'current'
+                , limitName: 'size'
+            }
+            , cols: [
+                [
+                    {width: 100, field: 'id', title: '序号', align: 'center', sort: false},
+                    {field: 'billId', title: '收款单ID', align: 'center', sort: false},
+                    {field: 'userId', title: '付款方ID', align: 'center', sort: false},
+                    {
+                        field: 'payCoinNameAndPayAmount', title: '付款金额', align: 'center', sort: false,
+                        templet: function (d) {
+                            return d.payCoinName + ':' + d.payAmount
+                        }
+                    },
+                    {field: 'receiptCoinName', title: '收款币种', align: 'center', sort: false},
+                    {
+                        field: 'payExchangeRate', title: '支付汇率', align: 'center', sort: false,
+                        templet: function (d) {
+                            return '1' + d.payCoinName + ' ≈ ' + d.payExchangeRate + d.receiptCoinName
+                        }
+                    },
+                    {
+                        field: 'payDate', title: '付款时间', align: 'center', sort: false,
+                        templet: function (d) {
+                            return formatDateL(d.payDate)
+                        }
+                    }
+                ]
+            ]
+            , parseData: function (res) {
+                var msg, code = "1", records, total = 0;
+                if (!res.success || $.isEmptyObject(res.data)) {
+                    if (res.msg) {
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                } else {
+                    records = res.data.records;
+                    if (records != undefined && records.length > 0) {
+                        code = '0';
+                        total = res.data.total;
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": total,
+                    "data": records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+        });
+
+        //监听排序事件
+        table.on('sort(dataTable)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var orderF = {
+                field: obj.field //排序字段
+                , order: obj.type //排序方式
+            };
+            var whereData = $.extend(orderF, $("#searchForm").serializeJson());
+            table.reload('dataReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                , where: whereData
+            });
+        });
+
+    });
+
+    layui.use('table', function () {
+        table = layui.table;
+        table.render({
+            elem: '#infoTable'
+            , cellMinWidth: 100
+            , url: '/billcheck/bill/list'
+            , method: 'post'
+            , toolbar: '#toolbarDemo'
+            // , initSort: {field: 'totalScoreActivity', type: 'desc'}
+            , where: {
+                billId: $('#billId').val(),
+            }
+            , request: {
+                pageName: 'current'
+                , limitName: 'size'
+            }
+            , cols: [
+                [
+                    {
+                        field: 'payCoinNameAndPayAmount', title: '付款金额', align: 'center', sort: false, width: 150
+                        , templet: function (d) {
+                            return d.payCoinName + ':' + d.payAmount
+                        }
+                    },
+                    {
+                        field: 'coinNameAndBillAmount', title: '收款金额', align: 'center', sort: false, width: 150
+                        , templet: function (d) {
+                            return d.coinName + ':' + d.receiptAmount
+                        }
+                    },
+                    {field: 'fastExchangeFeeRate', title: '闪兑手续费', align: 'center', sort: false, width: 150},
+                    {field: 'feeRate', title: '交易站手续费', align: 'center', sort: false, width: 150},
+                    {field: 'receiptSettleAmount', title: '实际收款金额', align: 'center', sort: false, width: 150,
+                        templet:function (d) {
+                            return d.coinName + ':' + d.realReceiptAmount
+                        }
+                    }
+                ]
+            ]
+            , parseData: function (res) {
+                var msg, code = "1", records, total = 0;
+                if (!res.success || $.isEmptyObject(res.data)) {
+                    if (res.msg) {
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                } else {
+                    records = res.data.records;
+                    if (records != undefined && records.length > 0) {
+                        code = '0';
+                        total = res.data.total;
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": total,
+                    "data": records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+        });
+
+        //监听排序事件
+        table.on('sort(dataTable)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var orderF = {
+                field: obj.field //排序字段
+                , order: obj.type //排序方式
+            };
+            var whereData = $.extend(orderF, $("#searchForm").serializeJson());
+            table.reload('dataReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                , where: whereData
+            });
+        });
+
+    });
+</script>
+
+</body>
+</html>

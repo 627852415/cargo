@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>报警管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/alertAssets/index.js}"></script>
+    <script>var hasUpdatePermission = false</script>
+    <script>var hasAddPermission = false</script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+<shiro:hasPermission name="alertAssets:update">
+    <script>hasUpdatePermission = true</script>
+</shiro:hasPermission>
+<shiro:hasPermission name="alertAssets:add">
+    <script>hasAddPermission = true</script>
+</shiro:hasPermission>
+
+<input th:value="${subTypeMap}" id="subTypeMapId" name="subTypeMapId" hidden>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <select id="type" name="type" lay-filter="type">
+                            <option value="">请选择类型</option>
+                            <option value="1">资产频繁操作配置</option>
+                            <option value="2">平台资产报警配置</option>
+                        </select>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime"
+                               placeholder="请选择开始日期">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime"
+                               placeholder="请选择结束日期">
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">搜索</button>
+                        <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                        <shiro:hasPermission name="alertAssets:add">
+                            <button type="button" class="layui-btn" onclick="add(this)">新增</button>
+                        </shiro:hasPermission>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{width: 150, align:'center',templet:function(data){
+                        return getTypeName(data.type);
+                }}">类型</th>
+                <th lay-data="{width: 120, align:'center',templet:function(data){
+                        return getSubTypeName(data.flowSubType);
+                }}">子类型</th>
+                <th lay-data="{align:'center', width: 100, templet: function (data){
+                        return getStatusName(data.enable);
+                    }}">状态
+                </th>
+                <th lay-data="{field:'desc', width: 180, align:'center'}">描述
+                </th>
+                <th lay-data="{field:'maxTimes', align:'center', width: 90}">最大次数
+                </th>
+                <th lay-data="{field:'maxDate', align:'center',width: 120}">报警时间(ms)
+                </th>
+                <th lay-data="{field:'maxDiffRate', width: 90, align:'center'}">报警比率(%)
+                </th>
+                <th lay-data="{field:'email', align:'center', width: 180}">报警邮件
+                </th>
+                <th lay-data="{field:'telegram', width: 150, align:'center'}">报警电报
+                </th>
+                <th lay-data="{field:'telephone', align:'center', width: 150}">报警电话
+                </th>
+                <th lay-data="{field:'updateTime', width: 170, align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间
+                </th>
+                <th lay-data="{fixed: 'right', width:150, align:'center',templet: function(data){
+        return renderBtn(data);
+                }}">操作
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    //处理币种名称
+    // var coinIdNameMap;
+    // var statusMap;
+    // var typeMap;
+    // $(document).ready(function(){
+    //     var coinIdNameMapStr = $("input[name='coinIdNameMapId']").val();
+    //     var statusMapStr = $("input[name='statusMapId']").val();
+    //     var typeMapStr = $("input[name='typeMapId']").val();
+    //     coinIdNameMap = JSON.parse(coinIdNameMapStr);
+    //     statusMap = JSON.parse(statusMapStr);
+    //     typeMap = JSON.parse(typeMapStr);
+    //     for(x in statusMap){
+    //         $("select[name='status']").append("<option value='"+statusMap[x].code+"'>"+statusMap[x].description+"</option>");
+    //     }
+    //     for(x in typeMap){
+    //         $("select[name='type']").append("<option value='"+typeMap[x].code+"'>"+typeMap[x].description+"</option>");
+    //     }
+    // });
+    //
+    // function getCoinNameMap(coinId) {
+    //     return coinIdNameMap[coinId];
+    // }
+</script>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.currency.handling.fee}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form class="layui-form" action="">
+    <input type="hidden" th:value="${coinCharge} ? ${coinCharge.id}" name="id"/>
+    <input type="hidden" th:value="${coinCharge} ? ${coinCharge.coinId}" id="selectedCoinId" >
+    <div class="layui-form-item" style="margin-top: 20px;">
+        <label class="layui-form-label" style="width: 130px;">[[#{text.fee.type}]]</label>
+        <div class="layui-input-inline" style="width: 280px;">
+            <select  name="chargeType">
+                <option value="">[[#{text.please.select.a.fee.type}]]</option>
+                <option value="1" th:selected="${coinCharge != null and coinCharge.chargeType == 1}">[[#{text.red.envelope.handling.fee}]]</option>
+                <option value="2" th:selected="${coinCharge != null and coinCharge.chargeType == 2}">[[#{text.friend.transfer.fee}]]</option>
+                <option value="3" th:selected="${coinCharge != null and coinCharge.chargeType == 3}">[[#{text.wallet.transfer.fee}]]</option>
+                <option value="4" th:selected="${coinCharge != null and coinCharge.chargeType == 4}">[[#{text.niuniu.game.fee}]]</option>
+                <option value="5" th:selected="${coinCharge != null and coinCharge.chargeType == 5}">21[[#{text.point.game.fee}]]</option>
+                <option value="6" th:selected="${coinCharge != null and coinCharge.chargeType == 6}">[[#{text.minesweeper.game.fee}]]</option>
+                <option value="8" th:selected="${coinCharge != null and coinCharge.chargeType == 8}">[[#{text.merchant.settlement.fee}]]</option>
+                <option value="11" th:selected="${coinCharge != null and coinCharge.chargeType == 11}">[[#{text.recharge.fee}]]</option>
+            </select>
+        </div>
+       <!-- <div class="layui-inline">
+            <input type="radio" name="chargeType"  th:checked="${coinCharge != null and coinCharge.chargeType == 1}" value="1" title="[[#{text.red.envelope}]]">
+            <input type="radio" name="chargeType"  th:checked="${coinCharge != null and coinCharge.chargeType == 2}" value="2" title="[[#{text.friends.transfer}]]">
+            <input type="radio" name="chargeType"  th:checked="${coinCharge != null and coinCharge.chargeType == 3}" value="3" title="[[#{text.wallet.transfer}]]">
+        </div>-->
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 130px;">[[#{text.currency}]]</label>
+        <div class="layui-input-inline"  style="width: 280px;">
+            <select name="coinId" id="coinId" lay-verify="" lay-search >
+                <option value="">[[#{text.please.select.currency}]]</option>
+            </select>
+            <!--<input type="text" name="coinName"  style="width: 280px;"  th:value="${coinCharge} ? ${coinCharge.coinName}"
+                   lay-verify="required" autocomplete="off" class="layui-input" placeholder="[[#{text.please.enter.currency.name}]]">-->
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 130px;">[[#{text.fee.method}]]</label>
+        <div class="layui-inline">
+            <input type="radio" name="type"  th:checked="${coinCharge != null and coinCharge.type == 1}" value="1" th:title="#{text.percentage}">
+            <input type="radio" name="type"  th:checked="${coinCharge != null and coinCharge.type == 2}" value="2" th:title="#{text.fixed.value}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 130px;">[[#{text.value}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="value" style="width: 280px;" name="value" th:value="${coinCharge} ? ${coinCharge.value}"
+                   lay-verify="required|numberVerify" autocomplete="off" class="layui-input" th:placeholder="#{text.please.enter} +'value'">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+<script>
+    layui.use(['form', 'layedit', 'upload', 'element'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , element = layui.element
+            , upload = layui.upload;
+        //[[#{text.custom.validation.rules}]]
+        form.verify({
+            numberVerify: function (value) {
+                if ($.trim(value) != "") {
+                    var regex = /^\d+(\.\d+)?$/;
+                    if (!regex.test(value)) {
+                        return '[[#{text.value.must.be.greater.than.or.equal.to}]]0！';
+                    }
+                }
+
+            }
+        });
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(sub-btn)', function (data) {
+
+            var formData = data.field;
+            var id = formData.id;
+            var url = "/coinCharge/save";
+            if(id){
+                url = "/coinCharge/update";
+            }
+            $.ajaxUkey({
+                data: JSON.stringify(formData),
+                type: "POST",
+                dataType: "JSON",
+                contentType:'application/json;charset=UTF-8',
+                url: url,
+                success: function (result) {
+                    if (result.success) {
+                        layer.alert('[[#{text.operation.success}]]！', {title: '[[#{text.operation.message}]]', icon: 6}, function (index) {
+                            parent.layer.closeAll();
+                            parent.$(".layui-btn")[0].click();
+                        });
+                    } else if (result.msg != null) {
+                        layer.msg(result.msg);
+                    } else {
+                        // [[#{text.prompt.failed}]]
+                        layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                    }
+                }
+            });
+            return false;
+        });
+
+        $.ajax({
+            type: "post",
+            url: "/coin/listAll",
+            async: false,
+            dataType: "json",
+            success: function (data) {
+
+                if (data.success) {
+                    var list = data.data.list;
+                    var options = "";
+                    for(var i=0; i< list.length; i++){
+                        var selectedCoinId = $("#selectedCoinId").val();
+                        if(list[i].id  == selectedCoinId){
+                            $("#coinId").append('<option selected="selected" value="' + list[i].id + '">' + list[i].coinName +  '</option>');
+                        }else{
+                            $("#coinId").append('<option value="' + list[i].id + '">' + list[i].coinName +  '</option>');
+                        }
+                    }
+                } else {
+                    layer.alert('[[#{text.failure.to.get.currency.list.data}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                }
+            },
+            error: function () {
+                layer.alert('[[#{text.the.system.failed.to.obtain.the.currency.list.data.error.message}]]!', {title: '[[#{text.operation.message}]]', icon: 5});
+            }
+        });
+        form.render("select");
+    });
+</script>
+
+</body>
+</html>

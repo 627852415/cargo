@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/wangEditor/wangEditor.js}"></script>
+    <style>
+        .layui-form-selectup dl {
+            top: auto;
+        }
+
+        .toolbar {
+            border: 1px solid #ccc;
+        }
+
+        .text {
+            border: 1px solid #ccc;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题 &nbsp;</label>
+            <div class="layui-input-block">
+                <input id="title" type="text" name="title" required lay-verify="required" placeholder="请输入标题"
+                       autocomplete="off"
+                       class="layui-input" th:value="${detail}?${detail.title}">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">发布内容</label>
+            <div id="editor" class="text" th:utext="${detail}?${detail.html}"></div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布地区</label>
+            <div class="layui-input-block">
+                <select name="countryCodes" xm-select="countryCodes" xm-select-direction="up"
+                        lay-verify="required" lay-verType="tips" xm-select-search="" xm-select-show-coun="5"
+                        th:disabled="${editFlag}">
+                    <option th:each="code : ${globalCodes}" th:text="${code.countryName}" th:value="${code.countryCode}"
+                            th:selected="${code.chooseFlag}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布时间</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="type" value="0" title="立即发布"
+                       th:checked="${detail}==null?true:(${detail.type}==0?true:false)" th:disabled="${editFlag}">
+            </div>
+            <div class="layui-input-inline">
+                <input type="radio" name="type" value="1" title="定时发布"
+                       th:checked="${detail}==null?false:(${detail.type}==1?true:false)" th:disabled="${editFlag}">
+            </div>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="time" id="time" th:placeholder="请选择发布时间"
+                       th:value="${detail}?${detail.publishTime}" th:disabled="${editFlag}"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: table;width:100%;">
+            <div class="layui-input-block" style="display: table-cell;vertical-align: middle;text-align: center;">
+                <button type="button" class="layui-btn" style="width: 200px;" onclick="pushMsg(this)">发送</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+
+<script>
+    var layer;
+    layui.use(['layer', 'form'], function () {
+        form = layui.form;
+        form.render();
+        // backData()
+    })
+
+    var E = window.wangEditor
+    var editor = new E('#editor') // 两个参数也可以传入 elem 对象，class 选择器
+    editor.customConfig.zIndex = 1
+    editor.customConfig.debug = true
+    editor.customConfig.onchangeTimeout = 1000
+    // 配置服务器端地址
+    editor.customConfig.uploadImgServer = '/notice/broadcast/upload'
+    // 将图片大小限制为 3M
+    editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+    // 自定义上传参数
+    editor.customConfig.uploadFileName = 'file'
+    editor.customConfig.uploadImgHooks = {
+        success: function (xhr, editor, result) {
+            layer.msg('图片上传成功')
+        },
+        fail: function (xhr, editor, result) {
+            layer.msg('图片上传失败')
+        },
+        error: function (xhr, editor) {
+            layer.msg('图片上传失败')
+        },
+        timeout: function (xhr, editor) {
+            layer.msg('图片上传失败')
+        },
+        customInsert: function (insertImg, result, editor) {
+            console.log(result)
+            var url = result.data
+            insertImg(url)
+        }
+    }
+    // editor.customConfig.onchange = function (html) {
+    //     console.log(html)
+    // }
+    // 必须放到有关于编辑器设置前面
+    editor.create()
+
+    var form;
+
+    layui.formSelects.render('countryCodes');
+
+    //回填数据
+    // function backData() {
+    //     var a = '[[${detail}?${detail.content}]]';
+    //     editor.txt.text(a)
+    // }
+
+    /**
+     * 发送广播消息
+     * @param obj
+     */
+    function pushMsg() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+
+        var id = '[[${detail}?${detail.id}]]';
+        var title = $("#title").val();
+
+        if (title == "") {
+            layer.msg("标题不能为空");
+            layer.close(tishi);
+            return;
+        }
+        var content = editor.txt.text();
+        if (content == "") {
+            layer.msg("内容不能为空");
+            layer.close(tishi)
+            return;
+        }
+        var html = editor.txt.html();
+
+        var countryCodes = layui.formSelects.value('countryCodes', 'val')
+
+        if (countryCodes == "") {
+            layer.msg("发布地区不能为空");
+            layer.close(tishi)
+            return;
+        }
+        var type = $('input:radio:checked').val()
+        var publishTime = $("#time").val()
+
+        if ((type == 1) && (publishTime == "")) {
+            layer.msg("请选择发布时间")
+            layer.close(tishi)
+            return
+        }
+
+        let data = JSON.stringify({
+            id: id,
+            title: title,
+            content: content,
+            html: html,
+            countryCodes: countryCodes,
+            type: type,
+            publishTime: publishTime
+        });
+        // console.log(data)
+
+        $.ajaxUkey({
+            url: '/notice/broadcast/addOrEdit/push',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg, function () {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    }, function () {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+    /**
+     * 发布时间选择器
+     */
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        curDate = formatDateL(new Date);
+        laydate.render({
+            elem: '#time',
+            type: 'datetime',
+            min: curDate
+        })
+    });
+</script>
+
+</html>

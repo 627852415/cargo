@@ -1,0 +1,63 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster",
+      "type": "com.lxtx.im.admin.web.config.RedisProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.command-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.max-active",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.max-attempts",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.max-idle",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.max-redirects",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.max-wait",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.min-idle",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.nodes",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "name": "spring.redis.cluster.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.lxtx.im.admin.web.config.RedisProperties",
+      "defaultValue": false,
+      "name": "spring.redis.cluster.test-on-borrow",
+      "type": "java.lang.Boolean"
+    }
+  ]
+}

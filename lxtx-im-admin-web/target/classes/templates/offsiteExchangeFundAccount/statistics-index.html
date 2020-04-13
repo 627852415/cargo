@@ -1,0 +1,586 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>[[#{text.offline.exchange.product.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+    .layuiadmin-btn-group{
+        position: absolute;
+        right: 15px;
+        top: 0px;
+    }
+    .account-css{
+        position: absolute;
+        right: 15px;
+       // top: 0px;
+
+    }
+    .telephone-css{
+        position: absolute;
+        right: 15px;
+        font-weight: bold;
+     top: 70px;
+    }
+    .amount-css{
+        color:#FFB800
+    }
+    .type-css{
+        font-weight: bold;
+        font-size:20px;
+    }
+</style>
+<body>
+<div style="padding: 20px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">[[#{text.account.overview}]]</div>
+                <div class="layui-card-body account-css">[[#{text.account}]]</div>
+                <div class="layui-card-body telephone-css" th:text="${accountInfo.fullTelephone}"></div>
+                <input th:value="${accountInfo.accountAmount}" id="amountId" name="amountId" hidden>
+                <div class="layui-card-body">[[#{text.account.balance}]]：</div>
+                <div class="layui-card-body amount-css" id="amountBody" name="amountBody"></div>
+                <div class="layui-card-body">
+                    <div carousel-item="">
+                        <ul class="layui-row layui-col-space10 layui-this">
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.exchange.summary.income}]](USD)</h3>
+                                    <p class="type-css"><cite th:text="${accountInfo.exchangeIncome}"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.aggregated.expenditure}]](CNY)</h3>
+                                    <p class="type-css"><cite th:text="${accountInfo.exchangePayment}"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.cumulative.orders}]]</h3>
+                                    <p class="type-css"><cite th:text="${accountInfo.totalOrders}">99 [[#{text.single}]]</cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.total.profit}]](USD)</h3>
+                                    <p class="type-css"><cite th:text="${accountInfo.totalProfits}">20 USD</cite></p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-col-md12" name="yjjb">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    [[#{text.performance.briefing}]]
+                    <div class="layui-tab layui-tab-brief layuiadmin-btn-group" lay-filter="docDemoTabBrief">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" lay-id="22">[[#{text.day}]]</li>
+                            <li lay-id="23">[[#{text.week}]]</li>
+                            <li lay-id="24">[[#{text.month}]]</li>
+                            <li lay-id="25">[[#{text.customize}]]</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show"></div>
+                            <div class="layui-tab-item"></div>
+                            <div class="layui-tab-item"></div>
+                            <div class="layui-tab-item">
+                                <div class="layui-input-inline">
+                                    <input lay-filter="startDate" name="startDate" type="text" class="layui-input"
+                                           id="startDate" th:placeholder="#{text.begin.time}" lay-search>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input lay-filter="endDate" name="endDate" type="text" class="layui-input"
+                                           id="endDate" th:placeholder="#{text.end.time}" lay-search>
+                                </div>
+                                <button type="button" class="layui-btn" name="searchOrderData">[[#{text.search.for}]]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body" >
+                    <div carousel-item="">
+                        <ul class="layui-row layui-col-space12 layui-this">
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.exchange.income}]](USD)</h3>
+                                    <p class="type-css"><cite name="totalIncome"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.exchange.expense}]](CNY)</h3>
+                                    <p class="type-css"><cite name="totalPayment"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.profit}]](USD)</h3>
+                                    <p class="type-css"><cite name="totalProfit"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.merchant.rebates}]](USD)</h3>
+                                    <p class="type-css"><cite name="totalMerchantAmount"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.invite.rebate.back}]](USD)</h3>
+                                    <p class="type-css"><cite name="totalInviteAmount"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.number.of.order}]]</h3>
+                                    <p class="type-css"><cite name="totalOrders"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.number.of.orders}]]</h3>
+                                    <p class="type-css"><cite name="totalSuccessOrders"></cite></p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-col-md12" name="lxlb">
+            <div class="layui-card">
+                <div class="layui-card-header">[[#{text.fund.flow.list}]]</div>
+                <div class="layui-card-body">
+                    <blockquote class="layui-elem-quote">
+                        <form class="layui-form" id="searchForm">
+                            <div class="layui-form-item search-input" style="margin:0;">
+                                <div class="layui-input-inline">
+                                    <input type="hidden" name="walletUserId" th:value="${accountInfo.walletUserId}">
+<!--                                    <input type="text" name="transferNum" class="layui-input" value=""-->
+<!--                                           placeholder="[[#{text.please.enter.business.transaction.number}]]">-->
+                                </div>
+                                <div class="layui-input-inline">
+                                    <select lay-filter="coinId" name="coinId" lay-search th:value="${coinId}">
+                                        <option value="">[[#{text.please.select.currency}]]:</option>
+                                        <option th:each="coin : ${coins}" th:text="${coin.coinName}"
+                                                th:value="${coin.id}"
+                                                th:selected="${coinId != null and coinId == coin.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <select name="searchType" lay-verify="" lay-search>
+                                        <option value="">[[#{text.please.select.a.status}]]</option>
+                                        <option value="1">[[#{text.income}]]</option>
+                                        <option value="2">[[#{text.expenditure}]]</option>
+                                    </select>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input lay-filter="startTime" name="startTime" type="text" class="layui-input"
+                                           id="startTime" th:placeholder="#{text.begin.time}" lay-search>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input lay-filter="endTime" name="endTime" type="text" class="layui-input"
+                                           id="endTime" th:placeholder="#{text.end.time}" lay-search>
+                                </div>
+                                <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">
+                                        [[#{text.search.for}]]
+                                    </button>
+                                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                                    <button type="button" onclick="download()" class="layui-btn">[[#{text.export.file}]]</button>
+                                </div>
+                            </div>
+                            <div class="layui-form-item search-input" style="margin-top:10px;">
+
+
+                            </div>
+                        </form>
+                    </blockquote>
+                    <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}"
+                           lay-filter="dataTable">
+                        <thead>
+                        <tr>
+                            <th lay-data="{field:'walletUserId', align:'center'}">[[#{text.wallet.user}]]ID</th>
+                            <th lay-data="{field:'userName', align:'center'}">[[#{text.user.name}]]</th>
+                            <th lay-data="{field:'coinName', align:'center'}">[[#{text.currency.name}]]</th>
+                            <th lay-data="{field:'typeValue', align:'center'}">[[#{text.types.of}]]</th>
+                            <th lay-data="{field:'subtypeValue', align:'center'}">[[#{text.subtype}]]</th>
+                            <th lay-data="{field:'statusValue', align:'center'}">[[#{text.status}]]</th>
+                            <th lay-data="{field:'preLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.preLeftAmount);
+                    }}">[[#{text.balance.before.processing}]]
+                            </th>
+                            <th lay-data="{field:'changeLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.changeLeftAmount);
+                    }}">[[#{text.change.balance}]]
+                            </th>
+                            <th lay-data="{field:'suffixLeftAmount', align:'center',templet: function (data) {
+                        return setStyle(data.suffixLeftAmount);
+                    }}">[[#{text.processed.balance}]]
+                            </th>
+                            <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">[[#{text.update.time}]]
+                            </th>
+                            <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+                        </tr>
+
+                        </thead>
+                    </table>
+                    <script type="text/html" id="barData">
+                        <a class="layui-btn layui-btn-sm tableBtn" lay-event="detail">[[#{text.see.details}]]</a>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+
+    var tabType = 0;
+    layui.use('element', function () {
+        var $ = layui.jquery
+            , element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+        var amountIdStr = $("input[name='amountId']").val();
+        var amountArray = JSON.parse(amountIdStr);
+        if (amountArray != null && amountArray.length > 0) {
+            for (var x in amountArray) {
+                $("div[name=amountBody]").append(amountArray[x]).append("<br>");
+            }
+        }
+        //触发事件
+        var active = {
+            tabChange: function () {
+                //切换到指定Tab项
+                //element.tabChange('demo', '22'); //切换到：用户管理
+                console.log(1);
+            }
+        };
+
+        // $('.site-demo-active').on('click', function () {
+        //     var othis = $(this), type = othis.data('type');
+        //     active[type] ? active[type].call(this, othis) : '';
+        //     console.log(type);
+        // });
+        //
+        //Hash[[#{text.address}]]的定位
+        var layid = location.hash.replace(/^#docDemoTabBrief=/, '');
+        element.tabChange('docDemoTabBrief', layid);
+        var date1 = getNowFormatDate();
+        searchOrder(date1, date1);
+        element.on('tab(docDemoTabBrief)', function (elem) {
+            location.hash = 'docDemoTabBrief=' + $(this).attr('lay-id');
+            var layId = $(this).attr('lay-id');
+            if (layId == '22') {
+                var date1 = getNowFormatDate();
+                searchOrder(date1, date1);
+            } else if (layId == '23') {
+                var date1 = getNowFormatDate();
+                var date2 = getDay(-7);
+                searchOrder(date2, date1);
+            } else if (layId == '24') {
+                var date1 = getNowFormatDate();
+                var date2 = getPreMonth(date1);
+                searchOrder(date2, date1);
+            }
+            if (layId == '25') {
+                tabType = 1;
+            }
+            changeClass(layId);
+        });
+        $('button[name=searchOrderData]').on('click', searchOrderFun);
+    });
+    changeClass(22);
+    var isSearch = 0;
+
+    function changeClass(layId) {
+        var div = $('div[name=yjjb]').find('div').eq(1);
+        //console.log(tabType);
+        if (layId == '22' || layId == '23' || layId == '24') {
+            if (tabType == 1) {
+                div.height(div.height() - 55);
+                isSearch = 0;
+                tabType = 0;
+            }
+        } else {
+            if (search == 1) {
+                return;
+            }
+            if (tabType == 1 && isSearch == 0) {
+                div.height(div.height() + 55);
+                isSearch = 1;
+                tabType = 1;
+            }
+        }
+    }
+
+    function searchOrderFun() {
+        //console.log($('input[name=startDate]').val());
+        var startDate = $('input[name=startDate]').val();
+        var endDate = $('input[name=endDate]').val();
+        if (startDate == null) {
+            layer.msg("[[#{text.start.date.cannot.be.empty}]]");
+            return;
+        }
+        if (endDate == null) {
+            layer.msg("[[#{text.end.date.cannot.be.empty}]]");
+            return;
+        }
+        searchOrder(startDate, endDate);
+    }
+
+    function getNowFormatDate() {
+        var date = new Date();
+        var seperator1 = "-";
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var strDate = date.getDate();
+        if (month >= 1 && month <= 9) {
+            month = "0" + month;
+        }
+        if (strDate >= 0 && strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        var currentdate = year + seperator1 + month + seperator1 + strDate;
+        return currentdate;
+    }
+
+    function getPreMonth(date) {
+        var arr = date.split('-');
+        var year = arr[0]; //获取当前[[#{text.day}]]期的年份
+        var month = arr[1]; //获取当前日期的[[#{text.month}]]份
+        var day = arr[2]; //获取当前[[#{text.day}]]期的[[#{text.day}]]
+        var days = new Date(year, month, 0);
+        days = days.getDate(); //获取当前日期中[[#{text.month}]]的天数
+        var year2 = year;
+        var month2 = parseInt(month) - 1;
+        if (month2 == 0) {
+            year2 = parseInt(year2) - 1;
+            month2 = 12;
+        }
+        var day2 = day;
+        var days2 = new Date(year2, month2, 0);
+        days2 = days2.getDate();
+        if (day2 > days2) {
+            day2 = days2;
+        }
+        if (month2 < 10) {
+            month2 = '0' + month2;
+        }
+        var t2 = year2 + '-' + month2 + '-' + day2;
+        return t2;
+    }
+
+    function getDay(day) {
+        var today = new Date();
+        var targetday_milliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day;
+        today.setTime(targetday_milliseconds); //注意，这行是关键代码
+        var tYear = today.getFullYear();
+        var tMonth = today.getMonth();
+        var tDate = today.getDate();
+        tMonth = doHandleMonth(tMonth + 1);
+        tDate = doHandleMonth(tDate);
+        return tYear + "-" + tMonth + "-" + tDate;
+    }
+
+    function doHandleMonth(month) {
+        var m = month;
+        if (month.toString().length == 1) {
+            m = "0" + month;
+        }
+        return m;
+    }
+
+    function searchOrder(startDate, endDate) {
+        $.ajax({
+            url: '/offsite/exchange/fundAccount/statistics/get/order',
+            type: "POST",
+            data: JSON.stringify({"startDate": startDate, "endDate": endDate}),
+            async: "false",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    $('cite[name=totalIncome]').text(responseText.data.exchangeIncome);
+                    $('cite[name=totalPayment]').text(responseText.data.exchangePayment);
+                    $('cite[name=totalProfit]').text(responseText.data.totalProfits);
+                    $('cite[name=totalMerchantAmount]').text(responseText.data.merchantRebateAmount);
+                    $('cite[name=totalInviteAmount]').text(responseText.data.inviteAmount);
+                    $('cite[name=totalOrders]').text(responseText.data.totalOrders);
+                    $('cite[name=totalSuccessOrders]').text(responseText.data.successOrders);
+                }
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+    }
+
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+        var updateStartTime, updateEndTime;
+
+        laydate.render({
+            elem: '#startDate'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#startDate").val("");
+                    return;
+                } else if (endTime != "" && value > endTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#startDate").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endDate'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endDate").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endDate").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+        laydate.render({
+            elem: '#startTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#startTime").val("");
+                    return;
+                } else if (updateEndTime != "" && value > updateEndTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#startTime").val("");
+                    return;
+                }
+                updateStartTime = value;
+            }
+        });
+
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < updateStartTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endTime").val("");
+                    return;
+                }
+                updateEndTime = value;
+            }
+        });
+
+    });
+
+    loadTableWithoutColumns('/user/coin/asset/list/page', 'dataTable', 'searchForm');
+
+    //如果资产大于0 显示黑色，小于0红色
+    function setStyle(obj) {
+        if (obj > 0) {
+            return "<b style='color: black'>" + obj + "</b>";
+        }
+        if (obj < 0) {
+            return "<b style='color: red'>" + obj + "</b>";
+        }
+        return obj;
+    }
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function (obj) {
+                if (obj.event === 'detail') {
+                    detail("/user/coin/asset/detail?id=" + obj.data.id);
+                }
+            });
+        });
+    }
+
+    //保存，[[#{text.edit}]]
+    function detail(url) {
+        openModalOwn("[[#{text.see.details}]]", url, "1000px", "420px");
+    }
+
+
+    /**
+     * 打开弹出框
+     * @param title 弹出框标题
+     * @param url 跳转[[#{text.address}]]
+     * @param width 弹出框宽度
+     * @param height 弹出框高度
+     */
+    function  openModalOwn(title, url, width, height) {
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            title: '<b>' + title +'</b>',
+            area: [width, height], //[[#{text.width.height}]]
+            //content: $("#modifyData")});//TODO 修改为打开新页面
+            content: url,
+            offset: '50px',
+        });
+    }
+
+    //申请列表文件导出
+    function download() {
+        var url = "/user/coin/asset/download/list?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+    }
+
+
+</script>
+
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>银行卡管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <!--平台用户查询条件-->
+                <div class="layui-input-inline">
+                    <input type="text" name="account" class="layui-input" placeholder="用户帐号"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" class="layui-input" placeholder="手机号码"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" class="layui-input" placeholder="用户名"/>
+                </div>
+                <!--钱包用户查询条件-->
+                <div class="layui-input-inline">
+                    <input type="text" name="userId" class="layui-input" placeholder="钱包用户ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="realname" class="layui-input" placeholder="持卡人姓名"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="bankcardAccount" class="layui-input"
+                           placeholder="银行卡号"/>
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                    <shiro:hasPermission name="otc:bankcard:bind">
+                        <button type="button" class="layui-btn" onclick="openAddBankcardDiv()">添加银行卡</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">用户名</th>
+            <th lay-data="{field:'account', align:'center'}">用户帐号</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'realname', align:'center'}">持卡人姓名</th>
+            <th lay-data="{field:'bankcardAccount', align:'center'}">银行卡号</th>
+            <th lay-data="{field:'bank', align:'center'}">银行卡主行</th>
+            <th lay-data="{field:'subbranch', align:'center'}">银行卡支行</th>
+            <th lay-data="{field:'coinsName', align:'center'}">支持币种</th>
+            <th lay-data="{field:'defaultFlag', align:'center',templet:function(data){
+                return defaultFlagFormat(data.defaultFlag);
+            }}">是否默认
+            </th>
+            <th lay-data="{field:'delFlag', align:'center',templet:function(data){
+                return bindFormat(data.delFlag);
+            }}">是否已解绑
+            </th>
+            <th lay-data="{width: 100, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        {{# if(d.delFlag == 0) { }}
+        <shiro:hasPermission name="otc:bankcard:unbind">
+            <a class="layui-btn layui-btn-sm tableBtn" lay-event="unbind"><i class="layui-icon"></i>解绑</a>
+        </shiro:hasPermission>
+        {{# }}}
+    </script>
+</div>
+
+<!--  新增银行卡 -->
+<div id="addBankcardDiv" style="display: none;">
+    <form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">用户帐号</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="number" name="userAccount" id="userAccount" lay-verify="number" placeholder="" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">持卡人姓名</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="text" name="realname" id="realname" placeholder="" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">主行</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="text" name="bank" id="bank" placeholder="" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">支行</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="text" name="subbranch" id="subbranch" placeholder="" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">银行卡号</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="number" name="account" id="account" lay-verify="number" placeholder="" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+            	<label class="layui-form-label" style="width:85px;">币种选择</label>
+            	<div class="layui-input-block" style="width:350px;margin-left:130px;">
+            		<select name="coinIds" xm-select="coinList">
+                    	<option th:each="coin : ${coinList}" th:text="${coin.legalCoinName}" th:value="${coin.relationCoinId}"></option>
+               	    </select>
+            	</div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <button  class="layui-btn" lay-submit lay-filter="sub-btn">确定</button>
+                <a class="layui-btn" onclick="cancelAdd('addBankcardDiv')">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    });
+    
+    layui.formSelects.render('coinList');
+
+    if($('.xm-select--suffix input[placeholder="请选择"]').length > 0){
+        $('.xm-select--suffix input[placeholder="请选择"]').attr('placeholder', '[[#{text.select.placeholder}]]');
+    }
+    if($('.xm-select--suffix input[back="请选择"]').length > 0){
+        $('.xm-select--suffix input[back="请选择"]').attr('back', '[[#{text.select.placeholder}]]');
+    }
+    $('.xm-cz-group [method="全选"] span').html('[[#{text.select.all.span}]]');
+    $('.xm-cz-group [method="清空"] span').html('[[#{text.select.clear.span}]]');
+    $('.xm-cz-group [method="反选"] span').html('[[#{text.select.invert.span}]]');
+    
+    layui.use('form', function() {
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            // console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+            // console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+            // console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+            addBankcard();
+            return false;
+        });
+    });
+
+    //查询数据
+    loadTableWithoutColumns('/otc/bankcard/listPage', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'unbind') {
+                    unbind(obj.data);
+                }
+            });
+        });
+    }
+
+    //打开添加新的银行卡弹窗
+    function openAddBankcardDiv() {
+        $('#addForm')[0].reset();
+        layui.formSelects.value('coinList', []);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>添加银行卡</b>',
+            area: ['540px', '420px'], //宽高
+            content: $("#addBankcardDiv")
+        });
+        layui.form.render(); //更新全部
+    }
+
+    //添加新的银行卡
+    function addBankcard() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var data = $("#addForm").serialize();
+        $.ajaxUkey({
+            url: "/otc/bankcard/bind",
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg("操作成功！",
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function () {
+                            $("#addBankcardDiv").attr("style", "display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+    //取消添加银行卡
+    function cancelAdd(formid) {
+        $("#" + formid).attr("style", "display: none;");
+        layer.closeAll();
+    }
+
+    //解绑银行卡
+    function unbind(obj) {
+        let bankcardId = obj.id;
+        let userAccount = obj.account;
+        let bankcardAccount = obj.bankcardAccount;
+        let delFlag = obj.delFlag;
+        if (1 == delFlag) {
+            layer.msg("该银行卡【" + bankcardAccount + "】已经解绑，请勿重复解绑！");
+            return;
+        }
+        layer.confirm("确定将银行卡【" + bankcardAccount + "】解绑吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/otc/bankcard/unbind',
+                type: 'POST',
+                data: JSON.stringify({bankcardId: bankcardId, userAccount: userAccount}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //是否默认银行卡格式化
+    function defaultFlagFormat(defaultFlag) {
+        var defaultFlagStr = "";
+        if (0 == defaultFlag) {
+            defaultFlagStr = "否";
+        } else if (1 == defaultFlag) {
+            defaultFlagStr = "是";
+        }
+        return defaultFlagStr;
+    }
+
+    //是否解绑格式化
+    function bindFormat(delFlag) {
+        var bindStr = "";
+        if (0 == delFlag) {
+            bindStr = "否";
+        } else if (1 == delFlag) {
+            bindStr = "是";
+        }
+        return bindStr;
+    }
+</script>
+</body>
+</html>

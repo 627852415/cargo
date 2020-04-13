@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<title>对账管理</title>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+	<script type="text/javascript" th:src="@{/js/echarts.js}"></script>
+</head>
+<body>
+	<blockquote class="layui-elem-quote">
+		<form class="layui-form">
+			<div class="layui-form-item" style="margin: 0;">
+				<div class="layui-input-inline">
+					<input type="text" name="key" id="time1" class="layui-input"
+						placeholder="选择查询时间" readonly />
+				</div>
+				<div class="layui-input-inline">
+					<select name="cointype" lay-filter="cointypetotal"
+						id="cointypeselect">
+						<!-- <option value="1035082192992239617">BCB</option> -->
+						<option th:each="item,inStar:${allCoin}" th:value="${item.id}"
+							th:text="${item.coinName}" th:selected="${item.coinName eq 'BCB'}"></option>
+					</select>
+				</div>
+				<div class="layui-input-inline" style="padding: 0;">
+					<button class="layui-btn layui-btn-radios" lay-submit=""
+						lay-filter="search">搜索</button>
+				</div>
+			</div>
+		</form>
+	</blockquote>
+	<!-- 容器主体 -->
+	<div class="layui-fluid">
+		<div class="layui-row layui-col-space5">
+			<div class="layui-col-md4">
+				<div class="layui-card">
+					<div class="layui-card-header">
+						<h3>币种总资产</h3>
+					</div>
+					<div class="layui-card layui-bg-blue"
+						style="width: 100%; height: 150px;">
+						<div class="layui-card-body">
+							<h2 id="titl1">2018-10-29日币种总资产：</h2>
+							<br />
+							<form class="layui-form">
+								<div class="layui-form-item">
+									<label class="layui-form-label" style="width: 200px;"><h1
+											id="coinname1"></h1></label>
+									<div class="layui-form-mid">=</div>
+									<label class="layui-form-label"><h1 id="amount1">0</h1></label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="layui-card-body">
+						<fieldset class="layui-elem-field layui-field-title"></fieldset>
+						<div style="width: 100%; height: 300px;" id="chart1"></div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-md4">
+				<div class="layui-card">
+					<div class="layui-card-header">
+						<h3>币种交易额</h3>
+					</div>
+					<div class="layui-card layui-bg-blue"
+						style="width: 100%; height: 150px;">
+						<div class="layui-card-body">
+							<h2 id="titl2">2018-10-29日币种交易额：</h2>
+							<br />
+							<form class="layui-form">
+								<div class="layui-form-item">
+									<label class="layui-form-label" style="width: 200px;"><h1
+											id="coinname2"></h1></label>
+									<div class="layui-form-mid">=</div>
+									<label class="layui-form-label"><h1 id="amount2">0</h1></label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="layui-card-body">
+						<fieldset class="layui-elem-field layui-field-title"></fieldset>
+						<div style="width: 100%; height: 300px;" id="chart2"></div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-md4">
+				<div class="layui-card">
+					<div class="layui-card-header">
+						<h3>差异记录</h3>
+					</div>
+					<div class="layui-card layui-bg-blue"
+						style="width: 100%; height: 150px;">
+						<div class="layui-card-body">
+							<div class="layui-inline">
+								<h2 id="titl3">2018-10-29日币种差异记录：</h2>
+							</div>
+							<div class="layui-inline">
+								<a href="#btn" class="layui-btn layui-btn-primary"
+									style="margin-left: 50px;">查看详情</a>
+							</div>
+							<form class="layui-form">
+								<div class="layui-form-item">
+									<label class="layui-form-label" style="width: 200px;"><h1>差异总额</h1></label>
+									<div class="layui-form-mid">：</div>
+									<label class="layui-form-label"><h1 id="amount3">0</h1></label>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label" style="width: 200px;"><h1>差异笔数</h1></label>
+									<div class="layui-form-mid">：</div>
+									<label class="layui-form-label"><h1 id="amount4">0</h1></label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="layui-card-body">
+						<fieldset class="layui-elem-field layui-field-title"></fieldset>
+						<div style="width: 100%; height: 300px;" id="chart3"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<fieldset class="layui-elem-field">
+			<legend>差异详情</legend>
+			<a name="btn" id="btn"></a>
+			<div class="layui-field-box table-responsive">
+				<div class="layui-card">
+					<div class="layui-card-body">
+						<div class="layui-text">
+							<em>说明：<br /> 1.交易前金额:前一天账户剩余金额<br /> 2.账户实际金额:当天账户剩余金额<br />
+								3.账户应剩金额=交易前金额+交易金额<br /> 4.差异额=账户实际金额-账户应剩金额<br />
+							</em>
+						</div>
+					</div>
+				</div>
+				<table class="layui-table table-hover" id="mistake"
+					lay-filter="mistake">
+				</table>
+			</div>
+		</fieldset>
+	</div>
+
+	<script type="text/html" id="barDemo">
+ 		 <a class="layui-btn layui-btn-blue layui-btn-xs" lay-event="detail">查看</a>
+	</script>
+
+	<script>
+		layui.config({
+			base : '/modules/'
+		}).use(
+				[ 'form', 'layer', 'table', 'laydate', 'element', 'mychart',
+						'util', 'showamount', 'totaldata',
+						'diffdata','currencydata' ],
+				function() {
+					var form = layui.form;
+					var layer = layui.layer;
+					var table = layui.table;
+					var util = layui.util;
+					var laydate = layui.laydate;
+					var element = layui.element;
+					var mychart = layui.mychart;
+					var showamount = layui.showamount;
+					var totaldata = layui.totaldata;
+					var diffdata = layui.diffdata;
+					var currencydata = layui.currencydata;
+					var $ = layui.$;
+
+					laydate.render({//时间选择器
+						elem : '#time1',
+						type : 'date',
+						min : '2018-10-25',
+						max : -1,
+						value : new Date(new Date() - 1000 * 60 * 60 * 24),
+						btns : [ 'clear' ]
+					});
+					table.on('tool(mistake)', function(obj) {
+						var time = obj.data.billTime;
+						var checkTime = util.toDateString(time, 'yyyy-MM-dd');
+						var url = '/check/forwordDetail?checkTime=' + checkTime
+								+ '&coinId=' + obj.data.coinType + '&userId='
+								+ obj.data.merchantNo;
+						if (obj.event === 'detail') {
+							var e = $(this), i = url;
+							var t = '交易明细';
+							layui.router();
+							var l = parent === self ? layui : top.layui;
+							l.index.openTabsPage(i, t || e.text());
+						}
+					});
+
+					//取得时间和币ID
+					var time1 = $('#time1').val();
+					var coin1 = $('#cointypeselect').val();
+					//币种总资产趋势图
+					var total = totaldata.totaldata(time1, coin1);
+					console.log(total);
+					mychart.mychart('chart1', {
+						legend : total.data.legend,
+						xAxis : total.data.xaxis,
+						series : total.data.series
+					});
+					//币种差异总额趋势图
+					var diff = diffdata.diffdata(time1, coin1);
+					console.log(diff)
+					mychart.mychart('chart3', {
+						legend : diff.data.legend,
+						xAxis : diff.data.xaxis,
+						series : diff.data.series
+					});
+					//console.log(diffdata);
+					//交易分类详情图
+					var curr = currencydata.currencydata(time1, coin1);
+					console.log(curr)
+					mychart.mychart('chart2', {
+						legend : curr.data.legend,
+						xAxis : curr.data.xaxis,
+						series : curr.data.series
+					});
+					showamount.showamount(time1, coin1);
+					//showchart.showchart(time1, coin1);
+					form.on('submit(search)',
+							function(data) {
+								intable.reload({
+									where : {
+										checkTime : data.field.key,
+										coinId : data.field.cointype
+									}
+								});
+								showamount.showamount(data.field.key,
+										data.field.cointype);
+
+								//币种总资产趋势图
+								var total = totaldata.totaldata(data.field.key,
+										data.field.cointype);
+								mychart.mychart('chart1', {
+									legend : total.data.legend,
+									xAxis : total.data.xaxis,
+									series : total.data.series
+								});
+								//币种差异总额趋势图
+								var diff = diffdata.diffdata(data.field.key,
+										data.field.cointype);
+								mychart.mychart('chart3', {
+									legend : diff.data.legend,
+									xAxis : diff.data.xaxis,
+									series : diff.data.series
+								});
+								//交易分类详情图
+								var curr = currencydata.currencydata(data.field.key,
+										data.field.cointype);
+								mychart.mychart('chart2', {
+									legend : curr.data.legend,
+									xAxis : curr.data.xaxis,
+									series : curr.data.series
+								});
+								return false;
+							});
+
+					var intable = table.render({//数据表格
+						elem : '#mistake',
+						url : '/check/getCoinMistakeRecords',
+						method : 'post',
+						where : {
+							checkTime : $('#time1').val(),
+							coinId : $('#cointypeselect').val()
+						},
+						contentType : 'application/json',
+						request : {
+							pageName : 'current',
+							limitName : 'size'
+						},
+						parseData : function(res) {
+							return {
+								"code" : 0,
+								"msg" : "",
+								"count" : res.data.total,
+								"data" : res.data.records
+							}
+						},
+						title : '对账记录',
+						cellMinWidth : 80,
+						page : true,
+						cols : [//------
+						[
+								{
+									field : 'merchantName',
+									title : '用户名称',
+								},
+								{
+									field : 'merchantNo',
+									title : '商家编号',
+									hide : true
+								},
+								{
+									field : 'coinType',
+									title : '币种ID',
+									hide : true
+								},
+								{
+									field : 'coinName',
+									title : '币种名称',
+								},
+								{
+									field : 'orderAmount',
+									title : '交易金额',
+									sort : true
+								},
+								{
+									field : 'preAmount',
+									title : '交易前金额',
+									sort : true
+								},
+								{
+									field : 'shouldAmount',
+									title : '账户应剩金额',
+									sort : true
+								},
+								{
+									field : 'realAmount',
+									title : '账户实际金额',
+									sort : true
+								},
+								{
+									field : 'billTime',
+									title : '对账时间',
+									sort : true,
+									templet : function(d) {
+										var time = d.billTime;
+										return util.toDateString(time,
+												'yyyy-MM-dd');
+									}
+								},
+								{
+									field : 'diffAmount',
+									title : '差异额',
+									sort : true,
+									templet : function(d) {
+										return '<p style="color:red">'
+												+ d.diffAmount + '</p>';
+									}
+								}, {
+									title : '操作',
+									toolbar : '#barDemo'
+								} ] ]
+					});
+				});
+	</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>OTC订单审核</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<!--用于控制js动态生成按钮权限-->
+<shiro:hasPermission name="otc:order:update:statep">
+    <div id="otc_order_update_state"></div>
+</shiro:hasPermission>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <select id="state1" name="state1" lay-verify="">
+                        <option value="-1">选择订单类型</option>
+                        <option value="10">待审核</option>
+                        <option value="0">初始创建</option>
+                        <option value="1">收款方未收款</option>
+                        <option value="2">收款方已收款</option>
+                        <option value="3">被投诉关闭</option>
+                        <option value="4">订单关闭</option>
+                        <option value="9">交易关闭</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="key" id="key" class="layui-input" placeholder="请输入订单id">
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" id="search">搜索订单</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>订单列表</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>订单状态</th>
+                    <th>币种名称</th>
+                    <th>币种数量</th>
+                    <th>法币金额</th>
+                    <th>创建时间</th>
+                    <th>审核</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    var otc_order_update_state_length = $("#otc_order_update_state").length;// 用于shiro判断
+    var current = 1;
+    var size = 10;
+    var orderNum = $("#key").val();
+    var respData;
+    var state1 = -1;
+    layui.use('form', function() { });
+    $(function () {
+        //初始化加载数据
+        sendReq(current, size, null);
+        //搜索
+        $('#search').on('click', function () {
+            orderNum = $("#key").val();
+            state1 = document.getElementById("state1").value;
+            if (state1 == -1) {
+                state1 = null;
+            }
+            sendReq(current, size, orderNum,state1);
+        });
+
+    });
+    var sendReq = function (current, size, orderNum,state1) {
+        $.ajax({//异步请求返回给后台
+            url: '/otc/order/list',
+            type: 'POST',
+            data: JSON.stringify({
+                orderNum: orderNum,
+                state1:state1,
+                current: current,
+                size: size
+            }),
+            dataType: 'json',
+            contentType:'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    var dataResult = data["data"]["dataResult"];
+                    respData = dataResult["data"]["records"];
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        html += '<tr>';
+                        html += '<th>' + item["orderNum"] + '</th>';
+                        if (item["state1"] === 10) {
+                            html += '<th>' + "待审核" + '</th>';
+                        }else if(item["state1"] === 0){
+                            html += '<th>' + "初始创建" + '</th>';
+                        }else if(item["state1"] === 1){
+                            html += '<th>' + "收款方未收款" + '</th>';
+                        }
+                        else if(item["state1"] === 2){
+                            html += '<th>' + "收款方已收款" + '</th>';
+                        }
+                        else if(item["state1"] === 3){
+                            html += '<th>' + "被投诉关闭" + '</th>';
+                        }
+                        else if(item["state1"] === 4){
+                            html += '<th>' + "订单关闭" + '</th>';
+                        }else if(item["state1"] === 9){
+                            html += '<th>' + "交易关闭" + '</th>';
+                        }
+                        html += '<th>' + item["coinName"] + '</th>';
+                        html += '<th>' + item["coinAmount"] + '</th>';
+                        html += '<th>' + item["legalAmount"] + '</th>';
+                        html += '<th>' + formatDateL(item["createTime"]) + '</th>';
+                        html += '<th>';
+                        if (item["state1"] === 10) {
+                            if(item["checkState"] == null){
+                                if (otc_order_update_state_length == 1){
+                                    html += '<a href="javascript:;" onclick="pass(this)" aid="' + item["id"] + '" data-id="1"  class="layui-btn layui-btn-mini">通过</a>';
+                                    html += '<a href="javascript:;" onclick="reject(this)" aid="' + item["id"] + '" data-id="2"  class="layui-btn layui-btn-danger layui-btn-mini">拒绝</a></th>';
+                                }
+                            }
+                        }else {
+                            if(item["checkState"] == 1){
+                                html += "已同意" + '</th>';
+                            }
+                            if(item["checkState"] == 2){
+                                html += "已拒绝" + '</th>';
+                            }
+                        }
+
+                        html += '</tr>'
+                    });
+                    $("#con").html(html);
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: dataResult.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if (!first) {
+                                    sendReq(obj.curr, obj.limit, orderNum,state1);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+
+
+    function pass(obj) {
+        var id = $(obj).attr("aid");
+        layer.confirm('您确定要通过审核吗？', {icon: 3}, function (index) {
+            $.ajaxUkey({
+                url: '/otc/order/update/check/state',
+                type: "POST",
+                data: JSON.stringify({id: id,checkState:1}),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    console.info("test");
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('设置成功！', {title: '提示信息', icon: 1},function (index) {
+                            layer.close(index);
+                            //location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，审核失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+
+        });
+    }
+
+    function reject(obj) {
+        var id = $(obj).attr("aid");
+        layer.confirm('您确定要拒绝吗？', {icon: 3}, function (index) {
+            $.ajaxUkey({
+                url: '/otc/order/update/check/state',
+                type: "POST",
+                data: JSON.stringify({id: id,checkState:2}),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('删除成功！', {title: '提示信息', icon: 1},function (index) {
+                            layer.close(index);
+                            //location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，删除失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+
+        });
+    }
+
+
+
+</script>
+
+</body>
+</html>

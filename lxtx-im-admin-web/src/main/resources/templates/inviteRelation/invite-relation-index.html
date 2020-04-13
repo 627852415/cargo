@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>邀请关系管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="account" id="account" class="layui-input" placeholder="用户帐号"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" id="telephone" class="layui-input" placeholder="手机号码"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                    <button type="button" onclick="download()" class="layui-btn">导出文件</button>
+                    <shiro:hasPermission name="disband:group">
+                        <button type="button" onclick="openRelationChangeDiv()" class="layui-btn">转移关系</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">用户名</th>
+            <th lay-data="{field:'account', align:'center'}">用户帐号</th>
+            <th lay-data="{field:'countryCode', align:'center'}">地区</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'lowerNum', align:'center'}">直属下级人数</th>
+            <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                       return formatDateL(data.createTime);
+                     }}">注册时间
+            </th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <shiro:hasPermission name="inviteRelation:addRelation">
+            <a class="layui-btn layui-btn-sm tableBtn" lay-event="openAddRelationDiv"><i class="layui-icon"></i>添加下级</a>
+        </shiro:hasPermission>
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="viewRelation"><i class="layui-icon"></i>查看关系链</a>
+    </script>
+</div>
+
+<!--  新增关系 -->
+<div id="addRelationDiv" style="display: none;">
+    <form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">上级用户</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="text" name="parentAccountDis" disabled
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="parentAccountDis">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">添加下级用户</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input type="hidden" name="parentAccount"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="parentAccount">
+                    <input type="text" name="account"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="lowerAccount">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="checkInviteRelation()">确定</a>
+                <a class="layui-btn" onclick="cancelAddOrEdit('addRelationDiv')">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--  绑定关系转移 -->
+<div id="relationChangeDiv" style="display: none;">
+    <form class="layui-form" action="" id="relationChangeForm" style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:95px;">被转移用户</label>
+                <div class="layui-input-block" style="width:300px;margin-left:150px;">
+                    <input type="text" name="changeAccount"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="changeAccount">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:95px;">接受转移用户</label>
+                <div class="layui-input-block" style="width:300px;margin-left:150px;">
+                    <input type="text" name="acceptAccount"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="acceptAccount">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:95px;">转移选择</label>
+                <div class="layui-input-block" style="width:300px;margin-left:150px;">
+                    <input type="radio" name="changeType" value="1" title="转移包括本人及所有下级" checked="">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-block" style="width:300px;margin-left:150px;">
+                    <input type="radio" name="changeType" value="2" title="转移所有下级，不包括本人">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="relationChangeConfirm()">确认转移</a>
+                <a class="layui-btn" onclick="cancelRelationChange('relationChangeDiv')">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    //查询数据
+    loadTableWithoutColumns('/inviteRelation/listPage', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                var data = obj.data;
+                var dataJson = JSON.stringify({id: obj.data.id});
+                if (obj.event === 'openAddRelationDiv') {
+                    openAddRelationDiv(data.account);
+                } else if (obj.event === 'viewRelation') {
+                    viewRelation(data.account);
+                }
+            });
+        });
+    }
+
+    //绑定关系转移
+    function openRelationChangeDiv(){
+        $('#relationChangeForm')[0].reset();
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>绑定关系转移</b>',
+            area: ['580px', '420px'], //宽高
+            content: $("#relationChangeDiv")
+        });
+        $("#changeAccount").empty();
+        $("#acceptAccount").empty();
+        layui.form.render(); //更新全部
+    }
+
+    //取消转移
+    function cancelRelationChange(formid) {
+        $("#" + formid).attr("style", "display: none;");
+        layer.closeAll();
+    }
+
+    //确定转移绑定有关系
+    function relationChangeConfirm(){
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var data = $("#relationChangeForm").serialize();
+        $.ajaxUkey({
+            url: "/inviteRelation/relationChange",
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg(data.data,
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function () {
+                            $("#relationChangeDiv").attr("style", "display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+    //查看关系链
+    function viewRelation(account) {
+        var e = $(this);
+        var i = "/inviteRelation/relation?account=" + account;
+        var t = "邀请注册关系链";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    //打开编辑关系弹窗
+    function openAddRelationDiv(parentAccount) {
+        $('#addForm')[0].reset();
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>新增关系</b>',
+            area: ['540px', '320px'], //宽高
+            content: $("#addRelationDiv")
+        });
+        $("#parentAccount").val(parentAccount);
+        $("#parentAccountDis").val(parentAccount);
+        layui.form.render(); //更新全部
+    }
+
+    //判断是否空数组
+    function dataIsEmpty(data) {
+        return JSON.stringify(data) == "{}";
+    }
+
+    //检查下级用户是否已存在上级用户
+    function checkInviteRelation() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var data = $("#addForm").serialize();
+        $.ajaxUkey({
+            url: "/inviteRelation/checkRelation",
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    //如果data.data不为空，说明存在上级用户，弹出确认提示
+                    var obj = data.data;
+                    if (!dataIsEmpty(obj)) {
+                        layer.confirm(data.data, {icon: 3, title: '提示'}, function (index) {
+                            addRelation();
+                        });
+                    } else {
+                        addRelation();
+                    }
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+
+    //新增邀请关系
+    function addRelation() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var data = $("#addForm").serialize();
+        $.ajaxUkey({
+            url: "/inviteRelation/addRelation",
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg(data.data,
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function () {
+                            $("#addRelationDiv").attr("style", "display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+    //取消修改信息
+    function cancelAddOrEdit(formid) {
+        $("#" + formid).attr("style", "display: none;");
+        layer.closeAll();
+    }
+
+    //excel文件导出
+    function download() {
+        var account = document.getElementById("account").value;
+        var telephone = document.getElementById("telephone").value;
+        var url = "/inviteRelation/exportExcel?account=" + account + "&telephone=" + telephone;
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '提示信息', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("系统异常，导出失败", {title: '提示信息', icon: 2});
+            }
+        });
+    }
+
+    //如果资产大于0 显示红色
+    function setStyleRed(obj) {
+        if (obj > 0) {
+            return "<b style='color: black'>" + obj + "</b>";
+        }
+        if (obj < 0) {
+            return "<b style='color: red'>" + obj + "</b>";
+        }
+        return obj;
+    }
+</script>
+</body>
+</html>

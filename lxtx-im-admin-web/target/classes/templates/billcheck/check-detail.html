@@ -1,0 +1,196 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>群组活跃度列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="billId" id="billId" class="layui-input" placeholder="请输入账单ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="start" id="start" class="layui-input datetime"
+                           placeholder="起始日期"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="end" id="end" class="layui-input datetime"
+                           placeholder="结束日期"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" lay-filter="search" lay-submit="">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+
+                    <button type="button" class="layui-btn" onclick="download()">导出文件</button>
+                </div>
+            </div>
+            <input type="hidden" th:value="${userId}" id="userId" name="userId"/>
+        </form>
+    </blockquote>
+
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-blue layui-btn-xs" lay-event="detail">账单详情</a>
+</script>
+
+<script>
+
+
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+
+    // 初始化日期控件
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#start',
+            min: -30,
+            max: 0
+        });
+
+        laydate.render({
+            elem: '#end',
+            min: -30,
+            max: 0
+        });
+    });
+
+    // 初始化列表
+    var table;
+    var intable;
+    layui.use('table', function () {
+        table = layui.table;
+        intable = table.render({
+            elem: '#dataTable'
+            , cellMinWidth: 100
+            , url: '/billcheck/check/detail'
+            , method: 'post'
+            , toolbar: '#toolbarDemo'
+            , contentType: 'application/json'
+            , request: {
+                pageName: 'current'
+                , limitName: 'size'
+            }
+            , where: {
+                userId: $('#userId').val()
+            }
+            , cols: [
+                [
+                    {width: 100, title: '序号', align: 'center', type: 'numbers'}
+                    , {field: 'billId', title: '账单ID', align: 'center', sort: false}
+                    , {field: 'count', title: '收款笔数', align: 'center', sort: false}
+                    , {
+                    field: 'amount', title: '账单金额', align: 'center', sort: false,
+                    templet: function (d) {
+                        var arr = d.amount
+                        var str = "";
+                        $.each(arr, function (i, item) {
+                            str += item.coinName + ":" + item.amount + "\n"
+                        })
+                        return str;
+                    }
+                },
+                    {
+                        field: 'date', title: '账单生成日期', align: 'center', sort: false
+                    }
+                    , {field: 'cycle', title: '结算周期', align: 'center', sort: false}
+                    , {field: 'status', title: '结算状态', align: 'center', sort: false}
+                    , {title: '操作', align: 'center', sort: false, toolbar: '#barDemo'}
+
+                    //, {width: 250, title: '操作', align: 'center', sort: false, toolbar: '#barData'}
+                ]
+            ]
+            , parseData: function (res) {
+                var msg, code = "1", records, total = 0;
+                if (!res.success || $.isEmptyObject(res.data)) {
+                    if (res.msg) {
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                } else {
+                    records = res.data.records;
+                    if (records != undefined && records.length > 0) {
+                        code = '0';
+                        total = res.data.total;
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": total,
+                    "data": records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+        });
+
+        //监听行工具事件
+        table.on('tool(dataTable)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'detail') {
+                //查询账单详情
+                var url = '/billcheck/bill/info?billId=' + data.billId + '&billTime=' + data.date + '&totalCount=' + data.count;
+                var e = $(this), i = url;
+                var t = '账单详情';
+                layui.router();
+                var l = parent === self ? layui : top.layui;
+                l.index.openTabsPage(i, t || e.text());
+            }
+        });
+
+    });
+
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(search)',
+            function (data) {
+                console.log(data)
+                intable.reload({
+                    where: {
+                        userId: data.field.userId
+                        , start: data.field.start
+                        , end: data.field.end
+                        , billId: data.field.billId
+                    }
+                });
+            });
+    });
+
+    //excel文件导出
+    function download() {
+        var url = "/billcheck/export/detail/excel?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '提示信息', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("系统异常，导出失败", {title: '提示信息', icon: 2});
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

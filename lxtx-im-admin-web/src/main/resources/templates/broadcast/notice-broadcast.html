@@ -1,0 +1,427 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" name="title" id="title" th:placeholder="查询发布标题"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" name="content" id="content" th:placeholder="查询发布内容"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="countryCode" id="countryCode" lay-verify="" th:placeholder="查询发布地区" lay-search>
+                        <option value="">查询发布地区</option>
+                        <option value="ALL">全部地区</option>
+                        <option th:each="code: ${globalCodes}" th:value="${code.countryCode}"
+                                th:text="${code.countryName}"></option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="status" id="status" lay-verify="" th:placeholder="查询发布状态">
+                        <option value="">查询发布状态</option>
+                        <option value="1">已发布</option>
+                        <option value="0">未发布</option>
+                        <option value="2">已撤销</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="text" name="searchTime" id="searchTime" readonly
+                           th:placeholder="请选择时间范围"/>
+                </div>
+                <div class="layui-input-inline">
+                    <button type="button" class="layui-btn" id="search">搜索</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+        <hr/>
+        <button class="layui-btn" id="new_broadcast">新建广播</button>
+    </blockquote>
+
+    <div class="layui-tab layui-tab-card" lay-filter="tab_">
+        <ul class="layui-tab-title">
+            <li class="layui-this" value="3">全部</li>
+            <li value="1">已发布</li>
+            <li value="0">未发布</li>
+            <li value="2">已撤回</li>
+        </ul>
+        <div class="layui-tab-content">
+            <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable"
+                   id="dataLoad">
+                <thead>
+
+                </thead>
+            </table>
+            <!--            <table id="dataTable" lay-filter="dataTable"></table>-->
+            <script type="text/html" id="barData">
+                {{# if(d.status!=1&&d.status!=2){}}
+                <a class="layui-btn tableBtn" lay-event="send"><i
+                        class="layui-icon"></i>发布</a>
+                {{#}}}
+                {{# if(d.status!=2&&d.status!=0){}}
+                <a class="layui-btn tableBtn" lay-event="repeal"><i
+                        class="layui-icon"></i>撤回</a>
+                {{#}}}
+                <a class="layui-btn tableBtn" lay-event="detail"><i
+                        class="layui-icon"></i>详情</a>
+                {{# if(d.status==0){}}
+                <a class="layui-btn tableBtn" lay-event="del"><i
+                        class="layui-icon"></i>删除</a>
+                {{#}}}
+            </script>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script>
+    //国家简码
+    // initCountryCode($('#countryCode'));
+    //加载初始数据
+    // loadTableWithoutColumns('/notice/broadcast/page', 'dataTable', 'searchForm');
+    layui.use(['layer', 'laydate', 'form', 'table', 'element', 'jquery'], function () {
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+        var form = layui.form;
+        var table = layui.table;
+        var element = layui.element;
+        var $ = layui.$;
+
+        table.on('tool(dataTable)', function (obj) {
+            if (obj.event === 'send') {
+                pushMsg(0, obj, '确定要发布这条公告吗?')
+            } else if (obj.event === 'repeal') {
+                pushMsg(1, obj, '确定要撤销这条公告吗?')
+            } else if (obj.event === 'detail') {
+                detailPage(obj.data.id)
+            } else if (obj.event === 'del') {
+                del(obj.data.id)
+            }
+        });
+
+        //删除
+        function del(id) {
+            layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {
+                icon: 3,
+                title: '[[#{text.operation.alert}]]',
+                offset: 100
+            }, function (index) {
+                //[[#{text.close.popup.layer}]]
+                layer.close(index);
+                var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+                $.ajaxUkey({
+                    data: JSON.stringify({
+                        ids: new Array(id)
+                    }),
+                    type: 'POST',
+                    dataType: "JSON",
+                    contentType: 'application/json;charset=UTF-8',
+                    url: '/notice/broadcast/delete',
+                    success: function (data) {
+                        if (data.success) {
+                            layer.msg("[[#{text.successful.operation}]]");
+                            $(".layui-laypage-btn")[0].click();
+                        } else {
+                            layer.msg(data.msg);
+                        }
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                    },
+                    error: function (e) {
+                        layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                    }
+                });
+            });
+        }
+
+        //发送消息或撤销消息
+        function pushMsg(msgType, obj, msg) {
+            layer.confirm(msg, {
+                icon: 3,
+                title: '[[#{text.operation.alert}]]',
+                offset: 100
+            }, function (index) {
+                layer.close(index)
+                var loading = layer.load(1, {shade: [0.8, '#393D49']})
+                var url;
+                if (msgType == 0) {
+                    url = '/notice/broadcast/push';
+                } else if (msgType == 1) {
+                    url = '/notice/broadcast/repeal/push';
+                }
+                $.ajaxUkey({
+                    url: url,
+                    type: 'POST',
+                    data: JSON.stringify({
+                        id: obj.data.id,
+                    }),
+                    dataType: 'json',
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (res) {
+                        layer.close(loading);
+                        if (res.success) {
+                            layer.alert('[[#{text.successful.operation}]]', {
+                                title: '[[#{text.operation.message}]]',
+                                icon: 6
+                            }, function (index) {
+                                layer.close(index)
+                                window.location.reload()
+                            });
+                        } else {
+                            layer.msg(res.msg, {offset: '300px', time: 1000}, function (index) {
+                                layer.close(index);
+                            });
+                        }
+                        return false;
+                    },
+                    error: function (e) {
+                        //最后数据加载完 让 loading层消失
+                        layer.close(loading);
+                        layer.msg("系统升级维护中，请稍后重试", {offset: '300px', time: 1000}, function (index) {
+                            layer.close(index);
+                        });
+                    }
+                });
+            })
+        }
+
+        function detailPage(id) {
+            var url = "/notice/broadcast/" + id;
+            var title = "广播详情";
+            // parent.layer.msg("hahah")
+            layer.open({
+                type: 2,
+                closeBtn: 1,
+                offset: '50px',
+                title: '<b>' + title + '</b>',
+                area: ['800px', '600px'], //[[#{text.width.height}]]
+                content: url,
+                shadeClose: true
+            });
+        }
+
+        function addPage() {
+            var url = "/notice/broadcast/send/page";
+            var title = "广播公告";
+            layer.open({
+                type: 2,
+                closeBtn: 1,
+                shadeClose: true,
+                offset: '50px',
+                title: '<b>' + title + '</b>',
+                area: ['800px', '600px'], //[[#{text.width.height}]]
+                content: url
+            });
+        }
+
+        //时间
+        laydate.render({
+            elem: '#searchTime',
+            type: 'date',
+            range: true,
+            // max: curDate
+        })
+
+        element.on('tab(tab_)', function (data) {
+            var title = $("#title").val();
+            var content = $("#content").val();
+            var countryCode = $("#countryCode").val();
+            var searchTime = $("#searchTime").val();
+            var time = searchTime.split(' - ');
+            console.log(data.elem.context.value)
+            if (data.elem.context.value == 3) {
+                var str = {
+                    "title": title,
+                    "content": content,
+                    "countryCode": countryCode,
+                    "searchBeginTime": time[0],
+                    "searchEndTime": time[1]
+                };
+                defineTable("/notice/broadcast/page", str, 'dataTable', function (cols) {
+                    cols.push({width: '25%', align: 'center', toolbar: '#barData'})
+                })
+            } else {
+                if (data.elem.context.value == 2) {
+                    var str = {
+                        "title": title,
+                        "content": content,
+                        "countryCode": countryCode,
+                        "searchBeginTime": time[0],
+                        "searchEndTime": time[1],
+                        "status": 2
+                    };
+                    defineTable("/notice/broadcast/page", str, 'dataTable', function (cols) {
+                        cols.push({
+                            field: 'repealerName', align: 'center', title: '撤销者', templet: function (data) {
+                                return data.repealerName == null ? '' : data.repealerName;
+                            }
+                        })
+                        cols.push({
+                            field: 'repealTime', align: 'center', title: '撤销时间', templet: function (data) {
+                                return data.repealTime == null ? '' : data.repealTime;
+                            }
+                        })
+                        cols.push({width: '25%', align: 'center', toolbar: '#barData'})
+                    })
+                } else {
+                    var str = {
+                        "title": title,
+                        "content": content,
+                        "countryCode": countryCode,
+                        "searchBeginTime": time[0],
+                        "searchEndTime": time[1],
+                        "status": data.elem.context.value
+                    };
+                    defineTable("/notice/broadcast/page", str, 'dataTable', function (cols) {
+                        cols.push({width: '25%', align: 'center', toolbar: '#barData'})
+                    })
+                }
+            }
+        })
+
+        function search(fid, tid, isNotPage) {
+            var title = $("#title").val();
+            var content = $("#content").val();
+            var countryCode = $("#countryCode").val();
+            var searchTime = $("#searchTime").val();
+            var time = searchTime.split(' - ');
+            let status = $("#status").val();
+
+            var str = {
+                "title": title,
+                "content": content,
+                "countryCode": countryCode,
+                "searchBeginTime": time[0],
+                "searchEndTime": time[1],
+                "status": status
+            };
+            // console.log(searchTime)
+            // console.log(str)
+            // var table = layui.table;
+            var dataReloadId = "dataReload";
+            if (tid) {
+                dataReloadId = tid;
+            }
+            //执行重载
+            if (!isNotPage) {
+                table.reload(dataReloadId, {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: str
+                });
+            } else {
+                table.reload(dataReloadId, {
+                    where: str
+                });
+            }
+        }
+
+        function defineTable(url, params, filter, cols) {
+            var colOuter = []
+            var colInner =
+                [
+                    {type: 'numbers', width: '4%', align: 'center', style: 'height:65px;', title: '序号'}
+                    , {
+                    field: 'title', align: 'center', title: '广播标题', templet: function (data) {
+                        return data.title == null ? '' : data.title;
+                    }
+                }
+                    , {
+                    field: 'content', align: 'center', title: '广播内容', templet: function (data) {
+                        return data.content == null ? '' : data.content;
+                    }
+                }
+                    , {
+                    field: 'countryNames', align: 'center', title: '发布地区', templet: function (data) {
+                        return data.countryNames == null ? '' : data.countryNames;
+                    }
+                }
+                    , {
+                    field: 'publisherName', width: '10%', align: 'center', title: '发布者', templet: function (data) {
+                        return data.publisherName == null ? '' : data.publisherName;
+                    }
+                }
+                    , {
+                    field: 'publishTime', align: 'center', title: '发布时间', templet: function (data) {
+                        return data.publishTime == null ? '' : data.publishTime;
+                    }
+                }, {
+                    field: 'statusName', width: '8%', align: 'center', title: '状态', templet: function (data) {
+                        return data.statusName == null ? '' : data.statusName;
+                    }
+                }
+                ]
+            cols(colInner)
+            colOuter.push(colInner)
+            table.render({
+                elem: '#dataLoad'
+                , page: true
+                , method: 'post'
+                , url: url
+                , cols: colOuter
+                , request: {
+                    pageName: 'current',
+                    limitName: 'size'
+                },
+                parseData: function (res) {
+                    var msg, code = "1", records, total = 0;
+                    if (!res.success || $.isEmptyObject(res.data)) {
+                        if (res.msg) {
+                            msg = '<b style="color: red">' + res.msg + '</b>';
+                        } else {
+                            msg = '<b style="color: red">未查询到相关数据</b>';
+                        }
+
+                    } else {
+                        records = res.data.records;
+                        if (records != undefined && records.length > 0) {
+                            code = '0';
+                            total = res.data.total;
+                        } else {
+                            msg = '<b style="color: red">未查询到相关数据</b>';
+                        }
+                    }
+                    return {
+                        "code": code,
+                        "msg": msg,
+                        "count": total,
+                        "data": records
+                    }
+                },
+                where: params
+            });
+        }
+
+        $(function () {
+            defineTable('/notice/broadcast/page', {}, 'dataTable', function (cols) {
+                cols.push({width: '25%', align: 'center', toolbar: '#barData'})
+            });
+        })
+
+        $('#new_broadcast').on('click', function () {
+            addPage()
+        })
+
+        $('#search').on('click', function () {
+            search('searchForm', 'dataLoad')
+        })
+    })
+
+</script>
+
+</html>

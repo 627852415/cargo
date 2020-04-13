@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.details.of.the.complaint}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+
+</head>
+<style>
+    .my-label{
+        width: 100px;
+    }
+</style>
+
+<body>
+<fieldset class="layui-elem-field layui-field-title site-demo-button" style="margin-top: 20px;">
+    <legend>[[${detail.id}]] [[#{text.transaction.arbitration}]]</legend>
+</fieldset>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" id="id" th:value="${detail.id}"  class="layui-input">
+    <input type="hidden" id="initiativeByMerchant" th:value="${detail.initiativeByMerchant}" class="layui-input">
+    <div class="layui-form-item">
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">[[#{text.order.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.orderId}" id="orderId"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label my-label">[[#{text.buyer}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.buyerTelephone}" class="layui-input"  disabled>
+            </div>
+            <label class="layui-form-label my-label my-label">[[#{text.arbitration.status}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.product.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.goodsId}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.business}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="${detail.merchantTelephone}" class="layui-input"  disabled>
+            </div>
+
+            <label class="layui-form-label my-label">[[#{text.current.order.status}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.arbitration.number}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${detail.id}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.complaint.time}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${#dates.format(detail.createTime,'yyyy-MM-dd HH:mm:ss')}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.processing.status}]]</label>
+            <div class="layui-input-inline">
+                <input style="color: #af0000" type="text"  th:value="${detail.statusStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.contact.number}]]</label>
+            <div class="layui-input-inline" th:each="complaint : ${detail.complaintDetailRespList}">
+                <input type="text" th:value="${complaint.fullTelephone}" style="height: 38px;line-height: 1.3;border-width: 1px;border-style: solid;background-color: #fff;border-color: #D2D2D2!important;padding-left: 10px;width: 116px;" disabled>
+                <span id="buyerArea" ></span>
+            </div>
+
+        </div>
+        <div class="layui-form-item" >
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.reason.for.complaint}]]:</label>
+        </div>
+        <div class="layui-form-item" th:each="complaint : ${detail.complaintDetailRespList}">
+
+            <div class="layui-input-block" style="width: 850px;margin-left: 130px;">
+                <label style="width: 100px;color: #1E9FFF" id="byuerExlpArea"></label>
+                <textarea th:text="${complaint.content}" class="layui-textarea" disabled></textarea>
+            </div>
+            <div class="layui-form-item" style="float:left;margin-left: 130px;">
+                <img onclick="imgZoom(this,'[[#{text.complaint.certificate}]]');" th:each="image : ${complaint.images}" class="layui-upload-img" name="image" style="width: 100px;height: 100px;" th:src="${image}">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.order.information}]]:</label>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.exchange.amount}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.sourceCurrency}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.amount.received}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.targetCurrency}"  class="layui-input" disabled>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.exchange.rate}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  th:value="${order.exchangeRateStr}"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label" style="font-size:larger">[[#{text.chat.record}]]:</label>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.date.range}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" name="searchDate" id="searchDate" class="layui-input datetime" th:placeholder="#{text.search.date.range}"/>
+            </div>
+            <label class="layui-form-label my-label">[[#{text.number.of.query.rows}]]</label>
+            <div class="layui-input-inline">
+                <input type="text"  id="limit" class="layui-input" placeholder="默认1000行">
+                <input type="hidden"  id="buyerAccount"  class="layui-input"  th:value="${detail.buyer}" >
+                <input type="hidden"  id="merchantAccount"  class="layui-input"  th:value="${detail.merchant}" >
+            </div>
+            <a href="javascript:;" onclick="searchMsg()" data-id="1" class="layui-btn layui-btn-mini">[[#{text.inquire}]]</a>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">&nbsp;</label>
+            <table>
+                <tr>
+                    <td>
+                        <div class="layui-card" style="height:400px;width:400px;margin-right:15px;overflow-y: auto;">
+                            <div class="layui-card-header">[[#{text.buyer.side}]]</div>
+                            <div id="buyerMessageList" class="layui-card-body"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="layui-card" style="height:400px;width:400px;margin-left:15px;overflow-y: auto;">
+                            <div class="layui-card-header">[[#{text.merchant.side}]]</div>
+                            <div id="merchantMessageList" class="layui-card-body"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="layui-input-block"  style="margin-left: 400px; margin-top: 50px;margin-bottom: 100px;">
+            <a th:href="@{/offsite/exchange/complaint/processing?id={id}(id=${detail.id})}" class="layui-btn" style="width: 200px;" >[[#{text.to.deal.with}]]</a>
+        </div>
+
+    </div>
+
+</form>
+<!-- [[#{text.picture.view.original}]]-->
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img" id="imgId" src="">
+    </div>
+</div>
+<script>
+    function handleBuyerArea(){
+        var val = "[[#{text.business}]]";
+        var title = "${complaint.buyerComplain}";
+        if(title!=null||title!=undefined||title!=''){
+            if ($('#initiativeByMerchant').val() == "true") {
+                val = "[[#{text.business}]]"
+            } else {
+                val = "[[#{text.buyer}]]";
+            }
+        }
+        $("#buyerArea").html(val);
+    }
+
+    function handleBuyerExlArea(){
+        var val = "[[#{text.buyer.merchant.application}]]";
+        var title = "${complaint.buyerComplain}";
+        if(title!=null||title!=undefined||title!=''){
+            if ($('#initiativeByMerchant').val() == "true") {
+                val = "[[#{text.buyer.merchant.application}]]";
+            } else {
+                val = "[[#{text.buyer.application}]]";
+            }
+        }
+        $("#byuerExlpArea").html(val);
+    }
+
+    $(function(){
+        handleBuyerArea()
+        handleBuyerExlArea();
+    })
+
+    /**
+     * [[#{text.view.original.photo}]]
+     * @param obj
+     * @param title
+     */
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>' + title + '</b>',
+            area: ['1200px', '800px'], //[[#{text.width.height}]]
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //[[#{text.update.all}]]
+    }
+    // [[#{text.initialize.the.date.control}]]
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#searchDate',
+            range: '~',
+            min: -30,
+            max: 0,
+        });
+
+    });
+
+    // [[#{text.search.list.records}]]
+    function searchMsg() {
+        $("#buyerMessageList").text('');
+        $("#merchantMessageList").text('');
+        var buyerAccount = $("#buyerAccount").val();
+        var merchantAccount = $("#merchantAccount").val();
+        var searchDate = $("#searchDate").val();
+        var limit = $("#limit").val();
+        var orderId = $("#orderId").val();
+        if(!searchDate){
+            layer.alert('请选择[[#{text.search.date.range}]]', {title: '提示信息', icon: 2});
+            return;
+        }
+
+        // [[#{text.buyer.and.customer.service.chat.history}]]
+        $.ajaxUkey({
+            url: '/offsite/exchange/complaint/messageList',
+            type: "POST",
+            data: JSON.stringify({userAccount:buyerAccount,searchDate:searchDate,limit:limit,orderId:orderId}),
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                        var arr = result.data.list;
+                        if(arr.length > 0){
+                            arr.forEach((item, index, arr) => {
+                                var msgText = item.content;
+                                var timestamp = item.timestamp;
+                                var extra = item.extra;
+                                var senderName ='';
+                                if(extra){
+                                    senderName = eval('(' + extra + ')').senderName;
+                                }
+
+                                var html = "<p class='msg'>" +
+                                    "<span style='color: #00B83F'>"+formatDateL(timestamp)+"&nbsp;&nbsp;</span><span style='color: #FFB800'>"+senderName+"</span><br><span style='color: mediumblue'>"+msgText+"</span></p>";
+                                $("#buyerMessageList").append(html);
+                            });
+                        }else {
+                            var html = "<p class='msg'><span style='color: red'>[[#{text.no.message.recorded}]]</span></p>";
+                            $("#buyerMessageList").append(html);
+                        }
+
+                        return;
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('系统异常，操作失败！', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+
+
+        // [[#{text.business.chat.with.customer.service}]]
+        $.ajaxUkey({
+            url: '/offsite/exchange/complaint/messageList',
+            type: "POST",
+            data: JSON.stringify({userAccount:merchantAccount,searchDate:searchDate,limit:limit,orderId:orderId}),
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    var arr = result.data.list;
+                    if(arr.length > 0){
+                        arr.forEach((item, index, arr) => {
+                            var msgText = item.content;
+                            var timestamp = item.timestamp;
+                            var extra = item.extra;
+                            var senderName ='';
+                            if(extra){
+                                senderName = eval('(' + extra + ')').senderName;
+                            }
+
+                            var html = "<p class='msg'>" +
+                                "<span style='color: #00B83F'>"+formatDateL(timestamp)+"&nbsp;&nbsp;</span><span style='color: #FFB800'>"+senderName+"</span><br><span style='color: mediumblue'>"+msgText+"</span></p>";
+                            $("#merchantMessageList").append(html);
+                        });
+                    }else {
+                        var html = "<p class='msg'><span style='color: red'>[[#{text.no.message.recorded}]]</span></p>";
+                        $("#merchantMessageList").append(html);
+                    }
+
+                    return;
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                        return;
+                    }
+                    layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.information}]]', icon: 2});
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

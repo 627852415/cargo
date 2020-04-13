@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>币种新增通知</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/notice/coin-add-index.js}"></script>
+</head>
+<style>
+    .layui-input {
+        display: block;
+        width: 290%;
+    }
+
+    .layui-input-block {
+        margin-top: 5px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" style="margin-left: -100px;">
+            <input type="hidden" th:value="${dict} ? ${dict.domain}"
+                   th:name="${dict != null && dict.domain != null} ? 'domain'"/>
+            <div class="layui-input-block">
+                <input type="checkbox" name="noticeType" id="noticeMessage" th:checked="${dict} ? ${dict.noticeMessage}"
+                       value="1" title="短信" lay-filter="noticeCheckbox"/>
+                <div class="layui-input-inline">
+                    <input type="text" id="telephone" name="telephone"
+                           th:value="${dict} ? ${dict.telephone}" lay-verify=""
+                           autocomplete="off" class="layui-input" placeholder="请输入手机号码（必须加短码：如8613800138000）"
+                           readonly="readonly">
+                </div>
+            </div>
+            <div class="layui-input-block">
+                <input type="checkbox" name="noticeType" id="noticeTelegram" value="2" title="电报"
+                       th:checked="${dict} ? ${dict.noticeTelegram}"
+                       lay-filter="noticeCheckbox"/>
+                <div class="layui-input-inline">
+                    <input type="text" id="botToken" name="botToken" th:value="${dict} ? ${dict.botToken}"
+                           lay-verify=""
+                           autocomplete="off" class="layui-input" placeholder="请输入机器人token" readonly="readonly">
+                </div>
+                <div class="layui-input-inline" style="margin-left: 350px">
+                    <input type="text" id="chatId" name="chatId" th:value="${dict} ? ${dict.chatId}"
+                           lay-verify=""
+                           autocomplete="off" class="layui-input" placeholder="请输入电报群id" readonly="readonly">
+                </div>
+
+            </div>
+
+            <div class="layui-input-block">
+                <input type="checkbox" name="noticeType" id="noticeEmail" th:checked="${dict} ? ${dict.noticeEmail}"
+                       value="3" title="邮件"
+                       lay-filter="noticeCheckbox"/>
+                <div class="layui-input-inline">
+                    <input type="text" id="adminMail" name="adminMail" th:value="${dict} ? ${dict.adminMail}"
+                           lay-verify=""
+                           autocomplete="off" class="layui-input" placeholder="请输入邮箱" readonly="readonly">
+                </div>
+
+                <div class="layui-input-inline" style="margin-left: 350px">
+                    <input type="text" id="ccMail" name="ccMail" th:value="${dict} ? ${dict.ccMail}"
+                           lay-verify=""
+                           autocomplete="off" class="layui-input" placeholder="请输入抄送人邮箱" readonly="readonly">
+                </div>
+
+            </div>
+
+
+            <div class="layui-form-item" style="margin-top: 10px">
+                <div class="layui-input-block">
+                    <shiro:hasPermission name="add:dict:index">
+                        <button class="layui-btn" lay-submit="" lay-filter="addCoinNotice">立即提交</button>
+                    </shiro:hasPermission>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+
+        </form>
+    </blockquote>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/notice/coin-amount-max-save.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 600px;
+        margin-right: 10px;
+    }
+
+</style>
+<body>
+<blockquote class="layui-elem-quote">
+<form class="layui-form" action="">
+    <input type="hidden" th:value="${dict} ? ${dict.gid}" th:name="${dict != null && dict.gid != null} ? 'gid'"/>
+    <input type="hidden" th:value="${dict} ? ${dict.domain}" th:name="${dict != null && dict.domain != null} ? 'domain'"/>
+    <input type="hidden" th:value="${dict} ? ${dict.ikey}" th:name="${dict != null && dict.ikey != null} ? 'ikey'"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">配置描述</label>
+        <div class="layui-input-inline">
+            <input type="text" id="description" name="description" th:value="${dict} ? ${dict.description}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入描述">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">额度限制</label>
+        <div class="layui-input-inline">
+            <input type="text" id="value" name="value" th:value="${dict} ? ${dict.value}"
+                   lay-verify="number" autocomplete="off" class="layui-input" placeholder="请输入额度限制">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form></blockquote>
+
+
+</body>
+</html>

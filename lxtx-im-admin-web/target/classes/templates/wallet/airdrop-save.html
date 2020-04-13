@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/airdrop/airdrop-save.js}"></script>
+    <style>
+        .layui-form-label{
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<blockquote class="layui-elem-quote layui-text">
+    [[#{text.wallet.airdrop.save.precautions}]]
+</blockquote>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>[[#{text.wallet.airdrop.info}]]</legend>
+</fieldset>
+
+<form class="layui-form" action="">
+    <input type="hidden" th:value="${airdrop} ? ${airdrop.id}" th:name="${airdrop} ? 'id'"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.airdrop.table.coin.name}]]</label>
+        <div class="layui-input-inline">
+            <select lay-filter="coinName" lay-verify="coinName" name="coinName" th:value="${airdrop} ? ${airdrop.coinId}">
+                <option value=0>[[#{text.placeholder.coin}]]</option>
+                <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:title="${coin.sixFlag}" th:value="${coin.id}" th:selected="${airdrop != null and airdrop.coinId == coin.id}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.airdrop.table.object}]]</label>
+        <div class="layui-input-block">
+            <input type="radio" lay-filter="type" name="type" value="1" th:title="#{text.wallet.airdrop.save.new.user}" th:checked="${airdrop != null and airdrop.type == 1}">
+            <input type="radio" lay-filter="type" name="type" value="2" th:title="#{text.wallet.airdrop.save.all.user}" th:checked="${airdrop != null and airdrop.type == 2}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">[[#{text.operation.input.start.time}]]</label>
+            <div class="layui-input-inline">
+                <input autocomplete="off" th:value="${airdrop} ? ${#dates.format(airdrop.startTime,'yyyy-MM-dd HH:mm:ss')}" name="startTime" lay-verify="required" type="text" class="layui-input" id="startTime" placeholder="yyyy-MM-dd HH:mm:ss">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">[[#{text.operation.input.end.time}]]</label>
+            <div class="layui-input-inline">
+                <input autocomplete="off" th:value="${airdrop} ? ${#dates.format(airdrop.endTime,'yyyy-MM-dd HH:mm:ss')}" name="endTime" lay-verify="required" type="text" class="layui-input" id="endTime" placeholder="yyyy-MM-dd HH:mm:ss">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item unlockTime" th:attr="style = #{airdrop == null or airdrop.unlockTime == null or airdrop.coinName == 'BYB'} ? 'display: none'">
+        <div class="layui-inline">
+            <label class="layui-form-label">[[#{text.wallet.airdrop.table.unlock.time}]]</label>
+            <div class="layui-input-inline">
+                <input autocomplete="off" th:value="${airdrop} ? ${#dates.format(airdrop.unlockTime,'yyyy-MM-dd HH:mm:ss')}" name="unlockTime" lay-verify="" type="text" class="layui-input" id="unlockTime" placeholder="yyyy-MM-dd HH:mm:ss">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.airdrop.table.amount}]]</label>
+        <div class="layui-input-inline">
+            <input th:value="${airdrop} ? ${airdrop.amount}" type="text" name="amount" lay-verify="number" autocomplete="off" th:placeholder="#{text.wallet.airdrop.save.tips.amount}" class="layui-input">
+        </div>
+    </div>
+    <!--<div class="layui-form-item unitAmount" th:attr="style = #{airdrop != null and airdrop.type == 2} ? 'display: none'">-->
+    <div class="layui-form-item unitAmount" th:style="'display:' + @{(${airdrop != null and airdrop.type == 2} ? 'none' : 'inline-block')} + ''">
+        <label class="layui-form-label">[[#{text.wallet.airdrop.table.unit.amount}]]</label>
+        <div class="layui-input-inline">
+            <input th:value="${airdrop != null and airdrop.unitAmount != 0} ? ${airdrop.unitAmount}" type="text" name="unitAmount" th:lay-verify="#{airdrop != null and airdrop.type != 2} ? 'number'" th:placeholder="#{text.wallet.airdrop.save.tips.unit.amount}" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="save">[[#{text.operation.submit.now}]]</button>
+            <button type="reset" class="layui-btn layui-btn-primary">[[#{text.operation.reset}]]</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

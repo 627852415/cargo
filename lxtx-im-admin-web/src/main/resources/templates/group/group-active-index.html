@@ -1,0 +1,358 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>群组活跃度列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="groupId" id="groupId" class="layui-input" placeholder="请输入群组ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="groupName" id="name" class="layui-input" placeholder="请输入群组名称"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="searchDate" id="searchDate" class="layui-input datetime"
+                           placeholder="搜索日期范围"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <div class="layui-collapse">
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title" style="color: red;font-weight: bold">群活度说明</h2>
+            <div class="layui-colla-content">
+                <ul>
+                    <li>
+                        1、<span class="layui-breadcrumb"> <a href="">活跃度公式：活跃度=贡献值*40%+参与值*30%+人气值*30%</a></span>
+                    </li>
+                    <li>
+                        <hr class="layui-bg-green">
+                    </li>
+                    <li>2、
+                        <span class="layui-breadcrumb" lay-separator="|">
+                          <a href="">贡献值=贡献得分*40%</a>
+                          <a href="">参与值=参与得分*(1+活跃人数占比)*30%</a>
+                          <a href="">人气值=人气得分* (1-退群人数占比)*30%</a>
+                        </span>
+                    </li>
+                    <li>
+                        <hr class="layui-bg-green">
+                    </li>
+                    <li>3、<span class="layui-breadcrumb"> <a href="">得分对应下方表中数据换算成贡献值方可加入公式中计算</a></span></li>
+                    <li>
+                        <table class="layui-table" lay-even lay-skin="line" lay-size="lg">
+                            <tr>
+                                <td>总流水：</td>
+                                <td>1-500</td>
+                                <td>501-5000</td>
+                                <td>5001-10000</td>
+                                <td>10001- 50000</td>
+                                <td>50001+</td>
+                            </tr>
+                            <tr>
+                                <td>贡献得分:</td>
+                                <td>20</td>
+                                <td>50</td>
+                                <td>70</td>
+                                <td>90</td>
+                                <td>100</td>
+                            </tr>
+                            <tr>
+                                <td>消息数量：</td>
+                                <td>1-100</td>
+                                <td>101-300</td>
+                                <td>301-1000</td>
+                                <td>1001-5000</td>
+                                <td>5001+</td>
+                            </tr>
+                            <tr>
+                                <td>参与得分：</td>
+                                <td>20</td>
+                                <td>50</td>
+                                <td>70</td>
+                                <td>90</td>
+                                <td>100</td>
+                            </tr>
+                            <tr>
+                                <td>新增人数：</td>
+                                <td>1-5</td>
+                                <td>6-10</td>
+                                <td>11-30</td>
+                                <td>31-50</td>
+                                <td>51+</td>
+                            </tr>
+                            <tr>
+                                <td>人气得分：</td>
+                                <td>20</td>
+                                <td>50</td>
+                                <td>70</td>
+                                <td>90</td>
+                                <td>100</td>
+                            </tr>
+                        </table>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">群组列表</span>
+</script>
+<script type="text/html" id="barData">
+    <a class="layui-btn layui-btn-sm tableBtn" lay-event="disband">解散群</a>
+    <a class="layui-btn layui-btn-sm tableBtn" lay-event="groupMember">群成员</a>
+    {{#  if(!d.informationFlag){ }}
+    <a class="layui-btn layui-btn-sm tableBtn" lay-event="updateInformationFlagOpen">私聊开放</a>
+    {{#  } }}
+    {{# if(d.informationFlag){ }}
+    <a class="layui-btn layui-btn-sm tableBtn layui-btn-danger" lay-event="updateInformationFlagClose">私聊关闭</a>
+    {{#  } }}
+</script>
+
+<script>
+    //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+
+    // 初始化日期控件
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#searchDate',
+            range: '~',
+            min: -30,
+            max: 0
+        });
+
+    });
+
+    // 初始化列表
+    var table;
+    layui.use('table', function () {
+        table = layui.table;
+        table.render({
+            elem: '#dataTable'
+            , cellMinWidth: 100
+            , url: '/group/groupActiveList'
+            , method: 'post'
+            , toolbar: '#toolbarDemo'
+            , initSort: {field: 'totalScoreActivity', type: 'desc'}
+            , request: {
+                pageName: 'current'
+                , limitName: 'size'
+            }
+            , cols: [
+                [
+                    {field: 'groupId', title: '群ID', align: 'center', sort: true}
+                    , {field: 'groupName', title: '群名称', align: 'center', sort: false}
+                    , {field: 'memberCount', title: '群人数', align: 'center', sort: true}
+                    , {field: 'totalScoreActivity', title: '活跃度总分', align: 'center', sort: true}
+                    , {
+                    field: 'totalAmount', title: '总流水', align: 'center', sort: true, templet: function (data) {
+                        return '￥' + data.totalAmount;
+                    }
+                }
+                    , {
+                    field: 'gameAmount', title: '游戏流水', align: 'center', sort: false, templet: function (data) {
+                        return '￥' + data.gameAmount;
+                    }
+                }
+                    , {
+                    field: 'redPacketAmount', title: '红包流水', align: 'center', sort: false, templet: function (data) {
+                        return '￥' + data.redPacketAmount;
+                    }
+                }
+                    , {field: 'msgCount', title: '消息数量', align: 'center', sort: false}
+                    , {
+                    field: 'activeMembersRate',
+                    title: '活跃人数占比',
+                    align: 'center',
+                    sort: false,
+                    templet: function (data) {
+                        return data.activeMembersRate + '%';
+                    }
+                }
+                    , {field: 'addMemberCount', title: '新增成员', align: 'center', sort: false}
+                    , {
+                    field: 'quitMemberRate',
+                    title: '退群人数占比',
+                    align: 'center',
+                    sort: false,
+                    templet: function (data) {
+                        return data.quitMemberRate + '%';
+                    }
+                }
+                    , {
+                    field: 'createTime', title: '创建时间', align: 'center', sort: true, templet: function (data) {
+                        return formatDate(data.createTime);
+                    }
+                }
+                    //, {width: 250, title: '操作', align: 'center', sort: false, toolbar: '#barData'}
+                ]
+            ]
+            , parseData: function (res) {
+                var msg, code = "1", records, total = 0;
+                if (!res.success || $.isEmptyObject(res.data)) {
+                    if (res.msg) {
+                        msg = '<b style="color: red">' + res.msg + '</b>';
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                } else {
+                    records = res.data.records;
+                    if (records != undefined && records.length > 0) {
+                        code = '0';
+                        total = res.data.total;
+                    } else {
+                        msg = '<b style="color: red">未查询到相关数据</b>';
+                    }
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": total,
+                    "data": records
+                }
+            }
+            , id: 'dataReload'
+            , page: true
+        });
+
+        //监听排序事件
+        table.on('sort(dataTable)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var orderF = {
+                field: obj.field //排序字段
+                , order: obj.type //排序方式
+            };
+            var whereData = $.extend(orderF, $("#searchForm").serializeJson());
+            table.reload('dataReload', {
+                initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                , where: whereData
+            });
+        });
+
+        //监听行工具事件
+        table.on('tool(dataTable)', function (obj) {
+            if (obj.event === 'disband') {
+                disband(obj.data.groupId);
+            } else if (obj.event === 'groupMember') {
+                groupMember(obj.data.groupId);
+            } else if (obj.event === 'updateInformationFlagOpen') {
+                updateInformationFlag(obj.data.groupId, obj, this);
+            } else if (obj.event === 'updateInformationFlagClose') {
+                updateInformationFlag(obj.data.groupId, obj, this);
+            }
+        });
+
+    });
+
+
+    //解散群
+    function disband(groupId) {
+        // console.info("解散群id:"+groupId);
+        layer.confirm("确定解散该群吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/group/disband',
+                type: 'POST',
+                data: JSON.stringify({groupId: groupId}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //群成员
+    function groupMember(obj) {
+        console.info(obj);
+        var e = $(this);
+        var i = "/groupMember/index?groupId=" + obj;
+        var t = "群成员";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    function updateInformationFlag(groupId, obj, item) {
+        var informationFlag = obj.data.informationFlag + "";
+        var newInformationFlag;
+        if (informationFlag === "false") {
+            newInformationFlag = 1;
+        } else if (informationFlag === "true") {
+            newInformationFlag = 0;
+        }
+        $.ajaxUkey({
+            url: '/group/information/flag',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                groupId: groupId,
+                informationFlag: newInformationFlag
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    // 处理成功业务逻辑
+                    if (informationFlag === "false") {
+                        obj.update({
+                            informationFlag: true
+                        });
+                        $(item).text("私聊关闭");
+                    } else if (informationFlag === "true") {
+                        obj.update({
+                            informationFlag: false
+                        });
+                        $(item).text("私聊开放");
+                    }
+
+                    if ($(item).hasClass("layui-btn-danger")) {
+                        $(item).removeClass("layui-btn-danger")
+                    } else {
+                        $(item).addClass("layui-btn-danger")
+                    }
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '提示信息', icon: 2});
+                        return;
+                    }
+                    layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

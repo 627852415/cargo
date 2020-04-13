@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建OTC商家分组</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 600px;
+        margin-right: 10px;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" th:value="${dict} ? ${dict.gid}" th:name="${dict != null && dict.gid != null} ? 'gid'"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-inline">
+            <input type="text" id="description" name="description" th:value="${dict} ? ${dict.description}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入描述">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">模块</label>
+        <div class="layui-input-inline">
+            <input type="text" id="domain" name="domain" th:value="${dict} ? ${dict.domain}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入模块">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">key</label>
+        <div class="layui-input-inline">
+            <input type="text" name="ikey" th:value="${dict} ? ${dict.ikey}"
+                   lay-verify="required" autocomplete="off" class="layui-input" placeholder="请输入key">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">value</label>
+        <div class="layui-input-inline">
+            <input type="text" id="value" name="value" th:value="${dict} ? ${dict.value}"
+                   lay-verify="" autocomplete="off" class="layui-input" placeholder="请输入value">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            var formData = JSON.stringify(data.field)
+            submit('/otc/merchant/group/save', formData);
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

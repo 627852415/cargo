@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.exchange.merchant.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+
+
+</style>
+
+<body>
+<form class="layui-form" action="" id="merchantForm" style="padding-top: 30px">
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.last.name}]]</label>
+        <input type="hidden" name="id" th:value="${detail.id}">
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.lastName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.first.name}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.firstName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.gender}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.genderName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.country.and.region}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.id.number}]]</label>
+        <div class="layui-input-block"style="width: 350px;" >
+            <input type="text" th:value="${detail.certificateNo}" class="layui-input" disabled>
+        </div>
+    </div>
+    <!--<div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.front.of.document}]]</label>
+        <div class="layui-input-block" >
+            <img class="layui-upload-img" id="certificateFrontImg" onclick="imgZoom(this,'[[#{text.front.of.document}]]');" name="certificateFront" style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateFront}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.the.reverse.side.of.the.document}]]</label>
+        <div class="layui-input-block" >
+            <img class="layui-upload-img" name="certificateBack" onclick="imgZoom(this,'[[#{text.the.reverse.side.of.the.document}]]');" style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateBack}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.certificate.signature}]]</label>
+        <div class="layui-input-block" >
+            <img class="layui-upload-img" name="certificateSignature" onclick="imgZoom(this,'[[#{text.certificate.signature}]]');" style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateSignature}">
+        </div>
+    </div>-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.margin.gear}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.depositDesc}" class="layui-input" disabled>
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.invitation.code}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.inviteCode}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.merchant.fee}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.merchantWaveRate}" id="merchantWaveRateId" class="layui-input" >
+        </div>
+        <div class="layui-form-mid layui-word-aux" >%</div>
+        <div class="layui-input-inline">
+            <a class="layui-btn" lay-filter="formDemo" shiro:hasPermission="'exchange:merchant:waverate:update'"
+               onclick="setMerchantWaveRate()">[[#{text.submit.now}]]</a>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div id="rejectReasonDiv" style="display: none;">
+            <div class="layui-inline">
+                <label class="layui-form-label">[[#{text.reason.for.refusal}]]</label>
+                <div class="layui-input-block" style="width:350px;">
+                    <textarea name="rejectReason"  th:text="${detail.rejectReason}"  class="layui-textarea" disabled/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- [[#{text.picture.view.original}]]-->
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img" id="imgId" src="">
+    </div>
+</div>
+
+<script th:inline="javascript">
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+        //[[#{text.rejected.business.shows.reason.for.rejection}]]
+        let detail = [[${detail}]];
+        var certificateStatus = detail.certificateStatus;
+        if ("4" == certificateStatus) {
+            $("#rejectReasonDiv").attr("style", "display: block;");
+        }
+    });
+
+    //[[#{text.view.original.photo}]]
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>' + title + '</b>',
+            area: ['800px', '800px'], //[[#{text.width.height}]]
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //[[#{text.update.all}]]
+    }
+
+    function setMerchantWaveRate() {
+        var merchantId = $('input[name="id"]').val();
+        var merchantWaveRate = $("#merchantWaveRateId").val();
+        $.post("/exchange/merchant/update/merchantwaverate",{id:merchantId,merchantWaveRate:merchantWaveRate},function (data) {
+            console.log(data);
+            if(data.success){
+                alert([[#{text.successfully.updated.merchant.exchange.rate}]]);
+            }else {
+                alert([[#{text.failed.to.update.merchant.exchange.rate}]]);
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.snapshot.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <input th:value="${recordsDate}" name="recordsDate" hidden>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="queryCondition" class="layui-input" value="" th:placeholder="#{text.wallet.userid.or.account.or.address}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select lay-filter="coinId" name="coinId" lay-search  th:value="${coinId}">
+                            <option value="" >[[#{text.all.currencies}]]:</option>
+                            <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}" th:selected="${coinId != null and coinId == coin.id}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.inquire}]]</button>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="download()">[[#{text.export}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+                <tr>
+                    <th lay-data="{field:'recordsDate', align:'center',templet: function (data) {
+                           return formatDate(data.recordsDate);
+                        }}">[[#{text.snapshot.date}]]
+                    </th>
+                    <th lay-data="{field:'userId', align:'center'}">[[#{text.user}]]ID</th>
+                    <th lay-data="{field:'accountName', align:'center'}">[[#{text.account}]]</th>
+                    <th lay-data="{field:'coinName', align:'center'}">[[#{text.currency}]]</th>
+                    <th lay-data="{field:'assignAddr', align:'center'}">[[#{text.wallet.address}]]</th>
+                    <th lay-data="{field:'leftAmount', align:'center'}">[[#{text.account.balance}]]</th>
+                    <th lay-data="{field:'frozenAmount', align:'center'}">[[#{text.frozen.balance}]]</th>
+                    <th lay-data="{field:'lockAmount', align:'center'}">[[#{text.lock.balance}]]</th>
+                </tr>
+
+            </thead>
+        </table>
+    </fieldset>
+</div>
+<script type="text/javascript">
+    layui.use(['form', 'laydate'], function() {
+        var laydate = layui.laydate;
+        var form = layui.form;
+
+
+    });
+    loadTableWithoutColumns('/user/coin/snapshot/detail/data','dataTable', 'searchForm');
+
+    //如果资产大于0 显示黑色，小于0红色
+    function setStyle(obj) {
+        if(obj > 0){
+            return "<b style='color: black'>" + obj +"</b>";
+        }
+        if(obj < 0){
+            return "<b style='color: red'>" + obj +"</b>";
+        }
+        return obj;
+    }
+
+    // //[[#{text.lazy.loading}]]
+    // setTimeout('rowTool()', 1000); //延迟1秒
+    //
+    // function rowTool(){
+    //     layui.use('table', function (){
+    //         //[[#{text.listen.for.line.tool.events}]]
+    //         table.on('tool(dataTable)', function(obj){
+    //
+    //         });
+    //     });
+    // }
+
+
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/user/coin/snapshot/detail/excel?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url:url,
+            type:"get",
+            async:"true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success:function(responseText){
+                if(responseText.success == false){
+                    layer.alert(responseText.msg, { title: '[[#{text.information}]]', icon: 2 });
+                }else{
+                    window.location.href = url;
+                }
+
+            },
+            error:function(){
+                layer.alert("[[#{text.system.is.abnormal,.operation.failed}]]", { title: '[[#{text.information}]]', icon: 2 });
+            }
+        });
+    }
+</script>
+</body>
+</html>

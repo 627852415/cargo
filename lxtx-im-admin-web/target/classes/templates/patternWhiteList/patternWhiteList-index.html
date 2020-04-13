@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+<style type="text/css">
+.layui-table th {
+	text-align: center;
+}
+</style>
+<script>var hasUpdatePermission = false</script>
+</head>
+<body>
+<shiro:hasPermission name="pattern:whiteList:modifyWhiteList">
+	<script>hasUpdatePermission = true</script>
+</shiro:hasPermission>
+
+	<div class="admin-main fadeInUp animated">
+		<blockquote class="layui-elem-quote">
+			<form class="layui-form" id="searchForm">
+				<input type="hidden" id="countryCode" name="countryCode" th:value="${countryCode}"/>
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+                        <input type="text" name="name" class="layui-input" placeholder="用户名" />
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="telephone" class="layui-input" placeholder="手机号码" />
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="account" class="layui-input" placeholder="用户ID" />
+                    </div>
+				</div>
+				
+				<div class="layui-form-item">
+					<div class="layui-input-inline">
+						<select name="flag" id="flag">
+						  <option value="">请选择白名单开启状态</option>
+						  <option value ="2">全部</option>
+						  <option value ="1">已开启</option>
+						  <option value="0">已关闭</option>
+						</select>
+					</div>
+					<div class="layui-input-inline">
+						<input type="text" class="layui-input" id="createBeginTime" name="createBeginTime" placeholder="请选择注册的开始日期">
+					</div>
+					<div class="layui-input-inline">
+						<input type="text" class="layui-input" id="createEndTime" name="createEndTime" placeholder="请选择注册的结束日期">
+					</div>
+					<div class="layui-input-inline">
+						<button type="button" class="layui-btn" onclick="search()">搜索</button>
+					</div>
+				</div>
+
+			</form>
+		</blockquote>
+		<fieldset class="layui-elem-field">
+			<div class="layui-field-box table-responsive">
+				<table class="layui-table table-hover">
+					<thead>
+                        <tr class="tableHeader">
+                            <th width="6%">序号</th>
+                            <th width="15%">用户名</th>
+                            <th width="10%">用户ID</th>
+                            <th width="10%">地区</th>
+                            <th width="12%">手机号</th>
+                            <th width="18%">注册时间</th>
+                            <th width="10%">开启白名单</th>
+                        </tr>
+					</thead>
+					<!--内容容器-->
+					<tbody id="content"></tbody>
+					<tfoot>
+						<tr>
+							<td colspan="7">
+								<!--分页容器-->
+								<div id="page"></div>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</fieldset>
+	</div>
+
+<script>
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+    layui.use('laydate', function () {
+    	var laydate = layui.laydate;
+    	var curDate = formatDate(new Date);
+    	var createBeginTime,createEndTime;
+        laydate.render({
+            elem: '#createBeginTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("开始日期不能大于当前日期");
+                    $("#createBeginTime").val("");
+                    return;
+                } else if (value > createEndTime) {
+                    layer.msg("开始日期不能大于结束日期");
+                    $("#createBeginTime").val("");
+                    return;
+                }
+                createBeginTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#createEndTime'
+            , done: function (value, date) {
+                if (value < createBeginTime) {
+                    layer.msg("结束日期不能小于开始日期");
+                    $("#createEndTime").val("");
+                    return;
+                }
+                createEndTime = value;
+            }
+        });
+    });
+    
+    var current = 1;
+    var size = 10;
+    var respData;
+    $(function () {
+        //初始化加载数据
+         search(current, size);
+    });
+
+    //重置查询条件
+    function reset() {
+        $('#searchForm')[0].reset();
+    };
+    
+    function search(current, size) {
+        if (!size) {
+            size = 10;
+        }
+        if (!current) {
+            current = 1;
+        }
+        var data = $.param({"current": current, "size": size}) + "&" + $("#searchForm").serialize();
+        $.ajax({
+            url: '/pattern/whiteList/listPage',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    respData = data.data.records;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        html += '<tr>';
+                        html += '<td>' + (i+1) + '</td>';
+                        html += '<td>' + item.name + '</td>';
+                        html += '<td>' + item.account + '</td>';
+                        html += '<td>' + item.phoneCode + '</td>';
+                        html += '<td>' + item.telephone + '</td>';
+                        html += '<td>' + formatDateL(item.createTime) + '</td>';
+                        html += '<td> ' + '<div class="layui-form">' ;
+                        if(hasUpdatePermission){
+                            html += '<input type="checkbox" '+ (item.flag==1?'checked':'') +' name="flag" id="flag" lay-filter="flagFilter" value="'+item.flag+'" account="'+item.account+'" lay-skin="switch">'
+						}
+                        html +=	 '</div></td>';
+                        html += '</tr>'
+                    });
+                    $("#content").html(html);
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer', 'form'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer
+                            , form = layui.form;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: data.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if (!first) {
+                                    search(obj.curr, obj.limit);
+                                }
+                            }
+                        });
+                        form.render('checkbox');
+                        form.on('switch(flagFilter)', function (switchObj) {
+                            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+                            var data = {};
+                    		data.flag = $(switchObj.elem).prop("checked")==true?1:0;
+                    		data.account = $(switchObj.elem).attr("account");
+                            $.ajaxUkey({
+                                url: "/pattern/whiteList/modifyWhiteList",
+                                type: 'POST',
+                                data: data,
+                                dataType: 'json',
+                                success: function (resultData) {
+                                    layer.close(tishi);
+                                    if (resultData.success) {
+                                        layer.msg('修改白名单状态成功',
+                                            {
+                                                offset: '15px',
+                                                time: 1000
+                                            },
+                                            function () {
+                                                $("#modifyData").attr("style", "display: none;");
+                                                layer.closeAll();
+                                                $(".layui-laypage-btn")[0].click();
+                                            });
+                                    } else {
+                                        layer.msg(resultData.msg);
+                                    }
+                                },
+                                error: function (e) {
+                                    layer.close(tishi);
+                                    layer.msg('系统升级维护中，请稍后重试');
+                                }
+                            });
+                        });
+                    });
+                } else {
+                    $("#content").html('<tr><td colspan="6" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                }
+            }
+        });
+    }
+    
+</script>
+
+</body>
+
+</html>

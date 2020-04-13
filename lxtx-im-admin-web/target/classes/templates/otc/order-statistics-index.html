@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>OTC[[#{text.bid./.ask.ratio.report}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <!--[[#{text.platform.user.query.conditions}]]-->
+                <div class="layui-input-inline">
+                    <input type="text" name="account" class="layui-input" th:placeholder="#{text.user.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" class="layui-input" th:placeholder="#{text.mobile.phone.number}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" class="layui-input" th:placeholder="#{text.username}"/>
+                </div>
+                <!--[[#{text.wallet.user.query.conditions}]]-->
+                <!--<div class="layui-input-inline">-->
+                <!--<input type="text" name="userId" class="layui-input" placeholder="[[#{text.wallet.user}]]ID"/>-->
+                <!--</div>-->
+                <div class="layui-input-inline">
+                    <input lay-filter="createTime" name="createTime" type="text" class="layui-input" id="createTime"
+                           th:placeholder="#{text.start.of.statistical.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input lay-filter="endTime" name="endTime" type="text" class="layui-input" id="endTime"
+                           th:placeholder="#{text.end.of.statistical.date}" lay-search>
+                </div>
+            </div>
+
+            <div class="layui-form-item search-input" style="margin-top: 10px;">
+                <div class="layui-input-inline">
+                    <select id="amountTypeSelectId" name="amountType" lay-filter="amountTypeSelect" lay-verify="">
+                        <option value="">[[#{text.please.select.amount.type}]]</option>
+                        <option value="0">[[#{text.transaction.amount.for.the.day}]]</option>
+                        <option value="1">[[#{text.otc.purchase.amount.on.the.day}]]</option>
+                        <option value="2">[[#{text.amount.of.otc.sold.on.the.day}]]</option>
+                        <option value="3">[[#{text.historical.transaction.amount}]]</option>
+                        <option value="4">[[#{text.historical.otc.buy.amount}]]</option>
+                        <option value="5">[[#{text.historical.otc.amount.sold}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="amountRangeSelect" name="amountRange" lay-verify="" lay-filter="amountRangeSelect">
+                        <option value="">[[#{text.please.select.amount.range}]]</option>
+                        <option value="0-1000">0-1000</option>
+                        <option value="1000-5000">1000-5000</option>
+                        <option value="5000-10000">5000-10000</option>
+                        <option value="10000-50000">10000-50000</option>
+                        <option value="50000">50000+</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="ratioType" lay-verify="">
+                        <option value="">[[#{text.please.select.the.ratio.type}]]</option>
+                        <option value="1">[[#{text.day.ratio}]]</option>
+                        <option value="2">[[#{text.historical.ratio}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="ratioRange" lay-verify="">
+                        <option value="">[[#{text.please.select.a.range.of.ratios}]]</option>
+                        <option value="0-0.5">0-0.5</option>
+                        <option value="0.5-1.0">0.5-1.0</option>
+                        <option value="1.0-1.5">1.0-1.5</option>
+                        <option value="1.5-2.5">1.5-2.5</option>
+                        <option value="2.5-3">2.5-3</option>
+                        <option value="3">3+</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload1')">[[#{text.search.for}]]</button>
+                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                    <button type="button" onclick="download()" class="layui-btn">[[#{text.export.file}]]</button>
+                    <!--<button type="button" onclick="generateReport()" class="layui-btn">[[#{text.generate.reports}]]</button>-->
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataReload1'}" lay-filter="table-thead1">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">[[#{text.serial.number}]]</th>
+            <!--<th lay-data="{field:'userId', align:'center'}">[[#{text.wallet.user}]]ID</th>-->
+            <th lay-data="{field:'account', align:'center'}">[[#{text.user.account}]]</th>
+            <th lay-data="{field:'name', align:'center'}">[[#{text.username}]]</th>
+            <th lay-data="{field:'telephone', align:'center'}">[[#{text.phone.number}]]</th>
+            <th lay-data="{field:'statisticalDate', align:'center',templet: function (data) {
+                       return formatDate(data.statisticalDate);
+                     }}">[[#{text.statistical.date}]]
+            </th>
+            <th lay-data="{field:'dayTotalAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.dayTotalAmount);
+                    }}">[[#{text.transaction.amount.for.the.day}]]
+            </th>
+            <th lay-data="{field:'dayBuyAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.dayBuyAmount);
+                    }}">[[#{text.otc.purchase.amount.on.the.day}]]
+            </th>
+            <th lay-data="{field:'daySellAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.daySellAmount);
+                    }}">[[#{text.amount.of.otc.sold.on.the.day}]]
+            </th>
+            <th lay-data="{field:'dayRatio', align:'center',templet: function (data) {
+                        return setStyleRed(data.dayRatio);
+                    }}">[[#{text.day.ratio}]]
+            </th>
+            <th lay-data="{field:'historyTotalAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.historyTotalAmount);
+                    }}">[[#{text.historical.transaction.amount}]]
+            </th>
+            <th lay-data="{field:'historyBuyAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.historyBuyAmount);
+                    }}">[[#{text.historical.otc.buy.amount}]]
+            </th>
+            <th lay-data="{field:'historySellAmount', align:'center',templet: function (data) {
+                        return setStyleRed(data.historySellAmount);
+                    }}">[[#{text.historical.otc.amount.sold}]]
+            </th>
+            <th lay-data="{field:'historyRatio', align:'center',templet: function (data) {
+                        return setStyleRed(data.historyRatio);
+                    }}">[[#{text.historical.ratio}]]
+            </th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+        var updateTime, updateEndTime;
+        laydate.render({
+            elem: '#createTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > endTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+        var form = layui.form;
+        //[[#{text.listen.for.amount.type.selection.events}]]
+        form.on('select(amountTypeSelect)', function (data) {
+            // console.log(data.elem.value);
+            amountTypeSelectEvent(data.elem.value);
+            form.render('select');
+            return false;
+        });
+    });
+
+    function amountTypeSelectEvent(amountType) {
+        // [[#{text.transaction.amount.for.the.day}]]          0-5000 5000-10000 10000-50000 50000+
+        // 当日OTC买入金额 ⁃ 0-1000 1000-5000 5000-10000 10000-50000 50000+
+        // 当日OTC卖出金额 ⁃ 0-1000 1000-5000 5000-10000 10000-50000 50000+
+        //
+        // [[#{text.historical.transaction.amount}]] ⁃ 0-10000 10000-50000 50000-100000 100000-200000 200000+
+        // 历史OTC买入金额 ⁃ 0-5000 5000-10000 10000-50000 50000+
+        // 历史OTC卖出金额 ⁃ 0-5000 5000-10000 10000-50000 50000+
+        switch (amountType) {
+            case "0":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-5000">0-5000</option>');
+                $("#amountRangeSelect").append('<option value="5000-10000">5000-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000">50000+</option>');
+                form.render('select');
+                break;
+            case "1":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-1000">0-1000</option>');
+                $("#amountRangeSelect").append('<option value="1000-5000">1000-5000</option>');
+                $("#amountRangeSelect").append('<option value="5000-10000">5000-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000">50000+</option>');
+                form.render('select');
+                break;
+            case "2":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-1000">0-1000</option>');
+                $("#amountRangeSelect").append('<option value="1000-5000">1000-5000</option>');
+                $("#amountRangeSelect").append('<option value="5000-10000">5000-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000">50000+</option>');
+                form.render('select');
+                break;
+            case "3":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-10000">0-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000-100000">50000-100000</option>');
+                $("#amountRangeSelect").append('<option value="100000-200000">100000-200000</option>');
+                $("#amountRangeSelect").append('<option value="200000">200000+</option>');
+                form.render('select');
+                break;
+            case "4":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-5000">0-5000</option>');
+                $("#amountRangeSelect").append('<option value="5000-10000">5000-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000">50000+</option>');
+                form.render('select');
+                break;
+            case "5":
+                $("#amountRangeSelect").empty();
+                $("#amountRangeSelect").append('<option value="">[[#{text.please.select.amount.range}]]</option>');
+                $("#amountRangeSelect").append('<option value="0-5000">0-5000</option>');
+                $("#amountRangeSelect").append('<option value="5000-10000">5000-10000</option>');
+                $("#amountRangeSelect").append('<option value="10000-50000">10000-50000</option>');
+                $("#amountRangeSelect").append('<option value="50000">50000+</option>');
+                form.render('select');
+                break;
+            default:
+                break;
+        }
+    }
+
+    loadTableWithoutColumns('/otc/order/day/statistics/listPage', 'table-thead1', 'searchForm');
+
+    //[[#{text.generate.reports}]]
+    function generateReport() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        layer.confirm("[[#{text.will.the.previous.report.confirm.the.operation}]]?", {icon: 3}, function (index) {
+            $.ajax({
+                url: '/otc/order/day/statistics/generateReport',
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg('[[#{text.successful.operation}]]');
+                        layer.close(tishi);
+                        search('searchForm', 'dataReload1');
+                    } else {
+                        layer.msg('[[#{text.operation.failed}]]');
+                        layer.close(tishi);
+                    }
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.operation.sys.fix}]]');
+                    layer.close(tishi);
+                }
+            });
+        });
+        layer.close(tishi);
+    }
+
+    //如果资产大于0 显示红色
+    function setStyleRed(obj) {
+        //[[#{text.round.to.two.decimal.places}]]
+        var obj = obj.toFixed(2);
+        if (obj > 0) {
+            return "<b style='color: black'>" + obj + "</b>";
+        }
+        if (obj < 0) {
+            return "<b style='color: red'>" + obj + "</b>";
+        }
+        return obj;
+    }
+
+    //excel[[#{text.file.export}]]
+    function download() {
+        var url = "/otc/order/day/statistics/export/excel?" + $("#searchForm").serialize();
+        $.ajax({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+            },
+            error: function () {
+                layer.alert("[[#{text.sys.op.fail}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+    }
+</script>
+</body>
+</html>

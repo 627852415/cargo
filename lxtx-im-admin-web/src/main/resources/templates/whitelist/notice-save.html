@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+	<script type="text/javascript" th:src="@{/js/buss/notice/coin-amount-max-save.js}"></script>
+</head>
+<style>
+	.layui-form-item .layui-input-inline {
+		float: left;
+		width: 600px;
+		margin-right: 10px;
+	}
+
+</style>
+<body>
+<blockquote class="layui-elem-quote">
+	<form class="layui-form" action="">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label" style="width:95px;">用户钱包ID</label>
+				<div class="layui-input-block" style="width:380px;margin-left:130px;">
+					<input type="text" name="userId" lay-verify="required" placeholder="" autocomplete="off"
+						   class="layui-input">
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label" style="width:95px;">通知返佣类型</label>
+				<div class="layui-input-block" style="width:380px;margin-left:130px;">
+					<select id="type" name="type">
+						<option value="1">撮合交易</option>
+						<option value="2">理财宝</option>
+						<option value="3">提现</option>
+						<option value="4">支付</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		</div>
+	</form></blockquote>
+
+
+</body>
+
+
+<script>
+
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            var formData = JSON.stringify(data.field)
+            submit('/notice/whitelist/save', formData);
+            return false;
+        });
+    });
+
+
+</script>
+</html>

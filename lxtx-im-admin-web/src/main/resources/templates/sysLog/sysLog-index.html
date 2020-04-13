@@ -1,0 +1,160 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>用户操作日志</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/layui/lay/modules/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/layui.define.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="username" class="layui-input" th:placeholder="#{text.sys.log.enter.one.user.name}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="operation" class="layui-input" th:placeholder="#{text.sys.log.enter.one.user.opration}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="ip" class="layui-input" th:placeholder="#{text.sys.log.enter.one.user.ip}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="createTimeStart" name="createTimeStart" th:placeholder="#{text.sys.log.create.time.start}">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="createTimeEnd" name="createTimeEnd" th:placeholder="#{text.sys.log.create.time.end}">
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn"  onclick="search()">[[#{text.sys.log.search}]]</button>
+                    <button type="button" class="layui-btn"  onclick="reset()">[[#{text.sys.log.clear}]]</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+
+<script>
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    });
+    layui.use('form', function() {
+        var form = layui.form;
+    });
+    layui.use('laydate', function() {
+        var laydate = layui.laydate;
+
+        // 时间选择常规用法
+        laydate.render({
+            elem: '#createTimeStart'
+            , done: function (value, date) {
+            }
+        });
+        laydate.render({
+            elem: '#createTimeEnd'
+            , done: function (value, date) {
+            }
+        });
+    });
+
+    var table;
+    layui.use('table', function (){
+        table = layui.table;
+        table.render({
+            elem: '#dataTable',
+            cellMinWidth: 100,
+            url: '/sys/log/listPage',
+            method: 'post',
+            initSort: {field:'createTime', type:'desc'},
+            request:{
+                pageName:'current',
+                limitName:'size'
+            },
+            parseData : function(res) {
+                // console.log(res);
+                var  records = res.data.records;
+                var code = '1';
+                var msg = "";
+                if(records.length > 0){
+                    code = '0';
+                }else{
+                    msg = "[[#{text.no.search.data}]]";
+                }
+                return {
+                    "code" : code,
+                    "msg" : msg,
+                    "count" : res.data.total,
+                    "data" : records
+                }
+            },
+            cols: [
+                [
+                    {field: 'username',  title: '[[#{text.sys.log.search}]]', align:'center', sort: true},
+                    {field: 'operation', title: '操作',align:'center'},
+                    {field: 'url', title: 'URL',align:'center'},
+                    {field: 'method',  title: '请求方法', align:'center', sort: false},
+                    {field: 'params', title: '请求参数', align:'center', sort: false},
+                    {field: 'ip', title: 'IP地址', align:'center', sort: false},
+                    {
+                        field: 'createTime', title: '创建时间', align:'center', sort: true, templet: function (data) {
+                            return formatDateL(data.createTime);
+                        }
+                    }
+                ]
+            ],
+            id: 'dataReload' ,
+            page: true
+        })
+    });
+
+    //重置查询条件
+    function reset(){
+        $('#searchForm')[0].reset();
+    };
+
+    //查询
+    function search(){
+        table.reload('dataReload', {
+            page: {
+                curr: 1 //重新从第 1 页开始
+            }
+            ,where:$("#searchForm").serializeJson()
+        });
+    }
+
+    /**
+     * 将表单数据转为json对象
+     */
+    $.fn.serializeJson = function() {
+        var serializeObj = {};
+        var array = this.serializeArray();
+        $(array).each(function() {
+            if (serializeObj[this.name]) {
+                if ($.isArray(serializeObj[this.name])) {
+                    serializeObj[this.name].push(this.value);
+                } else {
+                    serializeObj[this.name] = [ serializeObj[this.name], this.value ];
+                }
+            } else {
+                serializeObj[this.name] = this.value;
+            }
+        });
+        return serializeObj;
+    };
+
+
+</script>
+
+</body>
+</html>

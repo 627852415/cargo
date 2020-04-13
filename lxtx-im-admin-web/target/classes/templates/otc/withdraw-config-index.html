@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>平台提款配置首页</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/otc/withdraw-config-index.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="coinName" class="layui-input" placeholder="请输入币种名称">
+                </div>
+
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <shiro:hasPermission name="otc:withdraw:config:modifyPage">
+                        <a onclick="dictSave()" class="layui-btn site-demo-active"
+                            data-type="tabAdd" data-title="新增">新增</a>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">OTC提现配置</span>
+</script>
+<script type="text/html" id="barData" >
+    {{# if(!d.valid) { }}
+    <shiro:hasPermission name="otc:withdraw:config:enable">
+        <a class="layui-btn layui-btn-sm tableBtn"  lay-event="enable"><i class="layui-icon"></i>启用</a>
+    </shiro:hasPermission>
+    {{# }}}
+    <shiro:hasPermission name="otc:withdraw:config:modifyPage">
+        <a class="layui-btn layui-btn-sm tableBtn"  lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    </shiro:hasPermission>
+    <shiro:hasPermission name="otc:withdraw:config:delete">
+        <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del" ><i class="layui-icon layui-icon-close"></i>删除</a>
+    </shiro:hasPermission>
+</script>
+</body>
+</html>

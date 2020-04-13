@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 140px;
+        margin-left: 100px;
+    }
+    .my-inline{
+        width: 300px !important;
+    }
+    .my-inline-remark{
+        width: 300px !important;
+    }
+</style>
+<body>
+    <!--ID，用户钱包ID，用户昵称，类型，转出地址，到账地址，金额，币种，外部交易编号，外部订单ID，交易时间，更新时间，备注-->
+    <form class="layui-form" action="" style="margin-top: 20px; align-content: center">
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">ID</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">[[#{text.column.fund.custody.order.number}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.thirdPartyOrderNo}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label my-label">[[#{text.column.6x.order.number}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.sixxOrderNo}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.wallet.user.id}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.userId}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.user.username}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.country.code}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.telephone.number}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.telephone}" class="layui-input" disabled>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.type}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" id="typeName"  class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.wallet.capital.table.status}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" id="statusName" class="layui-input" disabled>
+            </div>
+        </div>        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.wallet.capital.table.coin.name}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" th:value="${detail.coinName}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.amount}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="amount" th:value="${detail.amount}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.fee}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="fee" th:value="${detail.fee}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.trade.date}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="transferDate" th:value="${#dates.format(detail.createTime, 'yyyy-MM-dd HH:mm:ss')}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.update.date}]]</label>
+            <div class="layui-input-inline my-inline">
+                <input type="text" name="updateDate" th:value="${#dates.format(detail.updateTime, 'yyyy-MM-dd HH:mm:ss')}" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.column.remarks}]]</label>
+            <div class="layui-input-inline my-inline-remark">
+                <textarea th:placeholder="${detail.remarks}" th:value="${detail.remarks}" class="layui-textarea" disabled></textarea>
+            </div>
+        </div>
+    </form>
+    <script th:inline="javascript">
+
+    var detail = [[${detail}]];
+    $('input[name=amount]').val(detail.amount);
+	$('input[name=fee]').val(detail.fee);
+	$('input[id=statusName]').val(getStatusStr(detail.statusName));
+	$('input[id=typeName]').val(getTypeName(detail.typeName));
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if ("处理中" === status) {
+            statusStr = [[#{text.processing}]];
+        } else if ("成功" === status) {
+            statusStr =[[#{text.success}]];
+        } else if ("失败" === status) {
+            statusStr = [[#{text.failure}]];
+        }
+        return statusStr;
+    }
+
+    function getTypeName(status) {
+        var statusStr = "";
+        if ("转入余额" === status) {
+            statusStr = [[#{text.placeholder.transfer.in.balance}]];
+        } else if ("提取链上资金" === status) {
+            statusStr = [[#{text.withdraw.funds.from.the.chain}]];
+        } else if ("转出收益" === status) {
+            statusStr = [[#{text.placeholder.transfer.out.income}]];
+        }else if ("转出本金" === status) {
+            statusStr = [[#{text.placeholder.transfer.out.principal}]];
+        }else{
+            statusStr=status;
+        }
+        return statusStr;
+    }
+
+</script>
+</body>
+</html>

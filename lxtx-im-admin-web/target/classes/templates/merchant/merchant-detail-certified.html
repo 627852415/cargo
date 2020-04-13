@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>已审核商家详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+
+
+</style>
+
+<body>
+<form class="layui-form" action="" id="merchantForm" style="padding-top: 30px">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓氏</label>
+        <input type="hidden" name="id" th:value="${detail.id}">
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.lastName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">名字</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.firstName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.genderName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">国家及地区</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">证件号码</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.certificateNo}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">证件正面</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" id="certificateFrontImg" onclick="imgZoom(this,'证件正面');"
+                 name="certificateFront" style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateFront}">
+            <!--<img class="layui-upload-img" name="cover" style="width: 100px;height: 120px;" src="http://static.lliao.net:8077/file/usericon/20190129/47cc13b19e4d469c9f87766862ed9a89.jpg">-->
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">证件反面</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" name="certificateBack" onclick="imgZoom(this,'证件反面');"
+                 style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateBack}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">证件签名</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" name="certificateSignature" onclick="imgZoom(this,'证件签名');"
+                 style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateSignature}">
+        </div>
+    </div>
+    <div id="settlementDiv" style="display: block;">
+        <!--<div class="layui-form-item">-->
+            <!--<label class="layui-form-label">账单周期</label>-->
+            <!--<div class="layui-input-block" style="width: 350px;">-->
+                <!--<select name="billCycle" th:field="${detail.billCycle}" th:value="${detail.billCycle}" disabled>-->
+                    <!--<option value="1"  th:selected="${detail.billCycle == '1'}">日结</option>-->
+                    <!--<option value="2"  th:selected="${detail.billCycle == '2'}">周结</option>-->
+                    <!--<option value="3"  th:selected="${detail.billCycle == '3'}">月结</option>-->
+                    <!--<option value="4"  th:selected="${detail.billCycle == '4'}">实时</option>-->
+                <!--</select>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="layui-form-item" th:each="coin : ${detail.coinFeeList}">
+            <!--<label class="layui-form-label" th:text="结算手续费(${coin.coinName})%"></label>-->
+            <label class="layui-form-label" th:text="'结算手续费(' + ${coin.coinName} + ')%'"></label>
+            <div class="layui-input-inline" style="width: 350px;">
+                <input type="text" name="coinId" th:value="${coin.coinId}" hidden />
+                <input type="text" name="fee" class="layui-input" lay-verify="numberVerify" th:value="${coin.fee}" disabled />
+            </div>
+            <div class="layui-input-inline" style="color: red">
+                注：手续费填整数，如填1，为1%
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<!-- 图片查看原图-->
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img" id="imgId" src="">
+    </div>
+</div>
+
+<script th:inline="javascript">
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //查看原图
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>' + title + '</b>',
+            area: ['800px', '800px'], //宽高
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //更新全部
+    }
+
+</script>
+</body>
+</html>

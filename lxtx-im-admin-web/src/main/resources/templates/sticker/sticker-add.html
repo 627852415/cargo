@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建币种</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" enctype="multipart/form-data" style="padding-top: 20px;">
+    <div style="float: left">
+        <div class="layui-form-item">
+            <label class="layui-form-label">表情包名称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name"  lay-verify="required"
+                       autocomplete="off" class="layui-input" placeholder="表情包名称">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否上架</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="0" title="是" checked="">
+                <input type="radio" name="status" value="1" title="否">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">表情包宽度</label>
+            <div class="layui-input-inline">
+                <input type="text" name="width"  lay-verify="required|number"
+                       autocomplete="off" class="layui-input" placeholder="表情包宽度">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">表情包高度</label>
+            <div class="layui-input-inline">
+                <input type="text" name="height"  lay-verify="required|number"
+                       autocomplete="off" class="layui-input" placeholder="表情包高度">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">封面图</label>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn layui-btn-normal" id="cover">选择文件</button>
+            </div>
+        </div>
+    </div>
+    <div style="float:right; margin-right: 40px">
+        <div class="layui-upload-list">
+            <img class="layui-upload-img" id="demo1" style="width: 120px;height: 120px;">
+        </div>
+        <label style="margin-left:15px;">封面预览图</label>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">表情包(zip)</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal" id="stickerDetail">选择文件</button>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 160px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<script>
+    layui.use(['form', 'layedit', 'upload', 'element'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , element = layui.element
+            , upload = layui.upload;
+
+        //选完文件后不自动上传
+        upload.render({
+            elem: '#cover'
+            ,auto: false
+            ,accept: 'images'//允许上传的文件类型
+            ,choose: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+        });
+
+        upload.render({
+            elem: '#stickerDetail'
+            ,auto: false
+            ,accept: 'file' //普通文件
+            ,exts: 'zip' //只允许上传压缩文件
+        });
+
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            var formData = new FormData($("#saveForm")[0])
+            $.ajax({
+                data: formData,
+                type: "POST",
+                dataType: "JSON",
+                contentType : false,
+                processData : false,
+                url: '/sticker/add',
+                success: function (result) {
+                    if (result.success) {
+                        layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                            // 刷新并切换tab回列表
+                            parent.layer.closeAll();
+                            parent.window.location.reload();
+                        });
+                    } else if (result.msg != null) {
+                        layer.msg(result.msg);
+                    } else {
+                        // 提示失败
+                        layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                    }
+                }
+            }); // end ajax
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>

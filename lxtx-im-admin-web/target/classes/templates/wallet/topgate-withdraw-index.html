@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.topgate.withdraw.manager}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-table th {
+        text-align: center;
+        font-weight: 400;
+    }
+
+    .fontweight th {
+        font-weight: 800;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+
+</style>
+<body>
+<div class="admin-main fadeInUp animated">
+
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.topgate.withdraw.date.limit}]]</div>
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm1">
+                <input type="hidden" value="topgate" name="domain"/>
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                        <shiro:hasPermission name="addDict:topgate:withdraw:payway">
+                            <button type="button" class="layui-btn" onclick="save1(this)">[[#{text.add}]]</button>
+                        </shiro:hasPermission>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table">
+            <thead>
+            <tr>
+                <th width="6%">
+                    [[#{text.serial.number}]]
+                </th>
+                <th align="center">[[#{text.topgate.limit.amount.description}]]
+                </th>
+                <th align="center">[[#{text.topgate.limit.amount.value}]]
+                </th>
+                <th width="20%" align="center">[[#{text.operating}]]</th>
+            </tr>
+            <tr th:each="dict,dictStat:${topgateDicts}">
+                <td align="center" th:text="${dictStat.count}"></td>
+                <td align="center" th:text="${dict.description}"></td>
+                <td align="center" th:text="${dict.value}"></td>
+                <td align="center">
+                    <shiro:hasPermission name="editDict:topgate:withdraw:payway">
+                        <a align="center" style="height: 28px" class="layui-btn tableBtn" th:id="${dict.gid}"
+                           onclick="edit1(this.id)"><i
+                                class="layui-icon"></i>[[#{text.edit}]]</a>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="delDict:topgate:withdraw:payway">
+                        <a align="center" style="height: 28px" class="layui-btn tableBtn" th:id="${dict.gid}"
+                           onclick="del1(this.id)"><i
+                                class="layui-icon"></i>[[#{text.delete}]]</a>
+                    </shiro:hasPermission>
+                </td>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.topgate.withdraw.manager}]]</div>
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                        <shiro:hasPermission name="add:topgate:withdraw:payway">
+                            <button type="button" class="layui-btn" onclick="save(this)">[[#{text.add}]]</button>
+                        </shiro:hasPermission>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'6%',align:'center',style:'height:65px;'}">
+                    [[#{text.serial.number}]]
+                </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return data.payName;
+                                }}">[[#{text.payment.method}]]
+                </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return '<img width=30 height=30 src='+data.logo+' />';
+                                }}">[[#{text.payment.method}]]logo
+                </th>
+                <!--
+            <th lay-data="{align:'center',templet: function (data) {
+                           return data.coinId;
+                        }}">[[#{text.payment.coinId}]]
+            </th>
+            -->
+            <th lay-data="{align:'center',templet: function (data) {
+                           return data.coinName;
+                        }}">[[#{text.payment.lgCoinName}]]
+            </th>
+            <th lay-data="{align:'center',templet: function (data) {
+                           return data.thirdCoinName;
+                        }}">[[#{text.payment.thirdCoinName}]]
+            </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return data.minAmount;
+                                }}">[[#{text.payway.min.amount}]]
+                </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return data.maxAmount;
+                                }}">[[#{text.payway.max.amount}]]
+                </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return (data.innerFee)+'%';
+                                }}">[[#{text.payway.inner.fee}]]
+                </th>
+                <th lay-data="{align:'center',templet: function (data) {
+                                   return (data.thirdFee)+'%';
+                                }}">[[#{text.payway.other.fee}]]
+                </th>
+                <th lay-data="{align:'center',templet: '#switchTpl', unresize: true}">[[#{text.payway.on.off}]]</th>
+                <th lay-data="{width:'20%',align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+            </tr>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+
+    <script type="text/html" id="switchTpl">
+        <input type="checkbox" name="updateStatus" id="updateStatus" value="{{d.enable}}" aid="{{d.id}}"
+               lay-skin="switch" lay-text="ON|OFF" lay-filter="enable" {{ d.enable== true
+               ? 'checked' : '' }}>
+    </script>
+
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="edit" name="editID"
+           shiro:hasPermission="'edit:topgate:withdraw:payway'"><i class="layui-icon"></i>[[#{text.edit}]]</a>
+        <a class="layui-btn tableBtn" lay-event="del" name="delId"
+           shiro:hasPermission="'del:topgate:withdraw:payway'"><i class="layui-icon"></i>[[#{text.delete}]]</a>
+    </script>
+
+    <!--<script type="text/html" id="barData1">
+        <a class="layui-btn tableBtn" lay-event="edit1" shiro:hasPermission="'edit:topgate:withdraw:payway'"><i
+                class="layui-icon"></i>[[#{text.edit}]]</a>
+        <a class="layui-btn tableBtn" lay-event="del1" shiro:hasPermission="'del:topgate:withdraw:payway'"><i
+                class="layui-icon"></i>[[#{text.delete}]]</a>
+    </script>-->
+</div>
+
+<script>
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //[[#{text.query.data}]]
+    loadTableWithoutColumns('/topgate/withdraw/payway/list/page', 'tableData', 'searchForm');
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'edit') {
+                    save(obj.data);
+                } else if (obj.event === 'del') {
+                    del(obj.data.id);
+                }
+            });
+
+            table.on('tool(tableData1)', function (obj) {
+                // console.log(obj.data.gid);
+                // console.log(obj.data)
+                if (obj.event === 'edit1') {
+                    save1(obj.data);
+                } else if (obj.event === 'del1') {
+                    del1(obj.data.gid);
+                }
+            });
+        });
+        //监听商家状态操作
+        form.on('switch(enable)', function (obj) {
+            // console.log(this.value);
+            var status = this.value === 'true' ? false : true;
+            var id = obj.elem.attributes.aid.value;
+            var formData = JSON.stringify({"enable": status, "id": id});
+            // sendAjaxPost("/topgate/withdraw/payway/onOrOff", formData);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: "/topgate/withdraw/payway/onOrOff",
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    layer.close(tishi);
+                    if (data.success) {
+                        var message = data.data;
+                        if ($.isEmptyObject(message)) {
+                            message = "操作成功";
+                        }
+                        layer.msg(message,
+                            {
+                                offset: '15px',
+                                time: 1000
+                            },
+                            function () {
+                                $(".layui-laypage-btn")[0].click();
+                            });
+                    } else {
+                        layer.msg(data.msg);
+                        loadTableWithoutColumns('/topgate/withdraw/payway/list/page', 'tableData', 'searchForm');
+                    }
+                },
+                error: function (e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                    layer.msg('系统升级维护中，请稍后重试');
+                }
+            });
+            // layer.close(tishi);
+            // console.log(formData);
+        });
+    }
+
+    //[[#{text.add.or.edit}]]
+    function save(obj) {
+        var aid = $(obj).attr("id");
+        var url;
+        var title = "[[#{text.add}]]";
+        if (aid != undefined) {
+            url = "/topgate/withdraw/payway/edit?id=" + aid.toString();
+            title = "[[#{text.edit}]]";
+        } else {
+            url = "/topgate/withdraw/payway/add";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['540px', '550px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    //[[#{text.delete}]]
+    function del(id) {
+        layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]',
+            offset: 100
+        }, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/topgate/withdraw/payway/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //提现额度配置相关
+    // setTimeout('rowTool1()', 1000);
+
+    // function rowTool1() {
+    //     layui.use('table', function () {
+    //         //[[#{text.listen.for.line.tool.events}]]
+    //         table.on('tool(tableData1)', function (obj) {
+    //             if (obj.event === 'edit1') {
+    //                 save(obj.data);
+    //             } else if (obj.event === 'del1') {
+    //                 del(obj.data.id);
+    //             }
+    //         });
+    //     });
+    // }
+
+    // loadTableWithoutColumns('/topgate/withdraw/payway/dictPage', 'tableData1', 'searchForm1');
+
+    function edit1(obj) {
+        console.log(obj);
+        var url = "/topgate/withdraw/payway/editDict?gid=" + obj.toString();
+        var title = "[[#{text.edit}]]";
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '60px',
+            title: '<b>' + title + '</b>',
+            area: ['490px', '300px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    function save1(obj) {
+        console.log(obj + "////");
+        var aid = $(obj).attr("gid");
+        var url;
+        var title = "[[#{text.add}]]";
+        if (aid != undefined) {
+            url = "/topgate/withdraw/payway/editDict?gid=" + aid.toString();
+            title = "[[#{text.edit}]]";
+        } else {
+            url = "/topgate/withdraw/payway/addDict";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '60px',
+            title: '<b>' + title + '</b>',
+            area: ['490px', '300px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    //[[#{text.delete}]]
+    function del1(id) {
+        console.log(id);
+        layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]',
+            offset: 100
+        }, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({gid: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/topgate/withdraw/payway/delDict',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

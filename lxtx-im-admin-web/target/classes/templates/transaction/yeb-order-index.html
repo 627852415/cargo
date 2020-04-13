@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title></title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+          <!--          主页展示字段：资金托管订单号，6X订单号，用户钱包ID，用户昵称，类型，状态，币种，金额，手续费，交易时间-->
+                    <div class="layui-input-inline">
+                        <input type="text" name="thirdPartyOrderNo" id="thirdPartyOrderNo" class="layui-input" th:placeholder="#{text.placeholder.fund.custody.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="sixxOrderNo" id="sixxOrderNo" class="layui-input" th:placeholder="#{text.placeholder.6x.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input" th:placeholder="#{text.placeholder.wallet.user.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userName" class="layui-input" th:placeholder="#{text.placeholder.user.username}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="countryCode" id="countryCode" lay-verify="">
+                            <option value="">[[#{text.column.platform.area.code}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="telephone" id="telephone" class="layui-input"
+                               th:placeholder="#{text.placeholder.telephone}"/>
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-input-inline">
+                        <select id="coinName" name="coinName" lay-filter="capitalType">
+                            <option value="">[[#{text.placeholder.coin}]]</option>
+                            <option value="DC">DC</option>
+                            <option value="USDY">USDY</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="status" name="status" lay-filter="capitalType">
+                            <option value="">[[#{text.placeholder.status}]]</option>
+                            <option value="1">[[#{text.placeholder.status.handling}]]</option>
+                            <option value="2">[[#{text.placeholder.status.success}]]</option>
+                            <option value="3">[[#{text.placeholder.status.fail}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="type" name="type" lay-filter="capitalType">
+                            <option value="">[[#{text.placeholder.type}]]</option>
+                            <option value="1">[[#{text.placeholder.transfer.in.balance}]]</option>
+                            <option value="2">[[#{text.placeholder.transfer.out.income}]]</option>
+                            <option value="3">[[#{text.placeholder.transfer.out.principal}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime" th:placeholder="#{text.placeholder.start.trade.date}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime" th:placeholder="#{text.placeholder.end.trade.date}" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 40, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <!--资金托管订单号，6X订单号，用户钱包ID，用户昵称，类型，状态，币种，金额，手续费，交易时间-->
+            <tr>
+                <th lay-data="{field:'thirdPartyOrderNo', align:'center'}">[[#{text.column.fund.custody.order.number}]]</th>
+                <th lay-data="{field:'sixxOrderNo', align:'center'}">[[#{text.column.6x.order.number}]]</th>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.column.wallet.user.id}]]</th>
+                <th lay-data="{field:'userName', align:'center'}">[[#{text.column.user.username}]]</th>
+                <th lay-data="{field:'countryCode', align:'center'}">[[#{text.country.code}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.telephone.number}]]</th>
+                <th lay-data="{field:'typeName', align:'center', width: 120, templet: function (data){return getTypeName(data.typeName);}}">
+                    [[#{text.column.type}]]
+                </th>
+                <th lay-data="{field:'statusName', align:'center',templet: function (data){return getStatusStr(data.statusName);}}">[[#{text.column.status}]]</th>
+                <th lay-data="{field:'coinName', align:'center'}">[[#{text.column.coin}]]</th>
+                <th lay-data="{field:'amount', align:'center'}">[[#{text.column.amount}]]</th>
+                <th lay-data="{field:'fee', align:'center'}">[[#{text.column.fee}]]</th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.column.trade.date}]]</th>
+<!--                <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间</th>-->
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){
+                     return renderBtn(data);
+                }}">[[#{text.column.operate}]]
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    initCountryCode($('#countryCode'));
+    var current = 1;
+    var size = 10;
+    var iframeNode;
+    //[[#{text.control.initialization}]]
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // [[#{text.time.selection.general.usage}]]
+        laydate.render({
+            elem: '#createTime',
+            type: 'datetime',
+            done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不[[#{text.update.time}]]会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#updateTime',
+            type: 'datetime',
+            done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不[[#{text.update.time}]]会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+//                layer.msg("[[#{text.end.of.trading.period.cannot.be.larger.than.the.current.period}]]");
+//                $("#updateTime").val("");
+//                return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.the.end.of.the.trading.period.cannot.be.less.than.the.beginning.of.the.trading.period}]]");
+                    $("#updateTime").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+    });
+
+    //[[#{text.list.data}]]
+    loadTableWithoutColumns('/transaction/yeb/order/listPage', 'dataTable', 'searchForm');
+
+    //[[#{text.list.file.export}]]
+    function download() {
+        var url = "/transaction/yeb/order/download?"+ $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/transaction/yeb/order/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    //[[#{text.download.after.obtaining.the.lock}]]
+                    //window.location.href = url;
+                    //[[#{text.download.after.obtaining.the.lock}]]
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+
+    //[[#{text.see.details}]]
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/transaction/yeb/order/detail?id=" + id;
+        openModal("[[#{text.see.details}]]", url, "800px", "620px");
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if ("处理中" === status) {
+            statusStr = "<font color='orange'>[[#{text.processing}]]</font>";
+        } else if ("成功" === status) {
+            statusStr = "<font color='green'>[[#{text.success}]]</font>";
+        } else if ("失败" === status) {
+            statusStr = "<font color='red'>[[#{text.failure}]]</font>";
+        }
+        return statusStr;
+    }
+
+    function getTypeName(status) {
+        var statusStr = "";
+        if ("转入余额" === status) {
+            statusStr = '[[#{text.placeholder.transfer.in.balance}]]';
+        } else if ("提取链上资金" === status) {
+            statusStr = '[[#{text.withdraw.funds.from.the.chain}]]';
+        } else if ("转出收益" === status) {
+            statusStr = '[[#{text.placeholder.transfer.out.income}]]';
+        }else if ("转出本金" === status) {
+            statusStr = '[[#{text.placeholder.transfer.out.principal}]]';
+        }else{
+            statusStr=status;
+        }
+        return statusStr;
+    }
+
+</script>

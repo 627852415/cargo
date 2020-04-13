@@ -1,0 +1,750 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <style type="text/css">
+        .layui-table th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <input id="time" type="hidden" value="1">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="account" class="layui-input"
+                           th:placeholder="#{text.account.number}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" class="layui-input"
+                           th:placeholder="#{text.name}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="uid" class="layui-input"
+                           th:placeholder="#{text.uid}"/>
+                </div>
+                <!--<div class="layui-input-inline">-->
+                <!--<select name="gender" lay-verify="">-->
+                <!--<option value="">[[#{text.please.select.a.gender}]]</option>-->
+                <!--<option value="0">[[#{text.female}]]</option>-->
+                <!--<option value="1">[[#{text.male}]]</option>-->
+                <!--</select>-->
+                <!--</div>-->
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" class="layui-input"
+                           th:placeholder="#{text.telephone.number}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="state" lay-verify="">
+                        <option value="">[[#{text.please.select.a.status}]]</option>
+                        <option value="0">[[#{text.normal}]]</option>
+                        <option value="1">[[#{text.disable}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="countryCode" lay-verify="" id="countryCode1">
+                        <option value="">[[#{text.column.platform.area.code}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="searchTimeBegin" id="dateBegin" class="layui-input"
+                           th:placeholder="#{text.search.begintime}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="searchTimeEnd" id="dateEnd" class="layui-input"
+                           th:placeholder="#{text.search.endtime}"/>
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+<!--                    <button type="button" class="layui-btn" onclick="search()">[[#{text.search.for}]]</button>-->
+                    <button type="button" class="layui-btn" id="search">[[#{text.search.for}]]</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+                <br/>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" onclick="" class="layui-btn" id="download">[[#{text.button.export.file}]]
+                    </button>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <!--<button type="button" class="layui-btn"  onclick="synchronizeYunxinUser()">同步云信[[#{text.user}]]</button>-->
+                    <!--<button type="button" class="layui-btn"  onclick="openlayui()">同步云信[[#{text.user}]]</button>-->
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="tableHeader">
+                    <th width="5%">[[#{text.avatar}]]</th>
+                    <th width="10%">[[#{text.account.number}]]</th>
+                    <th width="10%">[[#{text.uid}]]</th>
+                    <th width="10%">[[#{text.name}]]</th>
+                    <!--<th width="10%">[[#{text.gender}]]</th>-->
+                    <th width="6%">[[#{text.international.shortcode}]]</th>
+                    <th width="8%">[[#{text.telephone.number}]]</th>
+                    <th width="10%">[[#{text.registration.time}]]</th>
+                    <th width="5%">[[#{text.registered}]]IP</th>
+                    <th width="10%">[[#{text.log.in.time}]]</th>
+                    <th width="5%">[[#{text.log.in}]]IP</th>
+                    <th width="5%">[[#{text.status}]]</th>
+                    <th width="22%">[[#{text.operating}]]</th>
+                </tr>
+                </thead>
+                <!--[[#{text.content.container}]]-->
+                <tbody id="content"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="11">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<!--  [[#{text.modify.user.information}]] -->
+<div id="modifyData" style="display: none;">
+    <form class="layui-form" action="" id="modifyForm" style="padding-top: 30px">
+        <input type="hidden" id="account" name="account">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">[[#{text.name}]]</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text" name="name"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="name">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width:80px;">[[#{text.international.shortcode}]]</label>
+            <div class="layui-input-block" style="width: 350px; margin-left:110px;" id="countryCode">
+                <!--<select name="countryCode" lay-verify="" id="countryCode">-->
+                <!--<option value="">[[#{text.please.select.an.international.shortcode}]]</option>-->
+                <!--<option value="CN" >中国</option>-->
+                <!--<option value="AF">阿富汗</option>-->
+                <!--</select>-->
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">[[#{text.telephone.number}]]</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text" name="telephone" lay-verify="required"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="telephone">
+                </div>
+            </div>
+        </div>
+        <!--<div class="layui-form-item">-->
+        <!--<label class="layui-form-label" style="width:80px;">[[#{text.gender}]]</label>-->
+        <!--<div class="layui-input-block" style="width: 350px; margin-left:110px;">-->
+        <!--<select name="gender" lay-verify="" id="gender">-->
+        <!--<option value="">[[#{text.please.select.a.gender}]]</option>-->
+        <!--<option value="0">[[#{text.female}]]</option>-->
+        <!--<option value="1">[[#{text.male}]]</option>-->
+        <!--</select>-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="modify('modifyForm')">[[#{text.determine}]]</a>
+                <a class="layui-btn"
+                   onclick="cancelModify()">[[#{text.cancel}]]</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="syncData" style="display: none;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 130px;">[[#{text.whether.to.force.synchronization}]]</label>
+            <div class="layui-inline">
+                <input type="radio" checked="checked" name="syncType" value="no" title="否">
+                <input type="radio" name="syncType" value="yes" title="[[#{text.yes}]]">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 130px;">[[#{text.choose.a.synchronization.method}]]</label>
+            <div class="layui-inline">
+                <input type="radio" checked="checked" name="userType" value="part" title="[[#{text.sync.some.users}]]">
+                <input type="radio" name="userType" value="all" title="[[#{text.sync.all.users}]]">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 130px;">[[#{text.user}]]account</label>
+            <div class="layui-input-inline">
+                      <textarea name="account" placeholder="[[#{text.please.fill.in.multiple.users.separated.by}]]"
+                                class="layui-textarea"
+                                style="height: 300px;width: 500px;resize: none;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 210px;">
+                <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.start.syncing}]]</button>
+                <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+
+<script>
+    initCountryCode($('#countryCode1'));
+    var layer;
+    layui.use(['laydate', 'layer', 'jquery'], function () {
+        var laydate = layui.laydate;
+        layer = layui.layer;
+        var $ = layui.$;
+
+        laydate.render({
+            elem: '#dateBegin',
+            type: 'date',
+        });
+        laydate.render({
+            elem: '#dateEnd',
+            type: 'date',
+        });
+        var current = 1;
+        var size = 10;
+        $(function () {
+            search(current, size);
+        })
+
+        $('#search').on('click',function () {
+            search(current, size);
+        })
+
+        var respData;
+        function search(current, size) {
+            if (!size) {
+                size = 10;
+            }
+            if (!current) {
+                current = 1;
+            }
+            var formData = $("#searchForm").serializeJson();
+            // console.log(formData)
+            /*var searchTime = formData.searchTime;
+            var times = [];
+            if (searchTime) {
+                times = searchTime.split(' - ')
+            }*/
+            // console.log(times)
+            // var data = $.param({"current": current, "size": size}) + "&" + $("#searchForm").serialize();
+            /*var data = {
+                current: current,
+                size: size,
+                account: formData.account,
+                name: formData.name,
+                uid: formData.uid,
+                telephone: formData.telephone,
+                state: formData.state,
+                countryCode: formData.countryCode,
+                searchTimeBegin: times.length == 2 ? times[0] : null,
+                searchTimeEnd: times.length == 2 ? times[1] : null
+            }*/
+            $.extend(formData,{"current": current, "size": size});
+            /*var i = layer.alert(JSON.stringify(formData), {
+                title: '最终提交得数据'
+            }, function () {
+                layer.close(i)
+            });*/
+            var hasPermisson = false;
+            $.ajax({//异步请求返回给后台
+                url: '/user/listPage',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        respData = data.data.records;
+                        if (respData.length < 1) {
+                            $("#content").html('<tr><td colspan="11" style="color: red;text-align: center"><b>[[#{text.no.related.data.found}]]</b></td></tr>');
+                            $("#page").html("");
+                            return;
+                        }
+                        var html = '', trStart = '<tr><th>', trEnd = '</th></tr>', thStart = '<th>',
+                            th = '</th><th>',
+                            thEnd = '</th>';
+                        var flag = false;
+                        $.each(respData, function (i, item) {
+                            canEdit = false;
+                            var handle = '<div id="permissionButton"  class="layui-btn-group">' +
+                                '<button class="layui-btn" onclick="group(\'' + item.account + '\')">[[#{text.group}]]</button>' +
+                                '<button class="modify layui-btn" account="' + item.account + '" userName="' + item.name + '" telephone="' + item.telephone + '" countryCode="' + item.countryCode + '"  onclick="openModify(this)">[[#{text.modify}]]</button>' +
+                                '<button class="reset layui-btn" display="none" onclick="resetPsd(\'' + item.account + '\')">[[#{text.reset.password}]]</button>';
+
+                            if (item.online == "1") {
+                                handle += '<button id="kickUserOffline" class="layui-btn" display="none" onclick="kickUserOffline(\'' + item.account + '\')">[[#{text.kick.user.offline}]]</button>';
+                            } else {
+                                handle += '<button id="kickUserOffline" class="layui-btn layui-btn-disabled" display="none" onclick="">[[#{text.kick.user.offline}]]</button>';
+                            }
+                            var state = "";
+                            if (item.state == "0") {
+                                state = "[[#{text.normal}]]";
+                                handle += '<button class="operate layui-btn" onclick="operate(\'' + item.account + '\', \'1\', \'[[#{text.disable}]]\')">[[#{text.disable}]]</button>';
+                            }
+                            if (item.state == "1") {
+                                state = "[[#{text.disable}]]";
+                                handle += '<button class="operate layui-btn" onclick="operate(\'' + item.account + '\', \'0\', \'[[#{text.enable}]]\')">[[#{text.enable}]]</button>';
+                            }
+
+                            handle += '</div>';
+                            var userAvatarUrl = item.userAvatarUrl == undefined ? "" : '<img width="40px" height="40px" src="' + item.userAvatarUrl + '">';
+                            html += trStart
+                                + userAvatarUrl + th
+                                + item.account + th
+                                + (item.uid == undefined ? "" : item.uid) + th
+                                + (item.name == undefined ? "" : item.name) + th
+                                + (item.countryCode == undefined ? "" : item.countryCode) + th
+                                + (item.telephone == undefined ? "" : item.telephone) + th
+                                + (item.createTime == undefined ? "" : formatDateL(item.createTime)) + th
+                                + (item.createIp == undefined ? "" : item.createIp) + th
+                                + (item.loginTime == undefined ? "" : formatDateL(item.loginTime)) + th
+                                + (item.loginIp == undefined ? "" : item.loginIp) + th
+                                + state + th
+                                + handle + trEnd
+                            ;
+                        });
+                        $("#content").html(html);
+                        //$(".permission").hide();
+
+                        window.hasPermisson("im:user:modify", ".modify");
+                        window.hasPermisson("im:user:reset:password", ".reset");
+                        window.hasPermisson("im:user:operate", ".operate");
+
+                        <!------- [[#{text.pagination}]] -------->
+                        layui.use(['laypage', 'layer'], function () {
+                            var laypage = layui.laypage
+                                , layer = layui.layer;
+                            laypage.render({
+                                elem: 'page'
+                                , limit: size
+                                , curr: current
+                                , count: data.data.total
+                                , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                                , jump: function (obj, first) {
+                                    this.current = obj.curr;
+                                    this.size = obj.limit;
+                                    if (!first) {
+                                        search(obj.curr, obj.limit);
+                                    }
+                                }
+                            });
+                        });
+                    } else {
+                        $("#content").html('<tr><td colspan="11" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                    }
+                }
+            })
+        }
+
+        $('#download').on('click', function () {
+            download()
+        })
+
+        function download() {
+            var iframeNode;
+            var url = "/user/download/list?" + $("#searchForm").serialize();
+            // [[#{text.acquire.lock}]]
+            var urlLock = "/user/downloadLock?" + $("#searchForm").serialize();
+            $.ajaxUkey({
+                url: urlLock,
+                type: "post",
+                async: "true",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success: function (responseText) {
+                    if (responseText.success == false) {
+                        layer.alert(responseText.msg, {
+                            title: '[[#{text.information}]]',
+                            icon: 2
+                        });
+                    } else {
+                        //[[#{text.acquire.lock}]]后去下载
+                        //window.location.href = url;
+                        //[[#{text.acquire.lock}]]后去下载
+                        if (iframeNode != undefined && iframeNode != null) {
+                            document.body.removeChild(iframeNode);
+                        }
+                        iframeNode = document.createElement("iframe");
+                        iframeNode.src = url;
+                        iframeNode.style.display = "none";
+                        document.body.appendChild(iframeNode);
+                        if (iframeNode.attachEvent) { // 兼容IE写法
+                            iframeNode.attachEvent("onload", function () {
+                                // iframeNode[[#{text.what.to.do.after.loading}]]
+                                var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                                if (!"" == msgerror) {
+                                    layer.alert(msgerror, {
+                                        title: '[[#{text.information}]]',
+                                        icon: 2
+                                    });
+                                }
+                            })
+                        } else {
+                            iframeNode.onload = function () {
+                                // iframeNode[[#{text.what.to.do.after.loading}]]
+                                var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                                if (!"" == msgerror) {
+                                    layer.alert(msgerror, {
+                                        title: '[[#{text.information}]]',
+                                        icon: 2
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                },
+                error: function () {
+                    layer.alert("[[#{text.system.exception.export.failed}]]", {
+                        title: '[[#{text.information}]]',
+                        icon: 2
+                    });
+                }
+            });
+        }
+    })
+
+    layui.use(['form', 'layer'], function () {
+
+        var form = layui.form,
+            layer = layui.layer;
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(sub-btn)', function (data) {
+
+            var formData = data.field;
+            var account = $.trim(formData.account.replace(/[\r\n]/g, ""));
+
+            formData.account = account;
+            console.info(formData);
+            console.info(account);
+
+            if (formData.userType == 'part' && (account == '' || account == null)) {
+                layer.alert('[[#{text.please.fill.in.multiple.users.separated.by}]]', {
+                    title: '[[#{text.information}]]',
+                    icon: 1
+                });
+                return false;
+            }
+
+            layer.msg("[[#{text.sync.command.has.been.submitted}]]。");
+            $.ajaxUkey({
+                url: '/user/synchronize/yunxin',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '[[#{text.information}]]', icon: 5});
+                            return;
+                        }
+                        layer.alert('同步网易云信用户[[#{text.successful.operation}]]！', {
+                            title: '[[#{text.information}]]',
+                            icon: 1
+                        }, function (index) {
+                            layer.close(index);
+                            // [[#{text.refresh.the.current.page}]]
+                            $(".layui-laypage-btn").click();
+                            ;
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '[[#{text.information}]]', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，操作失败！', {title: '[[#{text.information}]]', icon: 2});
+                    }
+                }
+            });
+
+            return false;
+        });
+
+    });
+
+
+    //[[#{text.group}]]
+    function group(account) {
+        var e = $(this),
+            i = "/user/group?account=" + account;
+        t = "[[#{text.group.list}]]";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    function operate(account, state, stateValue) {
+        var va1 = "[[#{text.please.determine.if.the.account.prompts}]] ";
+        var va2 = "[[#{text.this.account}]]";
+        var var3 = va1 + stateValue + va2 + "?"
+        layer.confirm(var3, {icon: 3, title: '[[#{text.information}]]'}, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url: '/user/operateState',
+                type: 'POST',
+                data: {
+                    account: account,
+                    state: state
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+
+    function resetPsd(account) {
+        layer.confirm('[[#{text.confirm.pass.to.m123}]]', {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]'
+        }, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url: '/user/resetPsd',
+                type: 'POST',
+                data: {
+                    account: account
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    function kickUserOffline(account) {
+        layer.confirm('[[#{text.confir.kick.user.offline.message}]]', {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]'
+        }, function (index) {
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url: '/user/kickUserOffline',
+                type: 'POST',
+                data: {
+                    account: account
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        $("#kickUserOffline").attr("class", "layui-btn layui-btn-disabled");
+                        $("#kickUserOffline").attr("onclick", "");
+                        layer.msg(data.data);
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    function openModify(obj) {
+        var countryCode = $(obj).attr("countryCode");
+        countryCode = countryCode == "undefined" ? "" : countryCode;
+        //后台动态获取所有国际区号，并设置选中[[#{text.status}]]
+        $.ajax({
+            url: '/user/global/code',
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    // console.info(data);
+                    var respData = data.data.list;
+                    var html = '<select name="countryCode" lay-verify="" lay-search="">';
+                    $.each(respData, function (i, item) {
+                        //[[#{text.set.to.selected}]]
+                        if (countryCode == item.countryCode) {
+                            html += ' <option selected value="' + item.countryCode + '">' + item.cnName + '</option>';
+                        } else {
+                            html += ' <option value="' + item.countryCode + '">' + item.cnName + '</option>';
+                        }
+                    });
+                    html += "</select>";
+                    layer.open({
+                        type: 1,
+                        closeBtn: 0,
+                        title: '<b>[[#{text.user.information.modification}]]</b>',
+                        area: ['540px', '490px'], //[[#{text.width.height}]]
+                        content: $("#modifyData")
+                    });
+
+                    var account = $(obj).attr("account");
+                    var userName = $(obj).attr("userName");
+                    userName = userName == "undefined" ? "" : userName;
+                    var gender = $(obj).attr("gender");
+                    gender = gender == "undefined" ? "" : gender;
+                    var telephone = $(obj).attr("telephone");
+                    telephone = telephone == "undefined" ? "" : telephone;
+                    $("#accountDis").val(account);
+                    $("#account").val(account);
+                    $("#name").val(userName);
+                    // $("#gender").val(gender);
+                    $("#telephone").val(telephone);
+                    $("#countryCode").html(html);
+                    layui.form.render(); //[[#{text.update.all}]]
+                    layui.form.render('select'); //刷新select选择框渲染
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                layer.msg('[[#{text.failed.to.get.list.of.international.area.codes}]]！');
+            }
+        });
+    }
+
+    function modify(fid) {
+        var email = $("#email").val();
+        if (email) {
+            var patrn = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+            if (!patrn.test(email)) {
+                layer.msg("[[#{text.mailbox.format.is.malformed}]]");
+                return false;
+            }
+        }
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var data = $("#" + fid).serialize();
+        $.ajaxUkey({
+            url: '/user/modify',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg(data.data,
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function () {
+                            $("#modifyData").attr("style", "display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+    function cancelModify() {
+        $("#modifyData").attr("style", "display: none;");
+        layer.closeAll();
+    }
+
+
+    function openlayui() {
+
+        layui.use(['layer', 'form'], function () {
+            var layer = layui.layer;
+            var form = layui.form;
+
+            layer.open({
+                type: 1,
+                closeBtn: 1,
+                moveType: 0,
+                move: false,
+                fixed: false,
+                resize: false,
+                shade: 0,
+                area: ['720px', '580px'],
+                content: $("#syncData")
+            });
+
+            return false;
+        });
+    }
+
+    //[[#{text.cancel.edit}]]
+    function cancelSync() {
+        $("#syncData").attr("style", "display: none;");
+        layer.closeAll();
+    }
+
+    function hasPermisson(permission, className) {
+        $.ajax({//异步请求返回给后台
+            url: '/server/session/get',
+            type: 'POST',
+            // data: data,
+            //dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    var permsSet = data.data.permsSet;
+                    if (permsSet.indexOf(permission) == -1) {
+                        $(className).hide();
+                    }
+                }
+            }
+        });
+    }
+
+
+</script>
+
+</html>

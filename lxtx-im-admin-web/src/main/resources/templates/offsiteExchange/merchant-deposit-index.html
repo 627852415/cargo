@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.maerchant.gredt.mamanger}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">[[#{text.operation.search}]]</button>
+                    <shiro:hasPermission name="merchant:deposit:add">
+                    <button type="button" class="layui-btn" onclick="save(this)">[[#{text.operation.add}]]</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 180, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th  lay-data="{type:'numbers', align:'center',width:'12%',style:'height:65px;'}">[[#{text.operation.seq}]]</th>
+            <th lay-data="{field:'depositDesc', align:'center'}">[[#{text.maerchant.gredt.money}]]</th>
+            <th lay-data="{field:'creditScore', align:'center'}">[[#{text.maerchant.gredt.score}]]</th>
+            <th lay-data="{align:'center',toolbar: '#barData'}">[[#{text.operation.name}]]</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="edit" shiro:hasPermission="'merchant:deposit:edit'">
+            <i class="layui-icon"></i>[[#{text.operation.edit}]]</a>
+        <a class="layui-btn tableBtn" lay-event="del" shiro:hasPermission="'merchant:deposit:del'">
+            <i class="layui-icon"></i>[[#{text.operation.delete}]]</a>
+    </script>
+</div>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //查询数据
+    loadTableWithoutColumns('/merchant/deposit/list/page', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'edit') {
+                    save(obj.data);
+                } else if (obj.event === 'del') {
+                    del(obj.data.id);
+                }
+            });
+        });
+    }
+
+    //新增或编辑
+    function save(obj) {
+        var aid = $(obj).attr("id");
+        var url;
+        var title = "[[#{text.operation.add}]]";
+        if (aid != undefined) {
+            url = "/merchant/deposit/edit?id=" + aid.toString();
+            title = "[[#{text.operation.edit}]]";
+        } else {
+            url = "/merchant/deposit/add";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['540px', '360px'], //宽高
+            content: url
+        });
+    }
+
+    //删除
+    function del(id) {
+        layer.confirm("[[#{text.operation.confirm.delete}]]", {icon: 3, title: '[[#{text.operation.alert}]]', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/merchant/deposit/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.operation.success}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.operation.sys.fix}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

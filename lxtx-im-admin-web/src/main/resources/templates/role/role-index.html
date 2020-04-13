@@ -1,0 +1,199 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>角色管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="key" id="key" class="layui-input"
+                           placeholder="请输入角色名称">
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" id="search">搜索角色</button>
+                    <a href="javascript:;" onclick="save(this)" class="layui-btn site-demo-active"
+                       data-type="tabAdd" data-title="新增角色">新增角色</a>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>角色列表</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>角色名称</th>
+                    <th>角色编码</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    var current = 1;
+    var size = 10;
+    var roleName = $("#key").val();
+    var respData;
+
+    var layer;
+    layui.use('layer',function () {
+        layer = layui.layer;
+    })
+    $(function () {
+        //初始化加载数据
+        sendReq(current, size, null);
+        //搜索
+        $('#search').on('click', function () {
+            roleName = $("#key").val();
+            sendReq(current, size, roleName);
+        });
+
+    });
+    var sendReq = function (current, size, roleName) {
+        $.ajax({//异步请求返回给后台
+            url: '/sys/role/list',
+            type: 'POST',
+            data: JSON.stringify({
+                roleName: roleName,
+                current: current,
+                size: size
+            }),
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    //当没有搜索到数据的时候去掉分页，给出提示
+                    if ($.isEmptyObject(data.data)) {
+                        $("#con").html("<th colspan='8'><b style='color: red'>未查询到相关数据！</b></th>");
+                        $("#page").html(null);
+                        return;
+                    }
+                    respData = data.data.records;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        html += '<tr>';
+                        html += '<th>' + item["roleName"] + '</th>';
+                        html += '<th>' + item["roleCode"] + '</th>';
+                        if (item["status"] == '0') {
+                            html += '<th>启用</th>';
+                        } else {
+                            html += '<th>禁用</th>';
+                        }
+                        html += '<th>' + formatDateL(item["createTime"]) + '</th>';
+                        html += '<th>';
+                        html += '<a href="javascript:;" onclick="save(this)" aid="' + item["roleId"] + '" class="layui-btn layui-btn-mini">编辑</a>';
+                        html += '<a href="javascript:;" onclick="del(this)" aid="' + item["roleId"] + '" data-id="1"  class="layui-btn layui-btn-danger layui-btn-mini">删除</a></th>';
+                        html += '</tr>'
+                    });
+                    $("#con").html(html);
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: data.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if (!first) {
+                                    sendReq(obj.curr, obj.limit, roleName);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    // 编辑、保存
+    function save(obj) {
+        var aid = $(obj).attr("aid");
+        var url;
+        var title = "新增角色";
+        if (aid != undefined) {
+            url = "/sys/role/info?roleId=" + aid.toString();
+            title = "编辑角色";
+        } else {
+            url = "/sys/role/add";
+        }
+
+        var e = $(this),
+            i = url;
+        var t = title;
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text());
+    }
+    //删除角色
+    function del(obj) {
+        var roleId = $(obj).attr("aid");
+        layer.confirm('您确定要删除吗？', {icon: 3}, function (index) {
+            $.ajaxUkey({
+                url: '/sys/role/delete',
+                type: "POST",
+                data: JSON.stringify({roleId: roleId}),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('删除成功！', {title: '提示信息', icon: 1},function (index) {
+                            layer.close(index);
+                            tabChangeDef('/sys/role/index');
+                            location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，删除失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+
+        });
+    }
+
+</script>
+
+</body>
+</html>

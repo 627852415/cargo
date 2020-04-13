@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>红包发送记录</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <!-- <div class="titleClas">转账记录</div> -->
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin: 0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="redPacketSendId" id="redPacketSendId"
+                               class="layui-input" th:placeholder="#{text.placeholder.red.packet.id}">
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId"
+                               class="layui-input" th:placeholder="#{text.operation.input.tips.user.wallet.sendUserID}">
+                    </div>
+                    
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" id="username"
+                               class="layui-input" th:placeholder="#{text.operation.input.tips.user.wallet.sendUserName}">
+                    </div>
+                    
+                    <div class="layui-input-inline">
+                        <select name="senderCountryCode" id="senderCountryCode" lay-verify="">
+                            <option value="">[[#{text.operation.select.tips.user.wallet.sendUserCountryCode}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="senderTelephone" id="senderTelephone" class="layui-input"
+                               th:placeholder="#{text.column.transfer.out.user.telephone}"/>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" name="receiverKeyword" id="receiverKeyword"
+                               class="layui-input" th:placeholder="#{text.placeholder.transfer.in.user.username.id.groupname}">
+                    </div>
+                    <!-- 
+                    <div class="layui-input-inline">
+                        <select name="receiverCountryCode" id="receiverCountryCode" lay-verify="">
+                            <option value="">[[#{text.column.transfer.in.user.countryCode}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="receiverTelephone" id="receiverTelephone" class="layui-input"
+                               th:placeholder="#{text.column.transfer.in.user.telephone}"/>
+                    </div>
+					 -->
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="startCreateTime"
+                               name="startCreateTime" th:placeholder="#{text.placeholder.start.trade.date}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="endCreateTime"
+                               name="endCreateTime" th:placeholder="#{text.placeholder.end.trade.date}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="coinId" name="coinId" lay-filter="coinId">
+                            <option value="">[[#{text.placeholder.coin}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="type" name="type" lay-filter="type">
+                            <option value="">[[#{text.placeholder.type}]]</option>
+                            <option value="0">[[#{text.placeholder.personal.packet}]]</option>
+                            <option value="1">[[#{text.placeholder.group.lucky.red.packet}]]</option>
+                            <option value="2">[[#{text.placeholder.group.average.red.packet}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="state" name="state" lay-filter="state">
+                            <option value="">[[#{text.placeholder.status}]]</option>
+                            <option value="0">[[#{text.placeholder.uncollected}]]</option>
+                            <option value="1">[[#{text.placeholder.collected}]]</option>
+                            <option value="2">[[#{text.placeholder.uncollected.expired}]]</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top: 10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding: 0">
+                        <button type="button" class="layui-btn"
+                                onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]
+                        </button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 180, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{field:'id', align:'center'}">[[#{text.column.red.packet.id}]]</th>
+                <th lay-data="{field:'senderId', align:'center'}">[[#{text.column.transfer.out.user.wallet.id}]]</th>
+                <th lay-data="{field:'senderName', align:'center'}">[[#{text.column.transfer.out.user.username}]]</th>
+
+                <th lay-data="{field:'senderCountryCode', align:'center'}">[[#{text.column.transfer.out.user.countryCode}]]</th>
+                <th lay-data="{field:'senderTelephone', align:'center'}">[[#{text.column.transfer.out.user.telephone}]]</th>
+
+                <th lay-data="{field:'receiverId', align:'center'}">[[#{text.column.transfer.in.user.wallet.id}]]</th>
+                <th lay-data="{field:'receiverName', align:'center'}">[[#{text.column.transfer.in.username.user.group}]]</th>
+
+                <th lay-data="{field:'receiverCountryCode', align:'center'}">[[#{text.column.transfer.in.user.countryCode}]]</th>
+                <th lay-data="{field:'receiverTelephone', align:'center'}">[[#{text.column.transfer.in.user.telephone}]]</th>
+
+                <th lay-data="{align:'center', width: 130, templet: function (data){return getStatusStr(data.state);}}">
+                    [[#{text.column.status}]]
+                </th>
+                <th lay-data="{align:'center', width: 100, templet: function (data){return getTypeStr(data.type);}}">
+                    [[#{text.column.type}]]
+                </th>
+                <th lay-data="{field:'amount', align:'center'}">[[#{text.column.amount}]]</th>
+                <th lay-data="{field:'coinName', align:'center', width: 80}">[[#{text.column.coin}]]</th>
+                <th lay-data="{field:'num', align:'center', width: 100}">[[#{text.column.red.packet.quantity}]]</th>
+                <th lay-data="{field:'fee', align:'center'}">[[#{text.column.fee}]]</th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data){return formatDateL(data.createTime);}}">
+                    [[#{text.column.trade.date}]]
+                </th>
+                <th lay-data="{field:'updateTime', align:'center',templet: function (data){return formatDateL(data.updateTime);}}">
+                    [[#{text.column.update.date}]]
+                </th>
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){return renderBtn(data);}}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+
+    </fieldset>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    initCountryCode();
+    //初始化国家简码选择框
+    function initCountryCode(){
+        $.ajax({
+            url: '/globalCode/listPage',
+            type: 'POST',
+            data: {current: 1, size: 10000},
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.success) {
+                    if (undefined != data && undefined != data.data && undefined != data.data.records) {
+                        var html = '';
+                        $.each(data.data.records, function (i, item) {
+                            html +='<option value="' + item.countryCode + '">' + item.countryCode + '/' + item.phoneCode + '</option>';
+                        })
+                        // console.log(html)
+                        $('#receiverCountryCode').append(html);
+                        $('#senderCountryCode').append(html);
+                    }
+                }
+            }
+        });
+    }
+
+    var current = 1;
+    var size = 10;
+    var iframeNode;
+
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // [[#{text.time.selection.general.usage}]]
+        laydate.render({
+            elem: '#startCreateTime'
+            , type: 'datetime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#startCreateTime").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#startCreateTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endCreateTime'
+            , type: 'datetime'
+            , done: function (value, date) {
+                if (value > curDate) {
+//                layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+//                $("#endCreateTime").val("");
+//                return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.the.end.of.the.trading.period.cannot.be.less.than.the.beginning.of.the.trading.period}]]");
+                    $("#endCreateTime").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+        //[[#{text.initial.currency.drop.down}]]
+        $.ajax({
+            url: "/coin/list",
+            type: "post",
+            contentType: "application/json; charset=utf-8",
+            data: "{\"coinName\":null,\"current\":1,\"size\":1000}",
+            success: function (res) {
+                var msg = res.data;
+                var isShowAccount = msg.isShowAccount;
+                $.each(msg.dataResult.data.records, function (i, v) {
+                    if(!v.hideFlag){
+                        var id = v.id;
+                        var text = "";
+                        if(isShowAccount){
+                            text = v.aliasName;
+                        }else{
+                            text = v.coinName;
+                        }
+                        $("#coinId").append("<option value='" + id + "'>" + text + "</option>");
+                    }
+                });
+                form.render();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // alert(errorThrown);
+            }
+        });
+    });
+
+    loadTableWithoutColumns('/red/packet/admin/send/list', 'dataTable', 'searchForm');
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status === 0) {
+            statusStr = "[[#{text.uncollected}]]";
+        } else if (status === 1) {
+            statusStr = "[[#{text.collected}]]";
+        } else if (status === 2) {
+            statusStr = "[[#{text.not.claimed.and.expired}]]";
+        }
+        return statusStr;
+    }
+
+    /**
+     * [[#{text.type.mapping}]]
+     * @param type [[#{text.type.value}]]
+     * @returns {string} [[#{text.type.string}]]
+     */
+    function getTypeStr(type) {
+        var typeStr = "";
+        if (type === 0) {
+            typeStr = "[[#{text.personal.red.envelope}]]";
+        } else if (type === 1) {
+            typeStr = "[[#{text.group.of.lucky.red.envelopes}]]";
+        } else if (type === 2) {
+            typeStr = "[[#{text.per.capita.red.envelope}]]";
+        }
+        return typeStr;
+    }
+
+    // [[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/red/packet/send/download/list?" + $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/red/packet/send/downloadLock?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: urlLock,
+            type: "post",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title: '[[#{text.information}]]',
+                        icon: 2
+                    });
+                } else {
+                    //[[#{text.acquire.lock}]]后去下载
+                    //window.location.href = url;
+                    //[[#{text.acquire.lock}]]后去下载
+                    if (iframeNode != undefined && iframeNode != null) {
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent) { // 兼容IE写法
+                        iframeNode.attachEvent("onload", function () {
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if (!"" == msgerror) {
+                                layer.alert(msgerror, {
+                                    title: '[[#{text.information}]]',
+                                    icon: 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function () {
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if (!"" == msgerror) {
+                                layer.alert(msgerror, {
+                                    title: '[[#{text.information}]]',
+                                    icon: 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error: function () {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title: '[[#{text.information}]]',
+                    icon: 2
+                });
+            }
+        });
+    }
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id
+            + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+
+    // [[#{text.see.details}]]
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/red/packet/send/detail?id=" + id;
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight > 200 ? (winHeight - 110) : winHeight;
+        //[[#{text.limit.maximum.height}]]
+        height = height > maxHeight ? maxHeight : height;
+        openModal("[[#{text.see.details}]]", url, "600px", height + "px");
+    }
+
+</script>

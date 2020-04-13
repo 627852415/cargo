@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.subordinate.rebate.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+
+</style>
+<div class="admin-main fadeInUp animated">
+
+    <fieldset class="layui-elem-field border1">
+        <div>
+            <br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:;" onclick="subordinateDetail()" class="layui-btn" lay-event="detail">[[#{text.subordinate.rebates}]]</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:;" onclick="groupOwnerDetail()" class="layui-btn" lay-event="detail" >[[#{text.group.owner.rebate}]]</a>
+        </div>
+
+        <br/><br/>
+        <div class="titleClas" style="color:#ff631f;font-weight:bold;">[[#{text.subordinate.rebate.details}]]:</div>
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input lay-filter="playerUserName" name="playerUserName" type="text" class="layui-input" id="playerUserName"
+                               th:placeholder="#{text.username}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="playerAccount" name="playerAccount" type="text" class="layui-input" id="playerAccount"
+                               th:placeholder="#{text.column.user.id}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="playerTelephone" name="playerTelephone" type="text" class="layui-input" id="playerTelephone"
+                               th:placeholder="#{text.phone.number}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="taskId" name="taskId" type="text" class="layui-input" id="taskId"
+                               th:placeholder="#{text.game} + id" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataTable')">[[#{text.search.for}]]
+                        </button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.export.file}]]</button>
+                        <!--<button type="button" onclick="download()" class="layui-btn">[[#{text.export.file}]]</button>-->
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <p>[[#{text.user}]]<span th:text="${req.userName}" style="color:blue;font-weight:bold;"/> <span th:text="${req.reportDate}"/>[[#{text.list.of.rebate.sources}]]</p>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataTable'}"
+               lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', align:'center'}">[[#{text.serial.number}]]</th>
+                <th lay-data="{field:'playerUserName', align:'center'}">[[#{text.username}]]</th>
+                <th lay-data="{field:'playerAccount', align:'center'}">[[#{text.user.account}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.phone.number}]]</th>
+                <th lay-data="{field:'taskId', align:'center'}">[[#{text.game}]]id</th>
+                <th lay-data="{field:'groupId', align:'center'}">[[#{text.group}]]id</th>
+                <th lay-data="{field:'groupName', align:'center'}">[[#{text.group.name}]]</th>
+                <th lay-data="{field:'gameJoinTimes', align:'center'}">[[#{text.number.of.participations}]]</th>
+                <th lay-data="{field:'gameCoinName', align:'center'}">[[#{text.currency}]]</th>
+                <th lay-data="{field:'rebateTotalAmount', align:'center'}">[[#{text.split.commission.pool}]]</th>
+                <th lay-data="{field:'rebateAmount', align:'center'}">[[#{text.amount.of.commission}]]</th>
+                <th lay-data="{field:'gameEndTime', align:'center'}">[[#{text.game.end.time}]]</th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+
+
+<script th:inline="javascript">
+    let account = [[${req.account}]];
+    let reportDate = [[${req.reportDate}]];
+    let userName = [[${req.userName}]];
+</script>
+
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+        laydate.render({
+            elem: '#createTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > endTime) {
+                    layer.msg("[[#{text.start.date.cannot.be.greater.than.end.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#endTime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.end.date.cannot.be.greater.than.the.current.date}]]");
+                    $("#endTime").val("");
+                    return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.end.date.cannot.be.less.than.start.date}]]");
+                    $("#endTime").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+    });
+
+    loadTableWithoutColumns('/rebate/detail?reportDate=' + reportDate + '&account=' + account + '&rebateType=2','dataTable', 'searchForm');
+
+    function subordinateDetail() {
+        window.location.href = "/rebate/subordinate/detail/index?reportDate=" +reportDate + "&account=" + account + "&userName=" + userName;
+    }
+
+    function groupOwnerDetail() {
+        window.location.href = "/rebate/group/owner/detail/index?reportDate=" + reportDate + "&account=" + account + "&userName=" + userName;
+    }
+
+    //[[#{text.file.export}]]
+    function download() {
+        let playerUserName = document.getElementById("playerUserName").value;
+        let playerAccount = document.getElementById("playerAccount").value;
+        let playerTelephone = document.getElementById("playerTelephone").value;
+        let taskId = document.getElementById("taskId").value;
+
+        var url = "/rebate/detail/download?reportDate=" + reportDate + '&account=' + account + '&rebateType=2' +
+        '&playerUserName=' + playerUserName + "&playerAccount=" + playerAccount + "&playerTelephone=" + playerTelephone + "&taskId=" + taskId;
+        $.ajaxUkey({
+            url:url,
+            type:"get",
+            async:"true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success:function(responseText){
+                if(responseText.success == false){
+                    layer.alert(responseText.msg, { title: '[[#{text.information}]]', icon: 2 });
+                }else{
+                    window.location.href = url;
+                }
+
+            },
+            error:function(){
+                layer.alert("[[#{text.sys.op.fail}]]", { title: '[[#{text.information}]]', icon: 2 });
+            }
+        });
+
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>短信列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/sms/sms.js}"></script>
+</head>
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="telephone" class="layui-input" placeholder="手机号码"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select  name="state" lay-verify="">
+                        <option value="">请选择发送状态</option>
+                        <option value="1">发送成功</option>
+                        <option value="0">发送失败</option>
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <input lay-filter="startTime" name="createTimeStart" type="text" class="layui-input"
+                           id="startTime" placeholder="创建时间开始" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input lay-filter="endTime" name="createTimeEnd" type="text" class="layui-input"
+                           id="endTime" placeholder="创建时间结束" lay-search>
+                </div>
+
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+</div>
+<script type="text/html" id="toolbarData">
+    <span class="tableTitle">短信列表</span>
+</script>
+
+
+</body>
+</html>

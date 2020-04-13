@@ -1,0 +1,134 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>应用管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>应用列表</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>应用名称</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    var current = 1;
+    var size = 10;
+    var respData,layer;
+    layui.use('layer', function() {
+        layer = layui.layer;
+    });
+    $(function () {
+        //初始化加载数据
+        sendReq(current, size);
+    });
+    var sendReq = function (current, size) {
+        $.ajax({//异步请求返回给后台
+            url: '/service/get/service/list',
+            type: 'POST',
+            data: JSON.stringify({
+                current: current,
+                size: size
+            }),
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    respData = data.data.list;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        html += '<tr>';
+                        html += '<th>' + item + '</th>';
+                        html += '<th><a href="javascript:;" onclick="refresh(this)" aid="' + item + '" data-id="1"  class="layui-btn layui-btn-mini">刷新</a></th>';
+                        html += '</tr>'
+                    });
+                    $("#con").html(html);
+                    <!------- 分页 -------->
+                    // layui.use(['laypage', 'layer'], function () {
+                    //     var laypage = layui.laypage
+                    //         , layer = layui.layer;
+                    //     laypage.render({
+                    //         elem: 'page'
+                    //         , limit: size
+                    //         , curr: current
+                    //         , count: data.data.total
+                    //         , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                    //         , jump: function (obj, first) {
+                    //             this.current = obj.curr;
+                    //             this.size = obj.limit;
+                    //             if (!first) {
+                    //                 sendReq(obj.curr, obj.limit, roleName);
+                    //             }
+                    //         }
+                    //     });
+                    // });
+                }
+            }
+        });
+    }
+
+
+    function refresh(obj) {
+        var serviceName = $(obj).attr("aid");
+        $.ajax({
+            url: '/service/refresh/scope',
+            type: "POST",
+            data: {serviceName: serviceName},
+            dataType: "json",
+            // contentType:'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    if (!$.isEmptyObject(result.data)) {
+                        layer.alert(result.data, {title: '提示信息', icon: 5});
+                        return;
+                    }
+                    layer.alert('刷新成功！', {title: '提示信息', icon: 1},function (index) {
+                        location.reload();
+                    });
+                } else {
+                    if (!$.isEmptyObject(result.msg)) {
+                        layer.alert(result.msg, {title: '提示信息', icon: 2});
+                        return;
+                    }
+                    layer.alert('系统异常，刷新失败！', {title: '提示信息', icon: 2});
+                }
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.edit.regional.exchange.rate}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="updateForm">
+    <table class="layui-table" >
+        <thead>
+            <tr>
+                <th>[[#{text.country}]]</th>
+                <th>[[#{text.country.code}]]</th>
+                <th>[[#{text.edit.exchange.rate}]]</th>
+                <th>[[#{text.exchange.rate.setting}]]</th>
+                <th>[[#{text.offsite.exchange.buyer.out.payment}]]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="waveObj : ${list} ">
+                <td>
+                    <input type="hidden" th:value="${waveObj.waveRateId}" name="waveRateId"/>
+                    <input type="hidden" th:value="${waveObj.realTimeRate}" name="realTimeRate"/>
+                    <div th:text="${waveObj.countryName}"/>
+                </td>
+                <td>
+                    <div th:text="${waveObj.countryCode}"/>
+                    <input type="hidden" th:value="${waveObj.countryCode}" name="countryCode"/>
+                </td>
+                <td>
+                    <span th:text="'1 ' + ${waveObj.exchangeCoinName} + ' = '"/>
+                    <span th:text="${waveObj.exchangeRate}" name="exchangeRate" />
+                    <span th:text="' ' +  ${waveObj.payCoinName}"/>
+                </td>
+                <td>
+                    <!--<input type="text" name="waveRate" th:if="${waveObj.waveRate == null " style="width:80px;text-align: center;" oninput="waveRateChange(this)" onblur="waveRateChange(this)"/>-->
+                    <!--<input type="text" name="waveRate" th:if="${waveObj.waveRate != null && waveObj.rateType == 0}" th:value="${waveObj.waveRate} * 100" style="width:80px;text-align: center;" oninput="waveRateChange(this)" onblur="waveRateChange(this)"/>-->
+                    <!--<input type="text" name="waveRate" th:if="${waveObj.waveRate != null && waveObj.rateType == 1}" th:value="${waveObj.waveRate}" style="width:80px;text-align: center;" oninput="waveRateChange(this)" onblur="waveRateChange(this)"/>-->
+                    <input type="text" name="waveRate" th:wr="${waveObj.waveRate}" th:wt="${waveObj.rateType}" th:value="${waveObj.waveRate == null || waveObj.rateType == null ? '' : (waveObj.rateType == 0 ? waveObj.waveRate * 100 : waveObj.waveRate)}" style="width:80px;text-align: center;" oninput="waveRateChange(this)" onblur="waveRateChange(this)"/>
+                    <label th:hidden="${!(waveObj == null || waveObj.rateType == 0 || waveObj.rateType == null)}">%</label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <select lay-ignore name="rateType" lay-filter="rateType" autocomplete="off">
+                        <option value="0"
+                                th:checked="${waveObj == null || waveObj.rateType == 0 || waveObj.rateType == null}">
+                            [[#{text.floating.exchange.rate}]]
+                        </option>
+                        <option value="1" th:selected ="${waveObj != null && waveObj.rateType == 1}">[[#{text.fixed.exchange.rate}]]</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="rebateIds">
+                        <option th:each="rebate : ${waveObj.rebateList}" th:text="${rebate.payTypeName}" th:value="${rebate.id}" th:selected="${rebate.chooseFlag}"></option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    var indexFlag = 0;
+    $("#updateForm table tbody tr td select[name = 'rebateIds']").each(function(){
+        var tmpValue = "areaRebateList"+indexFlag++;
+        $(this).attr('xm-select', tmpValue).attr('xm-select-direction', 'down');
+        layui.formSelects.render(tmpValue);
+    });
+
+    if($('.xm-select--suffix input[placeholder="请选择"]').length > 0){
+        $('.xm-select--suffix input[placeholder="请选择"]').attr('placeholder', '[[#{text.select.placeholder}]]');
+    }
+    if($('.xm-select--suffix input[back="请选择"]').length > 0){
+        $('.xm-select--suffix input[back="请选择"]').attr('back', '[[#{text.select.placeholder}]]');
+    }
+    $('.xm-cz-group [method="全选"] span').html('[[#{text.select.all.span}]]');
+    $('.xm-cz-group [method="清空"] span').html('[[#{text.select.clear.span}]]');
+    $('.xm-cz-group [method="反选"] span').html('[[#{text.select.invert.span}]]');
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+        // form.on('select(rateType)', function (data) {
+        //     console.log(data)
+        //     return false;
+        // });
+
+        $('select[name="rateType"]').change(function(){
+            var rateType = $(this).children('option:selected').val();//这就是selected的值
+            if (rateType == 0) {
+                $(this).parent().find("label").show();
+            } else if (rateType == 1) {
+                $(this).parent().find("label").hide();
+            }
+            $(this).parent().find("input[name='waveRate']").val("");
+            $(this).parent().find("input[name='waveRate']").focus();
+        })
+
+    });
+
+    //[[#{text.save}]]
+    function save(data) {
+        layer.confirm('[[#{text.are.you.sure.to.modify}]]', function(index){
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            var formData = {}
+            var arr = new Array();
+
+            $("#updateForm table tbody tr").each(function () {
+                var waveRateId = $(this).find("input[name='waveRateId']").val();
+                var countryCode = $(this).find("input[name='countryCode']").val();
+                var waveRate = $(this).find("input[name='waveRate']").val();
+                var rateType = $(this).find("select[name='rateType']").val();
+                var rebateIds = layui.formSelects.value($(this).find("select[_name='rebateIds']").attr('xm-select'), 'val');
+                formData.waveRateId = waveRateId;
+
+                if(waveRate != '') {
+                    var waveObj = {countryCode:countryCode, waveRate:waveRate, rateType:rateType, rebateIds:rebateIds};
+                    arr.push(waveObj)
+                }
+
+            });
+
+            formData.list = arr;
+            // console.log(formData);
+            $.ajaxUkey({
+                url: "/offsite/exchange/wave/rate/areaUpdate",
+                type: 'POST',
+                data: JSON.stringify(formData),
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    layer.close(tishi);
+                    if (data.success) {
+                        layer.alert('[[#{text.successful.operation}]]', {title: '[[#{text.operation.message}]]', icon: 6}, function (index) {
+                            // parent.layer.closeAll();
+                            location.reload();
+                        });
+                    } else if (data.msg != null) {
+                        layer.msg(data.msg);
+                    } else {
+                        // [[#{text.prompt.failed}]]
+                        layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                    }
+                },
+                error: function (e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                }
+            });
+        });
+    }
+
+    function waveRateChange(obj) {
+        var rateType = $(obj).parent().find("select[name=\"rateType\"]").children('option:selected').val();
+        var waveRate = $(obj).val();
+
+        if (rateType == 0 && (waveRate > 100 || waveRate < 0)) {
+            layer.msg('[[#{text.floating.exchange.rates.are.incorrect.and.must.be.between}]]');
+            $(obj).val("");
+        } else {
+            var trObj = $(obj).parent().parent();
+            var realTimeRate = $(trObj).find("input[name='realTimeRate']").val();
+
+            var exchangeRate;
+            if (rateType == 0) {
+            	exchangeRate = realTimeRate * (1 + (waveRate / 100));
+                exchangeRate = Math.floor(exchangeRate * 10000) /10000;
+            } else if (rateType == 1) {
+                exchangeRate = waveRate;
+            }
+
+            var exchangeRateObj = $(trObj).find("span[name='exchangeRate']");
+
+            $(exchangeRateObj).text(exchangeRate);
+
+            $(exchangeRateObj).css({"color":"red"});
+        }
+    }
+
+</script>
+</body>
+</html>

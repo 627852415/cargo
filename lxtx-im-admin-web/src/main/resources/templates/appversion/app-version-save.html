@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建字典</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/appversion/app-version-save.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 450px;
+        margin-right: 10px;
+    }
+
+    .layui-form-item .layui-form-label {
+        float: left;
+        display: block;
+        padding: 9px 15px;
+        width: 150px;
+        font-weight: 400;
+        line-height: 20px;
+        text-align: right;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <input type="hidden" th:value="${appversion} ? ${appversion.id}" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">版本号</label>
+        <div class="layui-input-inline">
+            <input type="number"  name="version" th:value="${appversion} ? ${appversion.version}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入版本号">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">版本名称</label>
+        <div class="layui-input-inline">
+            <input type="text"  name="versionName" th:value="${appversion} ? ${appversion.versionName}"
+                   autocomplete="off" class="layui-input" placeholder="请输入版本名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">更新内容</label>
+        <div class="layui-input-inline">
+            <input type="text"  name="description" th:value="${appversion} ? ${appversion.description}"
+                   autocomplete="off" class="layui-input" placeholder="请输入更新内容">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="phoneType" th:checked="${appversion != null and appversion.phoneType == 0} " value="0" title="安卓">
+            <input type="radio" name="phoneType" th:checked="${appversion != null and appversion.phoneType == 1}" value="1" title="IOS">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">下载地址</label>
+        <div class="layui-input-inline">
+            <input type="text"  name="url" th:value="${appversion} ? ${appversion.url}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入下载地址">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">文件大小（单位为M）</label>
+        <div class="layui-input-inline">
+            <input type="text"  name="size" th:value="${appversion} ? ${appversion.size}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入文件大小">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否强制更新</label>
+        <div class="layui-input-block">
+            <input type="radio" name="force" th:checked="${appversion != null and appversion.force == 0} " value="0" title="否">
+            <input type="radio" name="force" th:checked="${appversion != null and appversion.force == 1}" value="1" title="是">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 300px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">确定</button>
+            <button class="layui-btn" onclick="parent.layer.closeAll();">取消</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

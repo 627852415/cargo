@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建币种</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-form-label{
+        width: 100px;
+    }
+</style>
+<body>
+<blockquote class="layui-elem-quote">
+<form class="layui-form" action="">
+    <input type="hidden" th:value="${coin} ? ${coin.id}" th:name="${coin != null && coin.id != null} ? 'id'"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.name}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="coinName" name="coinName" th:value="${coin} ? ${coin.coinName}" lay-verify="required|coinName"
+                   autocomplete="off" class="layui-input" th:placeholder="#{text.operation.input.tips.coin.name}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.rate}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="usdxExchange" th:value="${coin != null && not #lists.isEmpty(coin.usdxExchange)} ? ${coin.usdxExchange}"
+                   lay-verify="numberVerify|numberLength" autocomplete="off" class="layui-input" th:placeholder="#{text.wallet.coin.manage.add.tips.rate}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.fee}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="withdrawFee" name="withdrawFee" th:value="${coin != null && not #lists.isEmpty(coin.withdrawFee)} ? ${coin.withdrawFee}"
+                   lay-verify="numberVerify|numberLength" autocomplete="off" class="layui-input" th:placeholder="#{text.wallet.coin.manage.add.tips.fee}">
+        </div>
+        <div>
+            <button class="layui-btn layui-btn-normal" id="feeBtn" lay-filter="feeFilter" type="button">[[#{text.operation.sync.tips.6six.fee}]]</button>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.sort}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="idx" th:value="${coin != null && not #lists.isEmpty(coin.idx)} ? ${coin.idx}"
+                   lay-verify="numberVerify|numberLength" autocomplete="off" class="layui-input" th:placeholder="#{text.wallet.coin.manage.add.tips.sort}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.icon}]]</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="coinImg">
+                <i class="layui-icon">&#xe67c;</i>[[#{text.operation.upload.tips.icon}]]
+            </button>
+            <input type="hidden" id="icoUrl" name="icoUrl"/>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.is.show}]]</label>
+        <div class="layui-input-block">
+            <input type="radio" name="hideFlag" th:checked="${coin != null and !coin.hideFlag} " value="false" th:title="#{text.operation.yes}">
+            <input type="radio" name="hideFlag" th:checked="${coin != null and coin.hideFlag}" value="true"th:title="#{text.operation.no}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.customized.rate}]]</label>
+        <div class="layui-input-block">
+            <input type="radio" name="customizedRate" th:checked="${coin != null and coin.customizedRate}" value="true" th:title="#{text.operation.yes}">
+            <input type="radio" name="customizedRate" th:checked="${coin != null and !coin.customizedRate} " value="false" th:title="#{text.operation.no}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.wallet.coin.manage.table.cny.rate}]]</label>
+        <div class="layui-input-inline" style="width: 220px;">
+            <input type="text" name="toCny" th:value="${coin != null && not #lists.isEmpty(coin.toCny)} ? ${coin.toCny}"
+                   lay-verify="numberVerify|numberLength" autocomplete="off" class="layui-input" th:placeholder="#{text.wallet.coin.manage.add.tips.cny.rate}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.operation.submit.now}]]</button>
+            <button type="reset" class="layui-btn layui-btn-primary">[[#{text.operation.reset}]]</button>
+        </div>
+    </div>
+</form></blockquote>
+<script>
+    layui.use(['form', 'layedit', 'upload', 'element'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , element = layui.element
+            , upload = layui.upload;
+        //自定义验证规则
+        form.verify({
+            // coinName: function (value) {
+            //     if (!/^[A-Z]+$/.test(value)) {
+            //         return '币种名称必须是英文大写！';
+            //     }
+            // },
+            numberLength: function (value) {
+                var regex = /^[\S]{0,16}$/;
+                if (!regex.test($.trim(value))) {
+                    return '长度必须是0-16位之间！';
+                }
+            },
+            numberVerify: function (value) {
+                if ($.trim(value) != "") {
+                    var regex = /^\d+(\.\d+)?$/;
+                    if (!regex.test(value)) {
+                        return '必须是整数或小数！';
+                    }
+                }
+
+            }
+        });
+
+        // 当没有设置时默认选中未显示的状态
+        if ($('input:radio[name=hideFlag]:checked').val() == undefined) {
+            $('input:radio[name=hideFlag]')[1].checked = true;
+            layui.form.render('radio');
+        }
+
+        //上传图标
+        upload.render({
+            elem: '#coinImg' //绑定元素
+            , url: '/coin/upload/' //上传接口
+            , method: 'POST'
+            , accept: 'jpg|png'
+            , done: function (res) {
+                //上传完毕回调
+                if (res.success) {
+                    document.getElementById("icoUrl").value = res.data;
+                    layer.msg('上传成功！');
+                }else if (res.msg != null) {
+                    layer.msg(res.msg);
+                }
+            }
+            , error: function () {
+                layer.msg('上传失败');
+            }
+        });
+
+        // 同步6X手续费
+        $("#feeBtn").click(function(){
+            // layer.alert('功能暂未开放，感谢您的支持', {title: '温馨提示', icon: 5});
+            // return;
+            var coinId =$("input:hidden[name='id']").val();
+            if(!$.trim(coinId)) {
+                layer.alert('币种不能为空', {title: '提示信息', icon: 5});
+                return;
+            }
+            var params = {};
+            params.coinId = coinId;
+            $.ajaxUkey({
+                type: "POST",
+                url: "/coin/fee",
+                data: JSON.stringify(params),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                cache: false,
+                success: function (result) {
+                    if (result.success) {
+                        $("#withdrawFee").val(result.data["fee"]);
+                        layer.alert('同步成功！', {title: '提示信息', icon: 6}, function (index) {
+                            layer.close(index);
+                        });
+                    } else if (result.msg != null) {
+                        layer.msg(result.msg, {title: '提示信息', icon: 5});
+                    } else {
+                        layer.alert('同步失败!', {title: '提示信息', icon: 5});
+                    }
+                }
+            });
+        });
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            // location.reload();
+            // return;
+            var formData = data.field;
+            $.ajaxUkey({
+                data: JSON.stringify(formData),
+                type: "POST",
+                dataType: "JSON",
+                contentType:'application/json;charset=UTF-8',
+                url: '/coin/save',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert('该币种已经存在!', {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                            // 刷新并切换tab回列表
+                            layer.close(index);
+                            tabChangeToCoinIndex();
+                            tabDeleteCurrent();
+                            location.reload();
+                        });
+                    } else if (result.msg != null) {
+                        layer.msg(result.msg);
+                    } else {
+                        // 提示失败
+                        layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                    }
+                }
+            }); // end ajax
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>

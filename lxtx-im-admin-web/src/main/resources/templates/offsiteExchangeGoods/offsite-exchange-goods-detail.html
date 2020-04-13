@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.offline.exchange.product.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 100px;
+    }
+
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+
+        <div class="layui-row">
+
+            <label class="layui-form-label my-label my-label">[[#{text.product.status}]]</label>
+
+            <label style="color: #af0000" class="layui-form-label-col" th:if="${detail.pullOffFlag == 0}">[[#{text.on.shelves}]]</label>
+            <label style="color: #af0000" class="layui-form-label-col" th:if="${detail.pullOffFlag == 1}">[[#{text.off.shelf}]]</label>
+            <label style="color: #af0000" class="layui-form-label-col" th:if="${detail.pullOffFlag == 2}">[[#{text.shut.down}]]</label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label my-label">[[#{text.product.number}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.goodsId}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.merchant.id}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.merchantId}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.total}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.totaltAmount}"></label>
+        </div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.trading.volume}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.totaltSourceAmount}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.volume}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.transactionAmount}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.merchant.rebate.back}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.merchantRebateAmount}"></label>
+        </div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.invite.rebate.back}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.inviteRebateAmount}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.profit}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.platformRebateAmount}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.degree.of.completion}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.progressRate}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.limit}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.limitRange}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.exchange.rate}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.exchangeRate}"></label>
+        </div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.exchange.payment.method}]]</label>
+            <label class="layui-form-label-col" th:text="${detail?.outPayTypeName}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.exchange.receive.method}]]</label>
+            <label class="layui-form-label-col" th:text="${detail?.payTypeName}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.withdrawal.time}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.pullOffDay}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.release.time}]]</label>
+            <label class="layui-form-label-col"
+                   th:text="${#dates.format(detail.createTime,'yyyy-MM-dd HH:mm:ss')}"></label>
+        </div>
+
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.address}]]</label>
+            <label class="layui-form-label-col" th:text="${detail.address}"></label>
+        </div>
+
+    </div>
+    </div>
+</form>
+</body>
+</html>

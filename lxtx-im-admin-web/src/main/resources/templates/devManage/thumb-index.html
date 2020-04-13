@@ -1,0 +1,747 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>应用管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ukey.js}"></script>
+    <script type="text/javascript" th:src="@{/js/sha256.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>应用列表</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>应用名称</th>
+                    <th>操作</th>
+                </tr>
+                <!--<tr>-->
+                    <!--<th>缩略图生成</th>-->
+                    <!--<th><a href="javascript:;" onclick="createThumbnails(this)" data-id="1"-->
+                           <!--class="layui-btn layui-btn-mini">生成</a></th>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<th>手续费报表</th>-->
+                    <!--<th><a href="javascript:;" onclick="generateReport()" data-id="1" class="layui-btn layui-btn-mini">生成报表</a>-->
+                    <!--</th>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<th>上传用户默认头像</th>-->
+                    <!--<th>-->
+                        <!--<button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal"-->
+                                <!--id="uploadId">-->
+                            <!--<i class="layui-icon">&#xe67c;</i>上传用户默认头像-->
+                        <!--</button>-->
+                        <!--path:<span id="avatarUrl" style="margin-left: 10px;"></span>-->
+                    <!--</th>-->
+                <!--</tr>-->
+                <tr>
+                    <th>资金流水差异报表</th>
+                    <!--<th><a href="javascript:;" onclick="generateFlowReport()"  data-id="1"  class="layui-btn layui-btn-mini">生成报表</a></th>-->
+                    <th><a href="javascript:;" onclick="toDiffReport()" data-id="1" class="layui-btn layui-btn-mini">生成报表</a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>群消息免打扰同步云信</th>
+                    <th><a href="javascript:;" onclick="yxGroupMemberBotherSyn()" data-id="1"
+                           class="layui-btn layui-btn-mini">群消息免打扰同步云信</a></th>
+                </tr>
+                <!--<tr>-->
+                    <!--<th>手动生成OTC买卖比值报表</th>-->
+                    <!--<th><a href="javascript:;" onclick="generateOtcOrderReport()" data-id="1"-->
+                           <!--class="layui-btn layui-btn-mini">生成OTC买卖比值报表</a></th>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<th>钱包模式-迁移旧数据</th>-->
+                    <!--<th><a href="javascript:;" onclick="userWalletLoadOldData()" data-id="1"-->
+                           <!--class="layui-btn layui-btn-mini">钱包模式-迁移旧数据</a></th>-->
+                <!--</tr>-->
+                <tr>
+                    <th>钱包模块-隐藏通知</th>
+                    <th>
+                        <a href="javascript:;" onclick="sendSwitchMsg(1)" data-id="1" class="layui-btn layui-btn-mini">余额宝</a>
+                        <a href="javascript:;" onclick="sendSwitchMsg(2)" data-id="1" class="layui-btn layui-btn-mini">BCB银行</a>
+                        <a href="javascript:;" onclick="sendSwitchMsg(3)" data-id="1" class="layui-btn layui-btn-mini">线下换汇</a>
+                        <a href="javascript:;" onclick="sendSwitchMsg(4)" data-id="1" class="layui-btn layui-btn-mini">钱包</a>
+                        <a href="javascript:;" onclick="sendSwitchMsg(5)" data-id="1" class="layui-btn layui-btn-mini">游戏</a>
+                        <a href="javascript:;" onclick="sendSwitchMsg(6)" data-id="1" class="layui-btn layui-btn-mini">群多人语音通话</a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>一键替换替换群头像</th>
+                    <th>
+                        <label>群ID</label>
+                        <textarea id="groupId" name="groupId" placeholder="请输入群ID，多个群ID用英文逗号隔开！" class="layui-textarea"></textarea>
+                        <a href="javascript:;" onclick="replaceGroupIoc(false)" data-id="1" class="layui-btn layui-btn-mini">一键替换</a>
+                        <a href="javascript:;" onclick="replaceGroupIoc(true)" data-id="1" class="layui-btn layui-btn-mini">强制替换</a>
+                        <label>注意：一键替换：根据原头像匹配对应的背景图片，强制替换：不管头像是什么，强制替换成系统生成头像</label>
+                    </th>
+                </tr>
+                <tr>
+                    <th>重新生成资金快照</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="snapshotDay" name="snapshotDay" placeholder="请选择快照时间">
+                        </div>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="rebuildSnapshot()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>生成群成员唯一标识</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="regmid()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>同步core用户信息至钱包用户</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="syncUserdata()" data-id="1" class="layui-btn layui-btn-mini">启动</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>生成用户Agora唯一标识</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="initAgoraId()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>修复红包新旧数据（重新生成领取队列的缓存）</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="redpacketCompatibleOldData" name="redpacketCompatibleOldData" placeholder="请选择开始时间">
+                        </div>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="redpacketCompatibleOldData()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>修复换汇挂单、支付方式旧数据、申请商家记录</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="initOffsiteExchange()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>代发工资自动绑定员工</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="salaryBindEmloyee" name="salaryBindEmloyee" placeholder="请输入公司ID">
+                        </div>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="salaryBindEmployee()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>生成用户唯一标识(UID)</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="initUserId()" data-id="1" class="layui-btn layui-btn-mini">生成</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>修复挂单无保证金，买家取消订单，补扣总账号的资金</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="deductTheFundsOfTheTotalAccount()" data-id="1" class="layui-btn layui-btn-mini">执行</a>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>同步余额宝用户收益</th>
+                    <th>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="yebUserId" name="yebUserId" placeholder="钱包userId">
+                        </div>
+                        <div class="layui-input-inline">
+                            <a href="javascript:;" onclick="syncYebUserId()" data-id="1" class="layui-btn layui-btn-mini">同步</a>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+    </fieldset>
+</div>
+
+<script>
+
+    layui.use(['form', 'layedit', 'upload', 'element'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , element = layui.element
+            , upload = layui.upload;
+
+        // //上传头像
+        // upload.render({
+        //     elem: '#uploadId' //绑定元素
+        //     , url: '/file/uploadUserDefaultAvatar' //上传接口
+        //     , method: 'POST'
+        //     , accept: 'jpg|png'
+        //     , done: function (res) {
+        //         //上传完毕回调
+        //         if (res.success) {
+        //             $("#avatarUrl").html(res.data);
+        //             layer.msg('上传成功！');
+        //         } else if (res.msg != null) {
+        //             layer.msg(res.msg);
+        //         }
+        //     }
+        //     , error: function () {
+        //         layer.msg('上传失败');
+        //     }
+        // });
+    });
+
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        var snapshotDay;
+        laydate.render({
+            elem: '#snapshotDay'
+            , done: function (value, date) {
+                snapshotDay = value;
+            }
+        });
+    });
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        var redpacketCompatibleOldData;
+        laydate.render({
+            elem: '#redpacketCompatibleOldData'
+            , done: function (value, date) {
+                redpacketCompatibleOldData = value;
+            }
+        });
+    });
+
+    $(function () {
+
+    });
+
+    //TODO 增加方法内容
+    function syncUserdata() {
+        layer.msg('开始同步数据..');
+        $.ajax({
+            url: '/file/synchronize/user/data',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+
+            }
+        });
+    }
+
+    // function createThumbnails(obj) {
+    //
+    //     $.ajaxUkey({
+    //         url: '/file/createThumbnails',
+    //         type: "POST",
+    //         dataType: "json",
+    //         // contentType:'application/json;charset=UTF-8',
+    //         success: function (result) {
+    //             if (result.success) {
+    //                 if (!$.isEmptyObject(result.data)) {
+    //                     layer.alert(result.data, {title: '提示信息', icon: 5});
+    //                     return;
+    //                 }
+    //                 layer.alert('生成成功！', {title: '提示信息', icon: 1}, function (index) {
+    //                     location.reload();
+    //                 });
+    //             } else {
+    //                 if (!$.isEmptyObject(result.msg)) {
+    //                     layer.alert(result.msg, {title: '提示信息', icon: 2});
+    //                     return;
+    //                 }
+    //                 layer.alert('系统异常，生成失败！', {title: '提示信息', icon: 2});
+    //             }
+    //         }
+    //     });
+    // }
+
+    // //手动生成报表
+    // function generateReport() {
+    //     var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+    //     layer.confirm("将重新生成之前的手续费报表，确认操作吗?", {icon: 3}, function (index) {
+    //         $.ajaxUkey({
+    //             url: '/chargeReport/generateReport',
+    //             type: "POST",
+    //             dataType: "json",
+    //             contentType: 'application/json;charset=UTF-8',
+    //             success: function (result) {
+    //                 if (result.success) {
+    //                     layer.msg('操作成功');
+    //                     layer.close(tishi);
+    //                     search('searchForm', 'dataReload1');
+    //                 } else {
+    //                     layer.msg('操作失败');
+    //                     layer.close(tishi);
+    //                 }
+    //             },
+    //             error: function (e) {
+    //                 layer.msg('系统升级维护中，请稍后重试');
+    //                 layer.close(tishi);
+    //             }
+    //         });
+    //     });
+    // }
+
+    // //手动生成OTC买卖比值报表
+    // function generateOtcOrderReport() {
+    //     var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+    //     layer.confirm("将重新生成之前的报表，确认操作吗?", {icon: 3}, function (index) {
+    //         $.ajaxUkey({
+    //             url: '/otc/order/day/statistics/generateReport',
+    //             type: "POST",
+    //             dataType: "json",
+    //             contentType: 'application/json;charset=UTF-8',
+    //             success: function (result) {
+    //                 if (result.success) {
+    //                     layer.msg('操作成功');
+    //                     layer.close(tishi);
+    //                     search('searchForm', 'dataReload1');
+    //                 } else {
+    //                     layer.msg('操作失败');
+    //                     layer.close(tishi);
+    //                 }
+    //             },
+    //             error: function (e) {
+    //                 layer.msg('系统升级维护中，请稍后重试');
+    //                 layer.close(tishi);
+    //             }
+    //         });
+    //     });
+    // }
+
+
+    // //申请列表文件导出
+    // function generateFlowReport() {
+    //     var url = "/chargeReport/generateFlowReport";
+    //     $.ajaxUkey({
+    //         url: url,
+    //         type: "get",
+    //         async: "true",
+    //         contentType: "application/x-www-form-urlencoded; charset=utf-8",
+    //         success: function (responseText) {
+    //             if (responseText.success == false) {
+    //                 layer.alert(responseText.msg, {title: '提示信息', icon: 2});
+    //             } else {
+    //                 window.location.href = url;
+    //             }
+    //
+    //         },
+    //         error: function () {
+    //             layer.alert("系统异常，导出失败", {title: '提示信息', icon: 2});
+    //         }
+    //     });
+    // }
+
+
+    function toDiffReport() {
+        var title = "资金异常流水报表";
+        var url = "/user/coin/asset/toDiffReport";
+        openModal(title, url, "630px", "200px");
+    }
+
+    //群消息免打扰同步云信
+    function yxGroupMemberBotherSyn() {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        layer.confirm("将同步所有IM用户云信群打扰设置，确认操作吗?", {icon: 3}, function (index) {
+            $.ajaxUkey({
+                url: '/groupMember/yxGroupMemberBotherSyn',
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.data);
+                        layer.close(tishi);
+                        search('searchForm', 'dataReload1');
+                    } else {
+                        layer.msg('操作失败');
+                        layer.close(tishi);
+                    }
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    layer.close(tishi);
+                }
+            });
+        });
+
+    }
+
+    // function userWalletLoadOldData() {
+    //     if(confirm("迁移钱包模式旧数据到新表，确认操作吗?")) {
+    //         var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+    //
+    //         $.ajaxUkey({
+    //             url: '/user/wallet/pattern/loadOldData',
+    //             type: "POST",
+    //             dataType: "json",
+    //             contentType: 'application/json;charset=UTF-8',
+    //             success: function (result) {
+    //                 if (result.success) {
+    //                     layer.msg('操作成功');
+    //                 } else {
+    //                     layer.msg('操作失败');
+    //                 }
+    //
+    //                 layer.close(tishi);
+    //             },
+    //             error: function (e) {
+    //                 layer.msg('系统升级维护中，请稍后重试');
+    //                 layer.close(tishi);
+    //             }
+    //         });
+    //     }
+    // }
+
+    function sendSwitchMsg(type) {
+        var  prompt;
+        switch (type) {
+            case 1 :{
+                prompt = '请在发送余额宝通知前,确认字典Key:not_showing_yeb 是否有更新！';
+                break;
+            }
+            case 2 :{
+                prompt = '请在发送BCB银行通知前,确认字典Key:not_showing_bank_service 是否有更新！';
+                break;
+            }
+            case 3 :{
+                prompt = '请在发送线下换汇通知前,确认字典Key:not_showing_offsite_exchange 是否有更新！';
+                break;
+            }
+            case 4 :{
+                prompt = '请在发送钱包通知前,确认字典Key:not_showing_wllet 是否有更新！';
+                break;
+            }
+            case 5 :{
+                prompt = '请在发送游戏通知前,确认字典Key:not_showing_game，Key:country_code_list 是否有更新！';
+                break;
+            }
+            case 6 :{
+                prompt = '请在发送群多人语音通知前,确认字典Key:not_showing_voice_chat 是否有更新！';
+                break;
+            }
+            default:{
+                prompt = '您确定要向所有用户发送该通知吗？';
+                break
+            }
+        }
+        layer.confirm(prompt, {icon: 7, offset: 100,title:'提示',resize:300}, function (index) {
+            layer.close(index);
+            var data = {"type": type};
+            $.ajaxUkey({
+                url: '/broadcast/all/switch/msg',
+                type: "POST",
+                data: JSON.stringify(data),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('操作成功！', {title: '提示信息', icon: 1},function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+        });
+
+    }
+
+    function replaceGroupIoc(obj) {
+        if(confirm("自动生成群头像一键替换，确认操作吗?")) {
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/group/icon/replace',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    groupId: $("#groupId").val(),
+                    forceReplace: obj,
+                }),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg('操作成功');
+                    } else {
+                        layer.msg('操作失败');
+                    }
+
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    layer.close(tishi);
+                }
+            });
+        }
+    }
+
+    function regmid() {
+        $.ajax({
+            url: '/groupMember/init/gmid',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.msg('操作成功');
+                } else {
+                    layer.msg('操作失败');
+                }
+
+                layer.close(tishi);
+            },
+            error: function (e) {
+                layer.msg('系统升级维护中，请稍后重试');
+                layer.close(tishi);
+            }
+        });
+    }
+
+    function rebuildSnapshot() {
+        var snapshotDay = $("#snapshotDay").val();
+        alert(snapshotDay)
+        if(confirm("重新生成" + snapshotDay + "资金快照，确认操作吗?")) {
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+
+            $.ajaxUkey({
+                url: '/user/coin/snapshot/rebuild',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    snapshotDay: snapshotDay
+                }),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    layer.msg(result.msg);
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试！' + e);
+                    layer.close(tishi);
+                }
+            });
+        }
+    }
+
+    function initOffsiteExchange(){
+        $.ajax({
+            url: '/offsite/exchange/goods/syncOldGoodsOutPay',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.msg('操作成功');
+                } else {
+                    layer.msg('操作失败');
+                }
+
+                layer.close(tishi);
+            },
+            error: function (e) {
+                layer.msg('系统升级维护中，请稍后重试');
+                layer.close(tishi);
+            }
+        });
+    }
+
+    function deductTheFundsOfTheTotalAccount(){
+    	$.ajax({
+	        url: '/offsite/exchange/goods/deductTheFundsOfTheTotalAccount',
+	        type: "POST",
+	        dataType: "json",
+	        contentType: 'application/json;charset=UTF-8',
+	        success: function (result) {
+	            if (result.success) {
+	                layer.msg('操作成功');
+	            } else {
+	                layer.msg('操作失败');
+	            }
+
+	            layer.close(tishi);
+	        },
+	        error: function (e) {
+	            layer.msg('系统升级维护中，请稍后重试');
+	            layer.close(tishi);
+	        }
+    	});
+    }
+
+    function initAgoraId() {
+        $.ajax({
+            url: '/user/init/agora',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.msg('操作成功');
+                } else {
+                    layer.msg('操作失败');
+                }
+
+                layer.close(tishi);
+            },
+            error: function (e) {
+                layer.msg('系统升级维护中，请稍后重试');
+                layer.close(tishi);
+            }
+        });
+    }
+
+    function initUserId() {
+        $.ajax({
+            url: '/user/init/userid',
+            type: "POST",
+            dataType: "json",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.msg('操作成功');
+                } else {
+                    layer.msg('操作失败');
+                }
+
+                layer.close(tishi);
+            },
+            error: function (e) {
+                layer.msg('系统升级维护中，请稍后重试');
+                layer.close(tishi);
+            }
+        });
+    }
+
+    function syncYebUserId() {
+        var userId = $("#yebUserId").val();
+        $.ajax({
+            url: '/yeb/assets/statistics/sync/user/earning',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify({
+                userId:userId
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                if (result.success) {
+                    layer.msg('操作成功');
+                } else {
+                    layer.msg('操作失败');
+                }
+
+                layer.close(tishi);
+            },
+            error: function (e) {
+                layer.msg('系统升级维护中，请稍后重试');
+                layer.close(tishi);
+            }
+        });
+    }
+
+
+    function salaryBindEmployee() {
+        var companyId = $("#salaryBindEmloyee").val();
+
+        if(confirm("开始后台自动绑定员工，确认操作吗?")) {
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+
+            $.ajaxUkey({
+                url: '/salary/bind/emplyee',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    companyId: companyId
+                }),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg('操作成功');
+                    } else {
+                        layer.msg('操作失败');
+                    }
+
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    layer.close(tishi);
+                }
+            });
+        }
+    }
+
+    function redpacketCompatibleOldData() {
+        var startDate = $("#redpacketCompatibleOldData").val();
+
+        if(confirm("修复红包从" + startDate + "开始的领取记录缓存，确认操作吗?")) {
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+
+            $.ajaxUkey({
+                url: '/v2/red/packet/compatibleOldData',
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    startDate: startDate
+                }),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg('操作成功');
+                    } else {
+                        layer.msg('操作失败');
+                    }
+
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    layer.close(tishi);
+                }
+            });
+        }
+    }
+
+</script>
+
+</body>
+</html>

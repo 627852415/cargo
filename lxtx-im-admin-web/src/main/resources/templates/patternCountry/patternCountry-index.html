@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>币种管理—国家及地区管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/layui/lay/modules/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/layui.define.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>
+    <script>var hasModifyPatternPermission = false</script>
+</head>
+<body>
+<shiro:hasPermission name="pattern:country:modifyPattern">
+    <script>hasModifyPatternPermission = true</script>
+</shiro:hasPermission>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+					<input type="text" name="cnName" class="layui-input" placeholder="国家及地区"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search()">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+        <div class="layui-form search-input" style="margin-top:15px;">
+        	<span>自动加入白名单</span>
+        	<form id="dictForm" class="layui-form" action="">
+        		<input type="hidden" id="openFlagHidden" name="openFlagHidden" th:value="${openFlag}"/>
+        		<input type="hidden" id="domain" name="domain" th:value="${domain}"/>
+        		<input type="hidden" id="ikey" name="ikey" th:value="${iKey}"/>
+        		<div class="layui-input-inline">
+                    <shiro:hasPermission name="dict:modifyValueByDomainAndKey">
+                    <select lay-filter="openFlag" id="openFlag" name="openFlag">
+		        		<option value="false"  th:selected="${openFlag != null  and 'false' == openFlag}">关闭</option>
+		        		<option value="true"  th:selected="${openFlag != null  and 'true' == openFlag}">开启</option>
+		        	</select>
+                    </shiro:hasPermission>
+		        </div>
+        	</form>
+        </div>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>国家</th>
+                    <th>手机区号</th>
+                    <th>钱包模式</th>
+                    <th>白名单（个）</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="content"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="6">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+
+<!--  新增或修改 -->
+<div id="modifyData" style="display: none;">
+    <form class="layui-form" action="" id="modifyForm" style="padding-top: 30px">
+        <input type="hidden" id="virtualId" name="virtual_id">
+        <input type="hidden" id="legalId" name="legal_id">
+        <div class="layui-form-item">
+            <div class="layui-inline" id="legalDiv" style="display: none;">
+                <label class="layui-form-label" style="width:80px;">法币钱包</label>
+                <div style="width:350px;margin-left:130px;">
+                    <input type="checkbox" name="legalValid" id="legalValid" lay-skin="switch">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline" id="virtualDiv" style="display: none;">
+                <label class="layui-form-label" style="width:80px;">数字币钱包</label>
+                <div style="width:350px;margin-left:130px;">
+                    <input type="checkbox" name="virtualValid" id="virtualValid" lay-skin="switch">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="modify('modifyForm')">确定</a>
+                <a class="layui-btn" onclick="cancelModify()">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('select(openFlag)', function(data){
+        	var confirmContent = data.value=="true"?"开启":"关闭";
+        	layer.confirm("确认"+confirmContent+"自动加入白名单？", {icon: 3, title: '提示', offset: 100}, function (index) {
+        		layer.close(index);
+                var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        		var formData = $("#dictForm").serialize();
+                formData += "&value="+data.value;
+                $.ajaxUkey({
+                    url: '/dict/modifyValueByDomainAndKey',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function (resultData) {
+                    	if (resultData.success) {
+                            layer.msg("操作成功");
+                            $(".layui-laypage-btn")[0].click();
+                            $("#openFlagHidden").val(data.value);
+                        } else {
+                            layer.msg(resultData.msg);
+                        }
+                        //最后数据加载完 让 loading层消失
+                        layer.close(tishi);
+                    },
+                    error: function(errorData){
+                    	layer.msg('系统升级维护中，请稍后重试');
+                        layer.close(tishi);
+                    }
+                });
+        	},function(index){
+        		$("#openFlag").val($("#openFlagHidden").val());
+        		form.render('select');
+        	});
+        })
+    });
+
+    var current = 1;
+    var size = 10;
+    var respData;
+    $(function () {
+        //初始化加载数据
+         search(current, size);
+    });
+
+    //重置查询条件
+    function reset() {
+        $('#searchForm')[0].reset();
+    };
+
+    var patternMap = {};
+
+    function search(current, size) {
+        if (!size) {
+            size = 10;
+        }
+        if (!current) {
+            current = 1;
+        }
+        var data = $.param({"current": current, "size": size}) + "&" + $("#searchForm").serialize();
+        $.ajax({
+            url: '/pattern/country/listPage',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    respData = data.data.records;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                    	patternMap[item.id] = item.patternCountryListMap;
+                        html += '<tr>';
+                        html += '<td>' + item.id + '</td>';
+                        html += '<td>' + (item.cnName == undefined ? "" : item.cnName) + '</td>';
+                        html += '<td>' + (item.phoneCode == undefined ? "" : item.phoneCode) + '</td>';
+                        
+                        html += '<td>';
+                        for(var z=0;z<item.patternCountryListMap[item.id].length;z++){
+                        	if(item.patternCountryListMap[item.id][z].pattern==1 && item.patternCountryListMap[item.id][z].valid==1){
+                        		html += '法币模式';
+                        	}else if(item.patternCountryListMap[item.id][z].pattern==2 && item.patternCountryListMap[item.id][z].valid==1){
+                        		if(z>0){
+                            		html += "、";
+                            	}
+                        		html += '数字币模式';
+                        	}
+                        }
+                        html += '</td>'
+                        
+                        html += '<td>' + item.whiteListCount + '</td>';
+                        html += '<td>';
+                        html +=  '<button onclick="modifyWhiteList(\''+item.countryCode+'\')" class="layui-btn layui-btn-mini">编辑白名单</button>';
+                        if(hasModifyPatternPermission){
+                            html += '<button onclick="openModify(\'' + item.id + '\')"  class="layui-btn layui-btn-mini">钱包模式</button>';
+                        }
+                        html += '</td></tr>'
+                    });
+                    $("#content").html(html);
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: data.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if (!first) {
+                                    search(obj.curr, obj.limit);
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    $("#content").html('<tr><td colspan="6" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                }
+            }
+        });
+    }
+
+    function modifyWhiteList(countryCode){
+        var e = $(this),
+            i = "/pattern/whiteList/index?countryCode=" + countryCode;
+            t = "编辑用户钱包白名单";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+    
+    //打开修改弹窗
+    function openModify(obj) {
+        var patternCountryList = patternMap[obj][obj];
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+            title: '<b>钱包模式</b>',
+            area: ['500px', '250px'], //宽高
+            content: $("#modifyData")
+        });
+        for(var i=0;i<patternCountryList.length;i++){
+        	var patternCountry = patternCountryList[i];
+        	if(patternCountry.pattern==1){
+        		$("#legalDiv").show();
+        		$("#legalId").val(patternCountry.id);
+                patternCountry.valid==1?$("#legalValid").prop("checked", true):$("#legalValid").prop("checked", false);
+        	}else if(patternCountry.pattern==2){
+        		$("#virtualDiv").show();
+                $("#virtualId").val(patternCountry.id);
+        		patternCountry.valid==1?$("#virtualValid").prop("checked", true):$("#virtualValid").prop("checked", false);
+        	}
+        }
+        
+        layui.form.render(); //更新全部
+    }
+
+    //提交到后台修改
+    function modify(fid) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var url = "/pattern/country/modifyPattern";
+        
+        var data = {};
+        data.virtualId = $("#virtualId").val();
+        data.legalId = $("#legalId").val();
+        $("#virtualValid").prop("checked")==true?data.virtualValid=1:data.virtualValid=0;
+        $("#legalValid").prop("checked")==true?data.legalValid=1:data.legalValid=0;
+        
+        $.ajaxUkey({
+            url: url,
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg(data.data,
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function () {
+                            $("#modifyData").attr("style", "display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+    //取消修改
+    function cancelModify() {
+        $("#modifyData").attr("style", "display: none;");
+        layer.closeAll();
+    }
+    
+</script>
+
+</body>
+</html>

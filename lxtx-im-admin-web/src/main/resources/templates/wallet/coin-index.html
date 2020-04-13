@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.wallet.coin.manage.title}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+<!--    <script type="text/javascript" th:inline="javascript" th:src="@{/js/buss/wallet/coin-index.js}"></script>-->
+</head>
+<body>
+<!--用于控制js动态生成按钮权限-->
+<shiro:hasPermission name="coin:edit">
+    <div id="coin_edit"></div>
+</shiro:hasPermission>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="key" id="key" class="layui-input" th:placeholder="#{text.wallet.coin.manage.search.msg}">
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" id="search">[[#{text.wallet.coin.manage.search.button}]]</button>
+                    <shiro:hasPermission name="coin:add">
+                        <a href="javascript:;" onclick="save(this)" class="layui-btn site-demo-active" data-type="tabAdd" th:data-title="#{text.wallet.coin.manage.add.coin.button}">[[#{text.wallet.coin.manage.add.coin.button}]]</a>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>[[#{text.wallet.coin.manage.title}]]</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>[[#{text.wallet.coin.manage.table.id}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.rate}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.fee}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.icon}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.sort}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.cny.rate}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.customized.rate}]]</th>
+                    <th>[[#{text.wallet.coin.manage.table.is.show}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="10">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+<script>
+    var coin_edit_length = $("#coin_edit").length;// 用于shiro判断
+    var current = 1;
+    var size = 10;
+    var coinName = $("#key").val();
+    var respData;
+    $(function () {
+        //初始化加载数据
+        sendReq(current, size, null);
+        //搜索
+        $('#search').on('click', function () {
+            coinName = $("#key").val();
+            sendReq(current, size, coinName);
+        });
+
+    });
+    var sendReq = function (current, size, coinName) {
+        $.ajax({//异步请求返回给后台
+            url: '/coin/list',
+            type: 'POST',
+            data: JSON.stringify({
+                coinName: coinName,
+                current: current,
+                size: size
+            }),
+            dataType: 'json',
+            contentType:'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    var icoUrlHost = data["data"]["icoUrlHost"];
+                    var dataResult = data["data"]["dataResult"];
+                    respData = dataResult["data"]["records"];
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        var usdx = item["usdxExchange"] == undefined ? '' : item["usdxExchange"];
+                        var fee = item["withdrawFee"] == undefined ? '' : item["withdrawFee"];
+                        html += '<tr>';
+                        html += '<th>' + item["id"] + '</th>';
+                        html += '<th>' + item["coinName"] + '</th>';
+                        html += '<th>' + usdx + '</th>';
+                        html += '<th>' + fee + '</th>';
+                        if (item["icoUrl"]) {
+                            html += '<th><img src="'+item["icoUrl"] + '" height="30" width="30" alt="logo"/></th>';
+                        } else {
+                            html += '<th>未上传</th>';
+                        }
+                        html += '<th>' + item["idx"] + '</th>';
+                        html += '<th>' + (item["toCny"] == undefined ? '' : item["toCny"]) + '</th>';
+                        if (item["customizedRate"]) {
+                            html += '<th>[[#{text.operation.yes}]]</th>';
+                        } else {
+                            html += '<th>[[#{text.operation.no}]]</th>';;
+                        }
+                        if (!item["hideFlag"]) {
+                            html += '<th>[[#{text.operation.yes}]]</th>';
+                        } else {
+                            html += '<th>[[#{text.operation.no}]]</th>';
+                        }
+                        html += '<th>';
+                        if (coin_edit_length == 1) {
+                            html += '<a href="javascript:;" onclick="save(this)" aid="' + item["id"] + '" class="layui-btn layui-btn-mini">[[#{text.operation.edit}]]</a>';
+                        }
+                        // html += '<a href="javascript:;" onclick="del(this)" aid="' + item["id"] + '" data-id="1"  class="layui-btn layui-btn-danger layui-btn-mini">删除</a></th>';
+                        html += '</tr>'
+                    });
+                    $("#con").html(html);
+
+                    // 图标预览
+                    $('th img').on("click", function(){
+                        var imgSrc=$(this).attr('src')
+                        layer.open({
+                            type:1
+                            ,title:false
+                            ,closeBtn:0
+                            ,skin:'layui-layer-nobg'
+                            ,shadeClose:true
+                            ,content:'<img src="'+imgSrc+'" style="max-height:600px;max-width:100%;">'
+                            ,scrollbar:false
+                        });
+                    });
+
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: dataResult.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if (!first) {
+                                    sendReq(obj.curr, obj.limit, coinName);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    // 编辑、保存
+    function save(obj) {
+        var aid = $(obj).attr("aid");
+        var url;
+        var title = "[[#{text.wallet.coin.manage.add.coin.button}]]";
+        if (aid != undefined) {
+            url = "/coin/edit?coinId=" + aid.toString();
+            title = "[[#{text.edit}]]" + " [[#{text.column.coin}]]";
+        } else {
+            url = "/coin/add";
+        }
+
+        var e = $(this),
+            i = url;
+        var t = title;
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text());
+    }
+
+
+    function del(obj) {
+        var coinId = $(obj).attr("aid");
+        layer.confirm('您确定要删除吗？', {icon: 3}, function (index) {
+            $.ajaxUkey({
+                url: '/coin/delete',
+                type: "POST",
+                data: JSON.stringify({coinId: coinId}),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('删除成功！', {title: '提示信息', icon: 1},function (index) {
+                            layer.close(index);
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，删除失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+
+        });
+    }
+</script>
+</body>
+</html>

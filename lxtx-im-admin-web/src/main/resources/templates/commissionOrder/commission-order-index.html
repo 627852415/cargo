@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>订单管理列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input"
+                               th:placeholder="请输入用户ID">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="type" name="type">
+                            <option value="">请选择订单类型</option>
+                            <option value="1">撮合交易</option>
+                            <option value="2">理财宝</option>
+                            <option value="3">提现</option>
+                            <option value="4">支付</option>
+                            <option value="5">购买伙伴</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="refId" id="refId" class="layui-input"
+                               th:placeholder="请输入订单号">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="parentId" id="parentId" class="layui-input"
+                               th:placeholder="请输入上级ID">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="coinName" id="coinName" class="layui-input"
+                               th:placeholder="请输入币种名称">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text" name="searchTime" id="searchTime" readonly
+                               th:placeholder="请选择时间范围"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">序号</th>
+                <th lay-data="{field:'refId', align:'center'}">订单号</th>
+                <th lay-data="{field:'userName', align:'center'}">用户名</th>
+                <th lay-data="{field:'userId', align:'center'}">用户ID</th>
+                <th lay-data="{field:'parentUserId', align:'center'}">上级用户ID</th>
+                <th lay-data="{field:'type', align:'center',toolbar:'#barOrderType'}">订单类型</th>
+                <th lay-data="{field:'coinName', align:'center'}">币种</th>
+                <th lay-data="{field:'totalAmount', align:'center'}">分佣金额</th>
+                <th lay-data="{field:'parentCommissionAmount', align:'center'}">上级分佣</th>
+                <th lay-data="{field:'platformCommissionAmount', align:'center'}">平台利润</th>
+                <th lay-data="{field:'createTime', align:'center'}">交易时间</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+        <script type="text/html" id="barOrderType">
+            {{#if (d.type == 1) { }}
+            <span>撮合交易</span>
+            {{# }else if(d.type == 2){ }}
+            <span>理财宝</span>
+            {{# }else if(d.type == 3){ }}
+            <span>提现</span>
+            {{# }else if(d.type == 4){ }}
+            <span>支付</span>
+            {{# }else if(d.type == 5){ }}
+            <span>购买伙伴</span>
+            {{# } }}
+        </script>
+        <script type="text/html" id="barData">
+            <a class="layui-btn tableBtn layui-btn-sm" lay-event="detail"><i
+                    class="layui-icon"></i>详情</a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/commission/order/list', 'dataTable', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool(){
+        layui.use('table', function (){
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function(obj){
+                if(obj.event === 'detail'){
+                    detail("/commission/order/toDetail?id=" + obj.data.id+"&orderType="
+                        +obj.data.type+"&orderId="+obj.data.refId+"&orderUserId="+obj.data.userId+"&orderAmount="+obj.data.totalAmount);
+                }
+            });
+        });
+    }
+
+    //详情
+    function detail(url){
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight>200? ( winHeight - 110) : winHeight;
+        //[[#{text.limit.maximum.height}]]
+        height = height>maxHeight?maxHeight:height;
+        openModal("[[#{text.see.details}]]", url, "600px", height+"px");
+    }
+
+    function download() {
+        var url = "/commission/order/download/list?"+ $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/commission/order/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        curDate = formatDateL(new Date);
+        laydate.render({
+            elem: '#searchTime',
+            type: 'date',
+            range: true,
+            max: curDate
+        })
+    });
+</script>

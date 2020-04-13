@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.maerchant.gredt.save}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+    <input type="hidden" th:value="${merchantDeposit} ? ${merchantDeposit.id}" name="id"/>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.maerchant.gredt.money}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="number" name="deposit" th:value="${merchantDeposit} ? ${merchantDeposit.deposit}"
+                       lay-verify="number" placeholder="" autocomplete="off" th:disabled="${merchantDeposit != null and merchantDeposit.id != undefined} "
+                       class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.maerchant.gredt.money.coin}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="coinId" lay-search="">
+                    <option th:each="coin : ${coinList}" th:text="${coin.coinName}" th:value="${coin.id}"
+                            th:selected="${merchantDeposit != null and coin != null and coin.id == merchantDeposit.coinId}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.maerchant.gredt.score}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="number" name="creditScore" th:value="${merchantDeposit} ? ${merchantDeposit.creditScore}"
+                       lay-verify="number" placeholder="" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.operation.submits}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.operation.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            // console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+            // console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+            // console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+            save(data);
+            return false;
+        });
+    });
+
+    //保存
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        $.ajaxUkey({
+            url: "/merchant/deposit/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.operation.success}]]', {title: '[[#{text.operation.message}]]', icon: 6}, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // 提示失败
+                    layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.operation.sys.fix}]]');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

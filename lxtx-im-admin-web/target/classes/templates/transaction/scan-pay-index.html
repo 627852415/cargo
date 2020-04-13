@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>扫码付款</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="id" id="id" class="layui-input" th:placeholder="#{text.placeholder.order.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input" th:placeholder="#{text.placeholder.pay.user.wallet.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userName" class="layui-input" th:placeholder="#{text.placeholder.pay.username}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="payUserCountryCode" name="payUserCountryCode" lay-filter="">
+							<option value="">[[#{text.operation.select.tips.user.wallet.payUserCountryCode}]]</option>
+						</select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="payUserPhone" id="payUserPhone" class="layui-input" th:placeholder="#{text.operation.input.tips.user.wallet.payUserPhone}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="merchantUserId" id="merchantUserId" class="layui-input" th:placeholder="#{text.placeholder.business.wallet.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="merchantUserName" id="merchantUserName" class="layui-input" th:placeholder="#{text.placeholder.business.username}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="merchantUserCountryCode" name="merchantUserCountryCode" lay-filter="">
+							<option value="">[[#{text.operation.select.tips.user.wallet.merchantUserCountryCode}]]</option>
+						</select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="merchantUserPhone" id="merchantUserPhone" class="layui-input" th:placeholder="#{text.operation.input.tips.user.wallet.merchantUserPhone}">
+                    </div>
+<!--                     <div class="layui-input-inline"> -->
+<!--                         <select id="receiptCoinId" name="receiptCoinId" lay-filter="receiptCoinId"> -->
+<!-- 							<option value="">请选择收款币种</option> -->
+<!-- 						</select> -->
+<!--                     </div> -->
+					<div class="layui-input-inline">
+						<select id="status" name="status" lay-filter="status">
+							<option value="">[[#{text.placeholder.status}]]</option>
+							<option value="1">[[#{text.placeholder.status.handling}]]</option>
+							<option value="2">[[#{text.placeholder.status.success}]]</option>
+							<option value="3">[[#{text.placeholder.status.fail}]]</option>
+						</select>
+					</div>
+					<div class="layui-input-inline">
+                        <select id="payCoinId" name="payCoinId" lay-filter="payCoinId">
+							<option value="">[[#{text.placeholder.pay.coin}]]</option>
+						</select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTimeStart" name="createTimeStart"
+                               th:placeholder="#{text.placeholder.start.trade.date}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTimeEnd" name="createTimeEnd"
+                               th:placeholder="#{text.placeholder.end.trade.date}">
+                    </div>
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{field:'id', align:'center'}">[[#{text.column.order.number}]]</th>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.column.pay.user.wallet.id}]]</th>
+                <th lay-data="{field:'userName', align:'center'}">[[#{text.column.pay.username}]]</th>
+                <th lay-data="{field:'payUserCountryCode', align:'center'}">[[#{text.column.user.wallet.payUserCountryCode}]]</th>
+                <th lay-data="{field:'payUserPhone', align:'center'}">[[#{text.column.user.wallet.payUserPhone}]]</th>
+                <th lay-data="{field:'merchantUserId', align:'center'}">[[#{text.column.business.wallet.id}]]</th>
+                <th lay-data="{field:'merchantUserName', align:'center'}">[[#{text.column.business.username}]]</th>
+                <th lay-data="{field:'merchantUserCountryCode', align:'center'}">[[#{text.column.user.wallet.merchantUserCountryCode}]]</th>
+                <th lay-data="{field:'merchantUserPhone', align:'center'}">[[#{text.column.user.wallet.merchantUserPhone}]]</th>
+                <th lay-data="{align:'center', width: 80, templet: function (data){
+                        return getStatusStr(data.status);
+                    }}">[[#{text.column.status}]]</th>
+                <th lay-data="{field:'payCoinName', align:'center'}">[[#{text.column.pay.coin}]]</th>
+<!--                 <th lay-data="{field:'receiptCoinName', align:'center'}">收款币种名称</th> -->
+                <th lay-data="{field:'payAmount', align:'center'}">[[#{text.column.pay.amount}]]</th>
+<!--                 <th lay-data="{field:'receiptAmount', align:'center'}">收款金额数量</th> -->
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.column.trade.date}]]</th>
+<!--                 <th lay-data="{field:'updateTime', align:'center',templet: function (data) { -->
+<!--                            return formatDateL(data.updateTime); -->
+<!--                         }}">更新时间 -->
+<!--                 </th> -->
+<!--                 <th lay-data="{field:'receiptRemarks', align:'center'}">备注</th> -->
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){
+        			return renderBtn(data);
+                }}">[[#{text.column.operate}]]
+                </th>
+            </tr>
+            </thead>
+        </table>
+
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var iframeNode;
+
+    //[[#{text.control.initialization}]]
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // [[#{text.time.selection.general.usage}]]
+        laydate.render({
+            elem: '#createTimeStart'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#createTimeStart").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTimeStart").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#createTimeEnd'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                if (value > curDate) {
+//                layer.msg("[[#{text.end.of.trading.period.cannot.be.larger.than.the.current.period}]]");
+//                $("#createTimeEnd").val("");
+//                return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.the.end.of.the.trading.period.cannot.be.less.than.the.beginning.of.the.trading.period}]]");
+                    $("#createTimeEnd").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+        //[[#{text.initial.currency.drop.down}]]
+        $.ajax({
+            url: "/coin/list",
+            type: "post",
+            contentType : "application/json; charset=utf-8",
+            data: "{\"coinName\":null,\"current\":1,\"size\":1000}",
+            success: function (res) {
+                var msg = res.data;
+                var isShowAccount = msg.isShowAccount;
+                $.each(msg.dataResult.data.records, function (i, v) {
+                    if(!v.hideFlag){
+                        var id = v.id;
+                        var text = "";
+                        if(isShowAccount){
+                            text = v.aliasName;
+                        }else{
+                            text = v.coinName;
+                        }
+                        $("#payCoinId").append("<option value='" + id + "'>" + text + "</option>");
+//                $("#receiptCoinId").append("<option value='" + id + "'>" + text + "</option>");
+                    }
+                });
+                form.render();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // alert(errorThrown);
+            }
+        });
+        
+     	//国际简码/区码
+    	initCountryCode($("#payUserCountryCode"));
+    	initCountryCode($("#merchantUserCountryCode"));
+    	form.render();
+    });
+
+    //[[#{text.list.data}]]
+    loadTableWithoutColumns('/transaction/transfer/scan/pay/listPage', 'dataTable', 'searchForm');
+
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/transaction/transfer/scan/pay/download/list?"+ $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/transaction/transfer/scan/pay/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    //[[#{text.download.after.obtaining.the.lock}]]
+                    //window.location.href = url;
+                    //[[#{text.download.after.obtaining.the.lock}]]
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+    //[[#{text.see.details}]]
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/transaction/transfer/scan/pay/detail?id=" + id;
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight>200? ( winHeight - 110) : winHeight;
+        //[[#{text.limit.maximum.height}]]
+        height = height>maxHeight?maxHeight:height;
+        openModal("[[#{text.see.details}]]", url, "600px", height+"px");
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 0||status == 1) {
+            statusStr = "<font color='orange'>[[#{text.processing}]]</font>";
+        } else if (status == 2) {
+            statusStr = "<font color='green'>[[#{text.success}]]</font>";
+        } else if (status == 3) {
+            statusStr = "<font color='red'>[[#{text.failure}]]</font>";
+        }
+        return statusStr;
+    }
+
+</script>

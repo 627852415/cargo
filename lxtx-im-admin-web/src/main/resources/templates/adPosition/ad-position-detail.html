@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>广告位详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 120px;
+    }
+	.my-inline{
+		width: 320px !important;
+	}
+	.my-inline-remark{
+		width: 320px !important;
+	}
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.ad.position.adPositionName}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.adPositionName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.ad.position.attributionPage}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="attributionPageStr" th:value="${detail.attributionPage}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.ad.position.ad.size}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="sizeStr" th:value="${detail.height}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.ad.position.displayMethod}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="displayMethodStr" th:value="${detail.displayMethod}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.ad.position.please.enter.materialNotes}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.materialNotes}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.ad.position.picturePoll.count}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.number}" class="layui-input" disabled>
+        </div>
+    </div>
+
+</form>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+    console.log(detail)
+
+    $('input[id=attributionPageStr]').val(getAttributionPage(detail.attributionPage));
+    $('input[id=displayMethodStr]').val(getDisplayMethod(detail.displayMethod));
+    $('input[id=sizeStr]').val(getsize(detail.height,detail.width));
+
+
+    function getAttributionPage(attributionPage) {
+        var attributionPageStr = "";
+        if (attributionPage == 1) {
+            attributionPageStr = "发现页";
+        }else if (attributionPage == 2) {
+            attributionPageStr = "app启动页";
+        }
+        return attributionPageStr;
+    }
+    function getDisplayMethod(displayMethod) {
+        var displayMethodStr = "";
+        if (displayMethod == 1) {
+            displayMethodStr = "图片轮播";
+        }else if (displayMethod == 2) {
+            displayMethodStr = "单图展示";
+        }
+        return displayMethodStr;
+    }
+
+    function getsize(height,width){
+        return height+"*"+width;
+    }
+
+</script>
+</body>
+</html>

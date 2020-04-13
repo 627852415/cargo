@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+    <title>在线用户</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/session-index.js}"></script>
+</head>
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="accid" id="accid" class="layui-input" th:placeholder="#{text.placeholder.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" id="name" class="layui-input" th:placeholder="#{text.wallet.capital.table.user.name}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="clientType" lay-verify="" id="clientType">
+                        th:<option value="">[[#{text.placeholder.terminal}]]</option>
+                        <option value="AOS">Android</option>
+                        <option value="IOS">IOS</option>
+                        <option value="PC">PC</option>
+                        <option value="WINPHONE">WINPHONE</option>
+                        <option value="WEB">WEB</option>
+                        <option value="REST">REST</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="eventType" lay-verify="" id="eventType">
+                        <option value="">[[#{text.placeholder.status}]]</option>
+                        <option value="2">[[#{text.column.online}]]</option>
+                        <option value="3">[[#{text.column.offline}]]</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">
+                        [[#{text.operation.search}]]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{field:'userAvatarUrl', align:'center',templet: function (data) {
+                     return '<img width=\'40px\' height=\'40px\' src=\'' + data.userAvatarUrl + '\'>';
+                    }}">[[#{text.column.logo}]]</th>
+            <th lay-data="{field:'accid', align:'center'}">[[#{text.placeholder.account}]]</th>
+            <th lay-data="{field:'userName', align:'center'}">[[#{text.wallet.capital.table.user.name}]]</th>
+            <th lay-data="{field:'clientType', align:'center'}">[[#{text.column.terminal}]]</th>
+            <th lay-data="{field:'eventType', align:'center',templet: function (data){ return getStatus(data.eventType);}}" >[[#{text.column.status}]]</th>
+<!--            <th lay-data="{field:'bindTime', align:'center',templet: function (data) {
+                    if(data.bindTime){
+                        return data.bindTime + 'sec';
+                    }else{
+                        return '';
+                    }
+
+                    }}">[[#{text.column.online.duration}]]</th>-->
+            <!--<th lay-data="{field:'', align:'center',toolbar: '#barData'}">操作</th>-->
+        </tr>
+        </thead>
+    </table>
+    <!--<a href="javascript:;" onclick="openSend(this)" aid=' + item.account + ' data-id="1" data-opt="send" class="layui-btn layui-btn-normal layui-btn-mini" data-type="tabAdd">发送消息</a></th>';-->
+    <script type="text/html" id="barData" >
+        <a class="layui-btn  layui-btn-normal  layui-btn-sm tableBtn" lay-event="send" >发送消息</a>
+    </script>
+</div>
+</div>
+<!--  发送消息 -->
+<div id="sendData" style="display: none;">
+    <form class="layui-form" action="" id="sendForm" style="padding-top: 30px">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">接收账号：</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text" name="" style="background-color: #EEF1F6;"
+                           placeholder="" autocomplete="off" class="layui-input"
+                           id="sendAccount" disabled="disabled">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">发送内容：</label>
+                <div class="layui-input-block" style="height:100px;width:350px;">
+                    <textarea name="sendContent" id="sendContent" placeholder="请输入内容"
+                              class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="send('sendForm')">发送</a>
+                <a class="layui-btn"
+                   onclick="cancelModify()">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    function getStatus(data) {
+        if (data === '2') {
+            return '[[#{text.column.online}]]';
+        } else if (data === '3') {
+            return '[[#{text.column.offline}]]';
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>白名单通知列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-table th {
+        text-align: center;
+        font-weight: 400;
+    }
+</style>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="userId" class="layui-input" placeholder="用户钱包ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="amountTypeSelectId" name="type" lay-filter="typeypeSelect" lay-verify="">
+                        <option value="">请选择类型</option>
+                        <option value="1">撮合交易</option>
+                        <option value="2">理财宝</option>
+                        <option value="3">提现</option>
+                        <option value="4">支付</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                        <a href="javascript:;" onclick="save()"  class="layui-btn site-demo-active" data-type="tabAdd"
+                           data-title="新增币种">新增白名单</a>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'name', align:'center'}">昵称</th>
+            <th lay-data="{field:'userId', align:'center'}">钱包用户ID</th>
+            <th lay-data="{field:'telephone', align:'center'}">手机号</th>
+            <th lay-data="{field:'countryCode', align:'center'}">国际简码</th>
+            <th lay-data="{field:'status',align:'center',width: 180, templet: function (data){return getStatusStr(data.type);}}">类型</th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+            <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del"><i
+                    class="layui-icon layui-icon-close"></i>删除</a>
+    </script>
+</div>
+
+<script>
+
+    loadTableWithoutColumns('/notice/whitelist/page/list', 'tableData', 'searchForm');
+
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 1) {
+            statusStr = '撮合交易';
+        } else if (status == 2) {
+            statusStr = "理财宝";
+        } else if (status == 3) {
+            statusStr = "提现";
+        }else if (status == 4) {
+            statusStr = "支付";
+        }
+        return statusStr;
+    }
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'save') {
+                    save(obj.data.id);
+                }else if (obj.event === 'del') {
+                    del(obj.data.id);
+                }
+            });
+        });
+    }
+
+    //删除
+    function del(id) {
+        layer.confirm("确定删除吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/notice/whitelist/delete',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    // 保存
+    function save() {
+        var url = "/notice/whitelist/tosave";
+        var title = "新增白名单";
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            title: '<b>' + title +'</b>',
+            area: ['580px', '400px'], //宽高
+            content: url
+        });
+
+    }
+
+</script>
+</body>
+</html>

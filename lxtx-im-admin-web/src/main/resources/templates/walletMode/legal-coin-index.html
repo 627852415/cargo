@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>法币管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-table th {
+        text-align: center;
+        font-weight: 400;
+    }
+</style>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="legalCoinName" class="layui-input" placeholder="法币名称"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                    <shiro:hasPermission name="legal:coin:add">
+                    <a href="javascript:;" onclick="save()" class="layui-btn site-demo-active" data-type="tabAdd"
+                       data-title="新增币种">新增币种</a>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <th lay-data="{field:'legalCoinName', align:'center'}">法币名称</th>
+            <th lay-data="{field:'relationCoinName', align:'center'}">关联币种名称</th>
+            <th lay-data="{field:'description', align:'center'}">币种说明</th>
+            <th lay-data="{field:'toCny', align:'center'}">CNY汇率</th>
+            <th lay-data="{field:'toUsdx', align:'center'}">USDX汇率</th>
+            <th lay-data="{field:'customizedRateDesc', align:'center'}">是否自定义汇率</th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <shiro:hasPermission name="legal:coin:add">
+        <a class="layui-btn layui-btn-sm tableBtn" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="legal:coin:del">
+        <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del"><i
+                class="layui-icon layui-icon-close"></i>删除</a>
+        </shiro:hasPermission>
+    </script>
+</div>
+
+<script>
+
+    loadTableWithoutColumns('/legal/coin/list/page', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'edit') {
+                    save(obj.data.id);
+                } else if (obj.event === 'del') {
+                    del(obj.data.id);
+                }
+            });
+        });
+    }
+
+    //删除
+    function del(id) {
+        layer.confirm("确定删除吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/legal/coin/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    // 编辑、保存
+    function save(id) {
+        var title = "新增币种";
+        if (id != undefined) {
+            url = "/legal/coin/edit?id=" + id.toString();
+            title = "编辑币种";
+        } else {
+            url = "/legal/coin/add";
+        }
+
+        var e = $(this),
+            i = url;
+        var t = title;
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text());
+    }
+
+</script>
+</body>
+</html>

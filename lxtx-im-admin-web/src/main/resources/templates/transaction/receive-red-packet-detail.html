@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>交易流水详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-form-label {
+        width: 160px;
+    }
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label ">[[#{text.column.red.packet.receive.id}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label ">[[#{text.column.red.packet.id}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.redPacketId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label ">[[#{text.column.transfer.in.user.wallet.id}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.receiverId}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.transfer.in.user.username}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.receiverName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.column.transfer.in.user.countryCode}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.receiverCountryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.in.user.telephone}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.receiverTelephone}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.type}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="type" th:value="${detail.type}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label  ">[[#{text.column.transfer.out.user.wallet.id}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.senderId}" class="layui-input" disabled>
+        </div>
+
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.transfer.out.user.username}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.senderName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.column.transfer.out.user.countryCode}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.senderCountryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.transfer.out.user.telephone}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.senderTelephone}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.amount}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="amount" th:value="${detail.amount}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.coin}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="coinName" th:value="${detail.coinName}" class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div th:if="${detail.type} ne 0" class="layui-form-item">
+        <label class="layui-form-label ">[[#{text.column.best.lucky}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="coinName" th:if="${detail.lucky}" th:value="#{text.operation.yes}"
+                   class="layui-input" disabled>
+            <input type="text" name="coinName" th:if="${!detail.lucky}" th:value="#{text.operation.no}"
+                   class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.trade.date}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="transferDate" th:value="${#dates.format(detail.createTime, 'yyyy-MM-dd HH:mm:ss')}"
+                   class="layui-input" disabled>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label ">[[#{text.column.update.date}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" name="updateDate" th:value="${#dates.format(detail.updateTime, 'yyyy-MM-dd HH:mm:ss')}"
+                   class="layui-input" disabled>
+        </div>
+    </div>
+
+</form>
+<script th:inline="javascript">
+
+    var detail = [[${detail}]];
+    $('input[name=amount]').val(detail.amount);
+    $('input[name=type]').val(getTypeStr(detail.type));
+
+    /**
+     * 类型映射
+     * @param type 类型数值
+     * @returns {string} 类型字符串
+     */
+    function getTypeStr(type) {
+        var typeStr = "";
+        if (type === 0) {
+            typeStr = [[#{text.personal.red.envelope}]];
+        } else if (type === 1) {
+            typeStr = [[#{text.group.of.lucky.red.envelopes}]];
+        } else if (type === 2) {
+            typeStr = [[#{text.per.capita.red.envelope}]];
+        }
+        return typeStr;
+    }
+
+    function getDate(data) {
+        return formatDateL(data);
+    }
+
+</script>
+</body>
+</html>

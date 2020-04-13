@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>用户认证</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+
+
+</style>
+
+<body>
+<form class="layui-form" action="" id="merchantForm" style="padding-top: 30px">
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.lastname}]]</label>
+        <input type="hidden" name="id" th:value="${detail.id}">
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.lastName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.name}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.firstName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.gender}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="radio" name="genderName" th:title="#{text.column.man}" th:checked="(${detail.genderName} == '男' ? 'true' : 'false')" disabled/>
+            <input type="radio" name="genderName" th:title="#{text.column.lady}" th:checked="(${detail.genderName} == '女' ? 'true' : 'false')" disabled/>
+            <input type="radio" name="genderName" th:title="#{text.column.unknown}" th:checked="(${detail.genderName} == '未知' ? 'true' : 'false')" disabled/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.country.area}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.card.number}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="text" th:value="${detail.certificateNo}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.card.positive}]]</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" id="certificateFrontImg" onclick="imgZoom(this,'证件正面');"
+                 name="certificateFront" style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateFront}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.card.reverse}]]</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" name="certificateBack" onclick="imgZoom(this,'证件反面');"
+                 style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateBack}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.card.signature}]]</label>
+        <div class="layui-input-block">
+            <img class="layui-upload-img" name="certificateSignature" onclick="imgZoom(this,'证件签名');"
+                 style="width: 500px;height: 320px;"
+                 th:src="${detail.certificateSignature}">
+        </div>
+    </div>
+    <div id="auditDiv" class="layui-form-item">
+        <label class="layui-form-label">[[#{text.column.audit}]]</label>
+        <div class="layui-input-block" style="width: 350px;">
+            <input type="radio" name="certificateStatus" value="3" th:title="#{text.column.pass}" checked=""
+                   lay-filter="certificateStatusEvent">
+            <input type="radio" name="certificateStatus" value="4" th:title="#{text.column.fail}"
+                   lay-filter="certificateStatusEvent">
+        </div>
+    </div>
+    <div id="rejectReasonDiv" style="display: none;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">[[#{text.column.reject.reason}]]</label>
+            <div class="layui-input-block" style="width: 350px;">
+                <textarea name="rejectReason" th:text="${detail.rejectReason}" th:placeholder="#{text.placeholder.content}" class="layui-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="submitDiv" class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit lay-filter="sub-btn">[[#{text.column.commit}]]</button>
+        </div>
+    </div>
+</form>
+
+<!-- 图片查看原图-->
+<div id="imgDiv" style="display: none;">
+    <div class="layui-form-item">
+        <img class="layui-upload-img" id="imgId" src="">
+    </div>
+</div>
+
+<script th:inline="javascript">
+    var detailData = [[${detail}]];
+    if(detailData.status == 1){
+        $('#auditDiv').attr("style", "display: none;");
+        $('#submitDiv').attr("style", "display: none;");
+    }
+    if(detailData.certificateStatus == 4){
+        $('#rejectReasonDiv').attr("style", "display: block;");
+        $('#auditDiv').attr("style", "display: none;");
+        $('#submitDiv').attr("style", "display: none;");
+    }else if(detailData.certificateStatus == 3){
+        $('#auditDiv').attr("style", "display: none;");
+        $('#submitDiv').attr("style", "display: none;");
+    }
+
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            auditUserAuthentication();
+            return false;
+        });
+        //审核通过不通过
+        form.on('radio(certificateStatusEvent)', function (data) {
+            var status = data.value;
+            if (status == "3") {
+                $("#settlementDiv").attr("style", "display: block;");
+                $("#rejectReasonDiv").attr("style", "display: none;");
+            } else if (status == "4") {
+                $("#settlementDiv").attr("style", "display: none;");
+                $("#rejectReasonDiv").attr("style", "display: block;");
+            }
+        });
+    });
+
+    //查看原图
+    function imgZoom(obj, title) {
+        $("#imgId").attr("src", obj.src);
+        layer.open({
+            type: 1,
+            closeBtn: 1,
+           // title: '<b>' + title + '</b>',
+            area: ['800px', '800px'], //宽高
+            content: $("#imgDiv")
+        });
+        layui.form.render(); //更新全部
+    }
+
+    //商家审核
+    function auditUserAuthentication() {
+        var data = $("#merchantForm").serialize();
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        $.ajaxUkey({
+            url: "/user/authentication/audit",
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg('[[#{text.operation.success}]]！',
+                        {
+                            offset: '15px',
+                            time: 1000
+                        },
+                        function (index) {
+                            layer.close(index);
+                            tabChangeDef('/user/authentication/index');
+                            tabDeleteCurrent();
+                            location.reload();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.operation.sys.fix}]]');
+            }
+        });
+    }
+</script>
+</body>
+</html>

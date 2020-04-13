@@ -1,0 +1,155 @@
+<!DOCTYPE>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>谷歌验证设置</title>
+    <script th:src="@{/js/jquery.js}"></script>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/layui/lay/modules/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<style>
+    .icon-googleAuthen-ios {
+        background-position: 3px 2px;
+    }
+
+    .icon-googleAuthen {
+        display: inline-block;
+        width: 154px;
+        height: 54px;
+        background: url(../../../images/googleAuthen_downloads.png)no-repeat;
+    }
+
+    .icon-googleAuthen-ios {
+        background-position: 3px 2px;
+    }
+
+    .icon-googleAuthen-play {
+        background-position: -159px 2px;
+    }
+
+    .my-inline{
+        margin: 10px 60px;
+    }
+</style>
+<body>
+<form class="layui-form">
+    <div class="layui-form-item">
+        <div class="my-inline">
+            第一步： 根据您的手机系统类型，下载并安装谷歌验证器：
+        </div>
+        <div class="my-inline" style="margin-top: 20px;">
+            <div style="position: relative; display: inline-block;">
+                <div class="appleImage"></div>
+                <a href="https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8"
+                        target="_blank" class="downAndroid">
+                    <i class="icon-googleAuthen icon-googleAuthen-ios"></i>
+                </a>
+            </div>
+            <div class="specialButton"
+                 style="position: relative; display: inline-block;">
+                <div class="andriodImage"></div>
+                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                        target="_blank" class="downAndroid">
+                    <i class="icon-googleAuthen icon-googleAuthen-play"></i>
+                </a>
+            </div>
+        </div>
+        <div class="my-inline">
+            <div>第二步：
+                使用谷歌验证器App扫描一下二维码,或添加密文进行手工验证：</div>
+            <div id="googleCode">
+                <img alt="Scan me!" id="qrcodeData" width="180" height="180" style="margin-left: 50px; display: block;">
+            </div>
+        </div>
+        <div class="my-inline">
+            <label class="layui-form-label">密文：</label>
+            <div class="layui-input-block">
+                <input type="text" placeholder="请输入密文" style="width: 200px;float: left"
+                       autocomplete="off" class="layui-input" id="secret" name="secret" lay-verify="required">
+                <a class="layui-btn layui-btn-normal" style="float: left" onclick="getQrCode()">刷新</a>
+            </div>
+        </div>
+        <div class="my-inline">
+            第三步： 填入手机显示的动态密码以激活谷歌两步验证：
+        </div>
+        <div class="my-inline">
+            <input type="number" placeholder="请输入动态密码(数字)" style="width: 345px;" lay-verify="required"
+                   autocomplete="off" class="layui-input" id="qrCode" name="qrCode">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 180px;">
+            <button class="layui-btn" lay-submit="" lay-filter="save">确定</button>
+            <button class="layui-btn" onclick="parent.layer.closeAll();">取消</button>
+        </div>
+    </div>
+</form>
+<script>
+
+    $(function () {
+        getQrCode()
+    })
+
+    /**
+     * 获取QR码
+     */
+    function getQrCode() {
+        $.ajax({
+            url : '/manage/getQrCode',
+            type : 'POST',
+            dataType : 'json',
+            success : function(data) {
+                if (data.success) {
+                    $("#googleCode").attr("title", data.data.qrcodeTitle);
+                    $("#qrcodeData").attr("src", data.data.qrcodeData);
+                    $("#secret").val(data.data.secret);
+                }
+            },
+            error : function(e) {
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+    layui.use(['form'], function(){
+        var form = layui.form;
+        //监听提交
+        form.on('submit(save)', function(data){
+            $.ajax({//异步请求返回给后台
+                url : '/manage/googleAuthenticator',
+                type : 'POST',
+                contentType : 'application/json;charset=UTF-8',
+                data : JSON.stringify(data.field),
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        //登入成功的提示与跳转
+                        layer.msg('谷歌设置成功',
+                          {
+                                offset : '15px',
+                                icon : 1,
+                                time : 1000
+                            },
+                            function() {
+                                parent.window.location.href = '/manage/index'; //后台主页
+                            });
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                },
+                error : function(e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.msg('系统升级维护中，请稍后重试');
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

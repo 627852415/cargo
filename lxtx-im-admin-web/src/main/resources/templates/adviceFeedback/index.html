@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>意见反馈</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/adviceFeedback/index.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="account" id="account" class="layui-input"
+                               placeholder="用户ID"/>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime"
+                               placeholder="请选择开始日期">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime"
+                               placeholder="请选择结束日期">
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">搜索</button>
+                        <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                        <button type="button" class="layui-btn" onclick="download()">导出记录</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{ align:'center',type:'numbers'}">序号
+                </th>
+                <th lay-data="{ align:'center',field:'accountName'}">用户名
+                </th>
+                <th lay-data="{align:'center', field:'account'}">用户ID
+                </th>
+                <th lay-data="{field:'phoneCode',align:'center'}">地区
+                </th>
+                <th lay-data="{field:'telephone', align:'center'}">手机号
+                </th>
+                <th lay-data="{field:'version', align:'center'}">版本
+                </th>
+                <th lay-data="{field:'issue', align:'center'}">反馈内容
+                </th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">提交时间
+                </th>
+                <th lay-data="{fixed: 'right',align:'center',templet: function(data){
+        return renderBtn(data);
+                }}">操作
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+
+</body>
+</html>

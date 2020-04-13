@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>返佣伙伴列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="platformUserId" id="platformUserId" class="layui-input"
+                               th:placeholder="#{text.commission.user.please.enter.platformUserId}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input"
+                               th:placeholder="#{text.commission.user.please.enter.userId}">
+                    </div>
+                 <!--   <div class="layui-input-inline">
+                        <input type="text" name="ratio" id="ratio" class="layui-input"
+                               th:placeholder="#{text.commission.please.enter.ratio}">
+                    </div>-->
+                    <div class="layui-input-inline">
+                        <select id="levelId" name="levelId">
+                            <option value="">[[#{text.select.placeholder}]]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                        <button type="button" class="layui-btn" onclick="notify()">广告更新通知</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{type:'numbers', width:'4%',align:'center',style:'height:65px;'}">[[#{text.column.number}]]</th>
+                <th lay-data="{field:'name', align:'center'}">[[#{text.commission.user.name}]]</th>
+                <th lay-data="{field:'platformUserId', align:'center'}">[[#{text.commission.user.platformUserId}]]</th>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.commission.user.userId}]]</th>
+                <th lay-data="{field:'phoneCode', align:'center'}">[[#{text.commission.user.phoneCode}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.commission.user.telephone}]]</th>
+                <th lay-data="{field:'levelName', align:'center'}">[[#{text.commission.user.levelName}]]</th>
+                <!--<th lay-data="{field:'ratio', align:'center'}">[[#{text.commission.user.ratio}]]</th>-->
+                <th lay-data="{field:'directLowerNumber', align:'center'}">[[#{text.commission.user.directLowerNumber}]]</th>
+                <!--<th lay-data="{field:'amountOfMonth', align:'center'}">[[#{text.commission.user.amountOfMonth}]]</th>-->
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.commission.user.createTime}]]</th>
+                <th lay-data="{field:'status', align:'center',templet: '#switchTpl', unresize: true}">[[#{text.commission.user.status}]]
+                </th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+        <script type="text/html" id="switchTpl">
+            <input type="checkbox" name="updateStatus"  value="{{d.status}}" aid = "{{d.id}}"
+                   lay-skin="switch" lay-text="启用|关闭" lay-filter="statusFilter" {{ d.status == 1 ? 'checked' : '' }}>
+        </script>
+        <script type="text/html" id="barData">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="detail">[[#{text.column.see.detail}]]</a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    initLevelId();
+    //初始化用户级别
+    function initLevelId(){
+        $.ajax({
+            url: '/commission/level/all',
+            type: 'POST',
+            data: {},
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.success) {
+                    if (undefined != data && undefined != data.data && undefined != data.data.list) {
+                        var html = '';
+                        $.each(data.data.list, function (i, item) {
+                            html +='<option value="' + item.levelId + '">' + item.levelName + '</option>';
+                        })
+                        // console.log(html)
+                        $('#levelId').append(html);
+                    }
+                }
+            }
+        });
+    }
+
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/commission/user/listPage', 'dataTable', 'searchForm');
+
+
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool(){
+        layui.use('table', function (){
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function(obj){
+                if(obj.event === 'detail'){
+                    detail(obj.data.id);
+                }
+            });
+
+            //监听上下架操作
+            form.on('switch(statusFilter)', function(obj){
+                var status = this.value == 1 ? 2 : 1;
+                var id = obj.elem.attributes.aid.value;
+                var formData = JSON.stringify({"status": status, "id": id});
+                sendAjaxPost("/commission/user/update", formData);
+            });
+        });
+    }
+
+    //返佣详情
+    function detail(id) {
+        var e = $(this);
+        var i = "/commission/user/detail?id=" + id;
+        var t = "返佣伙伴详情";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    function download() {
+        var url = "/commission/user/download/list?"+ $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/commission/user/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+
+    function getAttributionPage(attributionPage) {
+        var attributionPageStr = "";
+        if (attributionPage == 1) {
+            attributionPageStr = "[[#{text.ad.position.discoveryPage}]]";
+        }else if (attributionPage == 2) {
+            attributionPageStr = "[[#{text.ad.position.startupPage}]]";
+        }
+        return attributionPageStr;
+    }
+    function getDisplayMethod(displayMethod) {
+        var displayMethodStr = "";
+        if (displayMethod == 1) {
+            displayMethodStr = "[[#{text.ad.position.picturePoll}]]";
+        }else if (displayMethod == 2) {
+            displayMethodStr = "[[#{text.ad.position.singleImage}]]";
+        }
+        return displayMethodStr;
+    }
+
+    function notify(){
+        sendAjaxPost("/commission/user/ad/notify",'');
+    }
+</script>

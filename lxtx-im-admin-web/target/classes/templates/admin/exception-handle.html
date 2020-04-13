@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<title>[[#{text.menu.exception.handle}]]</title>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+	<script>var hasHandlePermission = false;</script>
+</head>
+<body>
+<shiro:hasPermission name="exception:handle">
+	<script>hasHandlePermission = true</script>
+</shiro:hasPermission>
+	<div class="admin-main fadeInUp animated">
+		<blockquote class="layui-elem-quote">
+			<input id="time" type="hidden" value="1">
+			<form class="layui-form" id="searchForm">
+				<div class="layui-form-item search-input" style="margin: 0;">
+					<div class="layui-input-inline">
+						<select name="type" lay-verify="">
+							<option value="">[[#{text.placeholder.type}]]</option>
+							<option value="1">[[#{text.column.registered.6.x.users}]]</option>
+							<option value="3">[[#{text.column.deposit}]]</option>
+							<option value="2">[[#{text.column.withdrawal}]]</option>
+							<option value="4">[[#{text.column.6x.callback}]]</option>
+							<option value="5">[[#{text.column.fund.collection}]]</option>
+							<option value="6">[[#{text.column.get.6x.currency}]]</option>
+							<option value="7">[[#{text.column.get.coin.address}]]</option>
+							<option value="8">[[#{text.column.get.coin.accuracy}]]</option>
+							<option value="9">[[#{text.column.login.otc}]]</option>
+							<option value="10">[[#{text.column.get.order.detail}]]</option>
+							<option value="11">[[#{text.column.otc.sell.order.review.notification.interface}]]</option>
+						</select>
+					</div>
+					<div class="layui-input-inline">
+						<select name="status" lay-verify="">
+							<option value="">[[#{text.option.please.select.a.processing.status}]]</option>
+							<option value="0">[[#{text.option.unprocessed}]]</option>
+							<option value="1">[[#{text.option.processing}]]</option>
+							<option value="2">[[#{text.placeholder.status.fail}]]</option>
+							<option value="3">[[#{text.placeholder.status.success}]]</option>
+						</select>
+					</div>
+
+					<div class="layui-form-mid layui-word-aux" style="padding: 0;">
+						<button type="button" class="layui-btn"  onclick="search()">[[#{text.operation.search}]]</button>
+					</div>
+				</div>
+			</form>
+		</blockquote>
+
+		<table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+
+	</div>
+
+	<script>
+
+        layui.use('layer', function() {
+            var layer = layui.layer;
+        });
+        layui.use('form', function() {
+            var form = layui.form;
+        });
+        layui.use('laydate', function() {
+            var laydate = layui.laydate;
+
+            // 时间选择常规用法
+            laydate.render({
+                elem: '#createTimeStart'
+                , done: function (value, date) {
+                }
+            });
+            laydate.render({
+                elem: '#createTimeEnd'
+                , done: function (value, date) {
+                }
+            });
+        });
+        var table;
+        layui.use('table', function (){
+            table = layui.table;
+            table.render({
+                elem: '#dataTable',
+                cellMinWidth: 100,
+                url: '/exception/record',
+                method: 'post',
+                initSort: {field:'createTime', type:'desc'},
+                request:{
+                    pageName:'current',
+                    limitName:'size'
+                },
+                parseData : function(res) {
+                    // console.log(res);
+                    var  records = res.data.records;
+                    var code = '1';
+                    var msg = "";
+                    if(records.length > 0){
+                        code = '0';
+                    }else{
+                        msg = "未查询到相关数据";
+                    }
+                    return {
+                        "code" : code,
+                        "msg" : msg,
+                        "count" : res.data.total,
+                        "data" : records
+                    }
+                },
+                cols: [
+                    [
+                        {field: 'typeValue',  title: '[[#{text.column.type}]]', align:'center', sort: true, templet:function (data){
+                                var str = '';
+                                 if(data.type === 1){
+                                    str = '[[#{text.column.registered.6.x.users}]]';
+                                }else if(data.type === 2){
+                                     str = '[[#{text.column.withdrawal}]]';
+                                }else if(data.type === 3){
+                                     str = '[[#{text.column.deposit}]]';
+                                }else if(data.type === 4){
+                                     str = '[[#{text.column.6x.callback}]]';
+                                }else if(data.type === 5){
+                                     str = '[[#{text.column.fund.collection}]]';
+                                }else if(data.type === 6){
+                                     str = '[[#{text.column.get.6x.currency}]]';
+                                }else if(data.type === 7){
+                                     str = '[[#{text.column.get.coin.address}]]';
+                                }else if(data.type === 8){
+                                     str = '[[#{text.column.get.coin.accuracy}]]';
+                                }else if(data.type === 9){
+                                     str = '[[#{text.column.login.otc}]]';
+                                }else if(data.type === 10){
+                                     str = '[[#{text.column.get.order.detail}]]';
+                                }else if(data.type === 11){
+                                     str = '[[#{text.column.otc.sell.order.review.notification.interface}]]';
+                                }
+                                return str;
+                            }
+                        },
+                        {field: 'statusValue', title: '[[#{text.column.processing.status}]]',align:'center', templet:function (data) {
+                            var str = '';
+                                if (data.status === 0){
+                                    str = '[[#{text.option.unprocessed}]]';
+                                }else if(data.status === 1){
+                                    str = '[[#{text.option.processing}]]';
+                                }else if(data.status === 2){
+                                    str = '[[#{text.placeholder.status.fail}]]';
+                                }else if(data.status === 3){
+                                    str = '[[#{text.placeholder.status.success}]]';
+                                }
+                                return str;
+                            }
+                        },
+                        {field: 'params',  title: '[[#{text.column.param}]]', align:'center', sort: false},
+                        {field: 'content', title: '[[#{text.column.exception.information}]]', align:'center', sort: false},
+                        {
+                            field: 'createTime', title: '[[#{text.column.create.time}]]', align:'center', sort: false, templet: function (data) {
+                                return formatDateL(data.createTime);
+                            }
+                        },
+                        {
+                            title: '[[#{text.operation.name}]]', align: 'center', sort: false, templet: function (data) {
+								if (hasHandlePermission) {
+									if (data.handle) {
+										return '<a class="layui-btn" style="line-height: 28px;" lay-event="handle">[[#{text.button.process}]]</a>';
+									}
+								}
+                                return "";
+                            }
+                        }
+                    ]
+                ],
+                id: 'dataReload' ,
+                page: true
+            })
+
+            //监听行工具事件
+            table.on('tool(dataTable)', function(obj){
+                var data = obj.data;
+                if(obj.event === 'handle'){
+                    layer.confirm('确定处理该条数据吗', function(index){
+                    	handle( obj.data.id, obj.data.type);
+                    });
+                }
+            });
+        });
+
+        //查询
+        function search(){
+            table.reload('dataReload', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                ,where:$("#searchForm").serializeJson()
+            });
+        }
+
+
+
+	    function handle(id, type){
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url : '/exception/handle',
+                type : 'POST',
+                data : {
+                    id : id,
+                    type: type
+                },
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error : function(e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+
+        }
+	  	
+	</script>
+</body>
+
+</html>

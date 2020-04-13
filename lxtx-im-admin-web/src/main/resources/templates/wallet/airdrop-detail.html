@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.wallet.airdrop.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        [[#{text.wallet.airdrop.table.object}]]:[[${airdrop.type == 1 ? "注册空投":"全站空投"}]] <br>
+
+        [[#{text.wallet.airdrop.table.activity.time}]]：[[${#dates.format(airdrop.startTime, 'yyyy-MM-dd HH:mm:ss')}]]--[[${#dates.format(airdrop.endTime, 'yyyy-MM-dd HH:mm:ss')}]]<br>
+
+        [[#{text.wallet.airdrop.table.unlock.time}]]：[[${#dates.format(airdrop.unlockTime, 'yyyy-MM-dd HH:mm:ss')}]]<br>
+        [[#{text.wallet.airdrop.table.amount}]]：[[${airdrop.amount}]][[#{text.wallet.airdrop.details.each}]]<br>
+        [[#{text.wallet.airdrop.table.unit.amount}]]：[[${airdrop.unitAmount}]][[#{text.wallet.airdrop.details.each}]]<br>
+        [[#{text.wallet.airdrop.details.list.of.airdropped.users}]] :  [[${airdrop.peoplesAmount}]][[#{text.wallet.airdrop.details.people}]]
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>空投序号</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>[[#{text.wallet.airdrop.details.number}]]</th>
+                    <th>[[#{text.wallet.airdrop.details.user.account}]]</th>
+                    <th>[[#{text.wallet.airdrop.details.pick.up.time}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con">
+                <tr  th:each=" e: ${list.records}">
+                    <td th:text="${e.airdropId}"></td>
+                    <td th:text="${e.userId}"></td>
+                    <td th:text="${#dates.format(e.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <a th:href="${list.current==1 } ? 'javascript:;':@{/airdrop/detail(id=${id},current=1,size=${list.size})}">首页&nbsp;&nbsp;</a>
+
+            <a th:href="${list.current == 1 } ? 'javascript:;':@{/airdrop/detail(id=${id},current=${list.current-1},size=${list.size})}" >上一页&nbsp;&nbsp;</a>
+
+            <a th:href="${list.current == list.pages } ? 'javascript:;':@{/airdrop/detail(id=${id},current=${list.current+1},size=${list.size})}" >下一页&nbsp;&nbsp;</a>
+            <a th:href="${list.current == list.pages } ? 'javascript:;':@{/airdrop/detail(id=${id},current=${list.pages},size=${list.size})}" >尾页</a>
+            <a href="javascript:;">&nbsp;&nbsp;共&nbsp;[[${list.pages}]]&nbsp;页</a>
+        </div>
+    </fieldset>
+</div>
+
+
+</body>
+</html>

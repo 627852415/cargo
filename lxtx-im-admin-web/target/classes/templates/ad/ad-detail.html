@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>广告详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" action="" >
+    <input type="hidden" th:value="${detail} ? ${detail.id}" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="adName" name="adName" th:value="${detail} ? ${detail.adName}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入广告名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告类型</label>
+        <div class="layui-input-inline">
+            <select  name="adType">
+                <option value="">[[#{text.select.placeholder}]]</option>
+                <option value="1" th:selected="${detail != null and detail.adType == '1'}">url</option>
+                <option value="2" th:selected="${detail != null and detail.adType == '2'}">跳转群主</option>
+                <option value="3" th:selected="${detail != null and detail.adType == '3'}">跳转模块</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">广告内容</label>
+        <div class="layui-input-inline">
+            <textarea id="adContent" name="adContent"  th:text="${detail} ? ${detail.adContent}" lay-verify="required"
+                       class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">归属广告位</label>
+        <div class="layui-input-inline">
+            <select name="pid" >
+                <option value="" >请选择</option>
+                <option th:each="adPosition : ${adPositionList}" th:text="${adPosition.adPositionName}" th:value="${adPosition.id}"
+                        th:selected="${(detail != null and detail.pid == adPosition.id) or (adPosition.id == adPositionId)}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px;">广告位素材</label>
+        <div class="layui-input-block">
+            <textarea id="adUrl" name="adUrl"  th:text="${detail} ? ${detail.adUrl}" lay-verify="required"
+                      class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布地区</label>
+        <div class="layui-input-inline">
+            <textarea id="countryName" name="countryName"  th:text="${detail} ? ${detail.countryName}" lay-verify="required"
+                      class="layui-textarea"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">投放时间</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="text" name="startTime" id="startTime" th:placeholder="请选择投放开始时间"
+                   th:value="${detail!=null?detail.startTime:''}" autocomplete="off"/>
+        </div>
+        <div class="layui-input-inline">
+            <input class="layui-input" type="text" name="endTime" id="endTime" th:placeholder="请选择投放结束时间"
+                   th:value="${detail!=null?detail.endTime:''}" autocomplete="off"/>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">客户</label>
+        <div class="layui-input-inline">
+            <input type="text" id="customer" name="customer" th:value="${detail} ? ${detail.customer}"
+                   autocomplete="off" class="layui-input" th:placeholder="请输入客户信息">
+        </div>
+    </div>
+
+</form>
+
+</body>
+</html>

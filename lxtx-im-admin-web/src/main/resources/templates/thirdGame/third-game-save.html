@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建游戏</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/thirdGame/third-game-save.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 400px;
+        margin-right: 10px;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="padding-top: 30px;">
+    <input type="hidden" th:value="${game} ? ${game.id}" th:name="${game != null && game.id != null} ? 'id'"/>
+    <input type="hidden" th:value="${game} ? ${game.appKey}" th:name="${game != null && game.appKey != null} ? 'appKey'"/>
+    <input type="hidden" th:value="${game} ? ${game.appSecret}" th:name="${game != null && game.appSecret != null} ? 'appSecret'"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏图标</label>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" id="iconImg">
+                <i class="layui-icon">&#xe67c;</i>上传图标
+            </button>
+            <input type="hidden" th:value="${game} ? ${game.icon}" th:name="${game != null && game.icon != null} ? 'icon'"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="name" name="name" th:value="${game} ? ${game.name}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入游戏名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏url</label>
+        <div class="layui-input-inline">
+            <input type="text" id="url" name="url" th:value="${game} ? ${game.url}" lay-verify="required"
+                   autocomplete="off" class="layui-input" placeholder="请输入游戏url">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">公司工商号</label>
+        <div class="layui-input-inline">
+            <input type="text" id="companyId" name="companyId" th:value="${game} ? ${game.companyId}" lay-verify=""
+                   autocomplete="off" class="layui-input" placeholder="请输入公司工商号">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">公司名称</label>
+        <div class="layui-input-inline">
+            <input type="text" id="companyName" name="companyName" th:value="${game} ? ${game.companyName}" lay-verify=""
+                   autocomplete="off" class="layui-input" placeholder="请输入公司名称">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否启用</label>
+        <div class="layui-input-block">
+            <input type="radio" name="status" th:checked="${game != null and !game.status} " value="false" title="是">
+            <input type="radio" name="status" th:checked="${game != null and game.status}" value="true" title="否">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>

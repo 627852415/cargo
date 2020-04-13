@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.system.withdrawal.details}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label{
+        width: 100px;
+    }
+
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.order.status}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" th:value="${detail.statusStr}" class="layui-input" style="color: #af0000" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.order.number}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.orderId}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.whether.the.buyer.has.paid}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"    th:if="${detail.payed}" class="layui-input" th:value="#{text.yes}" disabled>
+            <input type="text"    th:unless="${detail.payed}"  class="layui-input" th:value="#{text.not}" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label my-label">[[#{text.whether.there.is.a.complaint}]]：</label>
+        <div class="layui-input-inline">
+            <input type="text"    th:if="${detail.complainted}" class="layui-input" th:value="#{text.yes}" disabled>
+            <input type="text"    th:unless="${detail.complainted}"  class="layui-input" th:value="#{text.not}" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.product.number}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.goodsId}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.buyer.account}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.userId}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.buyer.phone}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.buyerTelephone}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.exchange.amount}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.targetAmount} +  ${detail.targetCurrency}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.exchange.rate}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.rate}"  class="layui-input" disabled>
+        </div></div>
+        <div class="layui-row">
+            <label class="layui-form-label my-label">[[#{text.fee}]]</label>
+            <div class="layui-input-inline">
+                <input type="text" th:value="(${detail.commission}) ? (${detail.commission} + ${detail.sourceCurrency}) : (0 + ${detail.sourceCurrency})" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.amount.received}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.sourceAmount} +   ${detail.sourceCurrency}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.creation.time}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${#dates.format(detail.createTime,'yyyy-MM-dd HH:mm:ss')}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.cancellation.time}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${#dates.format(detail.operateTime,'yyyy-MM-dd HH:mm:ss')}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.reason.for.cancellation}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.operateRemark}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.seller.account}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.sellerUserId}"  class="layui-input" disabled>
+        </div></div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.payment.method}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.payTypeName}"  class="layui-input" disabled>
+        </div>
+    </div> <div class="layui-row">
+        <label class="layui-form-label my-label">[[#{text.seller.phone}]]</label>
+        <div class="layui-input-inline">
+            <input type="text"  th:value="${detail.sellerTelephone}"  class="layui-input" disabled>
+        </div></div>
+        <div class="layui-form-item">
+            <label class="layui-form-label my-label">[[#{text.seller.address}]]</label>
+            <div class="layui-input-inline">
+                <textarea name="desc"  class="layui-textarea" th:text = "${detail.address}"></textarea>
+            </div>
+        </div>
+    </div>
+
+</form>
+</body>
+</html>

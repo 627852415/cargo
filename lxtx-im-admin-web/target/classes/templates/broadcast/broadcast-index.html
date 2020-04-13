@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<html xmlns:th="www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/wangEditor/wangEditor.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <form class="layui-form">
+        <div class="layui-form-item" style="margin-top: 15px;">
+            <label class="layui-form-label">发送人</label>
+            <div class="layui-input-block">
+                <select id="userList" name="userList" lay-verify="required">
+                    <option value=""></option>
+                    <option th:each="user,iterStat : ${userList}" th:value="${user.account}"
+                            th:text="${user.name}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题 &nbsp;</label>
+            <div class="layui-input-block">
+                <input id="title" type="text" name="title" required lay-verify="required" placeholder="请输入标题"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" id="broadcast-type-id" style="margin-top: 15px;text-align: center;">
+            <button type="button" class="layui-btn layui-btn-primary" btype="1" id="online_user"
+                    onclick="turnBType(this)">在线用户
+            </button>
+            <button type="button" class="layui-btn" btype="2" id="all_user" onclick="turnBType(this)">
+                全部用户
+            </button>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <!--            <div class="layui-input-block" style="margin: 5px 10px 20px 10px;">
+                            <textarea id="content" placeholder="消息内容500字以内" class="layui-textarea"
+                                      style="height: 400px;resize: none;"></textarea>
+                        </div>-->
+            <div id="editor"></div>
+        </div>
+
+        <div class="layui-form-item" style="display: table;width:100%;">
+            <div class="layui-input-block" style="display: table-cell;vertical-align: middle;text-align: center;">
+                <shiro:hasPermission name="send:broadcast:index">
+                    <button type="button" class="layui-btn" style="width: 300px;" onclick="pushMsg(this)">发送</button>
+                </shiro:hasPermission>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+
+<script>
+    var E = window.wangEditor
+    var editor = new E('#editor')
+    editor.create();
+
+    var layer;
+    var form;
+
+    /*    $(function () {
+            layui.use(['layer', 'form'], function () {
+                layer = layui.layer;
+                form = layui.form;
+
+                layer.open({
+                    type: 1,
+                    closeBtn: 0,
+                    moveType: 0,
+                    move: false,
+                    fixed: false,
+                    resize: false,
+                    shade: 0,
+                    title: ['', 'height:72px; display:table; width:100%; overflow:hidden; padding:0px'],
+                    area: ['720px', '680px'],
+                    content: $("#modifyData")
+                });
+
+                return false;
+            });
+
+        });*/
+
+    /**
+     * 发送广播消息
+     * @param obj
+     */
+    function pushMsg(obj) {
+        var loading = layer.load(1, {shade: [0.8, '#393D49']})
+        var content = editor.txt.text();
+        var html = editor.txt.html();
+        var type = $(".layui-btn-primary").attr("btype") == 1 ? 2 : 1;
+        var sendAccount = $("#userList").val();
+        var sendName = $("#userList").find("option:selected").text();
+        var title = $("#title").val();
+        if (sendAccount == '') {
+            layer.msg("请选择发送人", {offset: '300px', time: 1000}, function (index) {
+                layer.close(index);
+            });
+            layer.close(loading);
+            return;
+        }
+        if (title == '') {
+            layer.msg("请输入标题", {offset: '300px', time: 1000}, function (index) {
+                layer.close(index);
+            });
+            layer.close(loading);
+            return;
+        }
+        if (content == '') {
+            layer.msg("请输入内容", {offset: '300px', time: 1000}, function (index) {
+                layer.close(index);
+            });
+            layer.close(loading);
+            return;
+        }
+        $.ajaxUkey({
+            url: '/broadcast/push',
+            type: 'POST',
+            data: JSON.stringify({
+                content: content,
+                type: type,
+                sendAccount: sendAccount,
+                sendName: sendName,
+                html: html,
+                title: title
+            }),
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (res) {
+                layer.close(loading);
+                if (res.success) {
+                    // 置空输入框
+                    $("#content").val("");
+                    if ($.isEmptyObject(res.data)) {
+                        res.data = "操作成功。";
+                    }
+                    layer.msg(res.data, {offset: '300px', time: 3000}, function (index) {
+                        layer.close(index);
+                    });
+                } else {
+                    layer.msg(res.msg, {offset: '300px', time: 1000}, function (index) {
+                        layer.close(index);
+                    });
+                }
+                return false;
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(loading);
+                layer.msg("系统升级维护中，请稍后重试", {offset: '300px', time: 1000}, function (index) {
+                    layer.close(index);
+                });
+            }
+        });
+    }
+
+    /**
+     * 切换类型
+     * @param obj
+     */
+    function turnBType(obj) {
+        $(obj).removeClass("layui-btn-primary");
+        var cur_type = $(obj).attr("btype");
+        if (cur_type == 1) {
+            $("#all_user").addClass("layui-btn-primary");
+        } else if (cur_type == 2) {
+            $("#online_user").addClass("layui-btn-primary");
+        }
+    }
+</script>
+
+</html>

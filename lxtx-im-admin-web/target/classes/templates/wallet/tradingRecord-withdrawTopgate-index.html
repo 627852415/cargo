@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>交易流水</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+    .layuiadmin-btn-group{
+        position: absolute;
+        right: 15px;
+        top: 0px;
+    }
+    .account-css{
+        position: absolute;
+        right: 15px;
+    // top: 0px;
+
+    }
+    .telephone-css{
+        position: absolute;
+        right: 15px;
+        font-weight: bold;
+        top: 70px;
+    }
+    .amount-css{
+        color:#FFB800
+    }
+    .type-css{
+        font-weight: bold;
+        font-size:20px;
+    }
+</style>
+<body>
+
+<div style="padding: 20px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">[[#{text.topgate.withdraw.statistics}]]</div>
+                <div class="layui-card-body amount-css" id="amountBody" name="amountBody"></div>
+                <div class="layui-card-body">
+                    <div carousel-item="">
+                        <ul class="layui-row layui-col-space10 layui-this">
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.withdraw.topgate.amount.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalAmount}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.actualAmount.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalActualAmount}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.TotalFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.innerFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalInnerFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.thirdFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalThirdFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.topgate.imMerchantOut.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalImMerchantOut}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.topgate.topgateMerchantOut.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalTopgateMerchantOut}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.cumulative.orders}]]</h3>
+                                    <p class="type-css"><cite th:text="${totalStatistics.successOrders}"></cite></p>
+                                </a>
+                            </li>
+                        <!--    <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <p class="type-css">
+                                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                                        <button type="button" class="layui-btn" onclick="refreshData()">[[#{text.refresh}]]</button>
+                                    </div>
+                                    </p>
+                                </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <fieldset class="layui-elem-field border1">
+        <!--<div class="titleClas">交易流水:</div>-->
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="id" id="id" class="layui-input" th:placeholder="#{text.placeholder.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="topgateOrderId" id="topgateOrderId" class="layui-input" th:placeholder="#{text.placeholder.fast.exchange.topgate.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input" th:placeholder="#{text.placeholder.wallet.user.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userName" class="layui-input" th:placeholder="#{text.placeholder.user.username}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="countryCode" id="countryCode" lay-verify="">
+                            <option value="">[[#{text.country.code}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="telephone" id="telephone" class="layui-input" th:placeholder="#{text.placeholder.telephone}"/>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="payWay" name="payWay" lay-filter="status">
+                            <option value="">[[#{text.placeholder.payway}]]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item search-input" style="margin: 0;">
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" id="createTimeStart"
+								name="createTimeStart" th:placeholder="#{text.placeholder.start.trade.date}">
+						</div>
+
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" id="createTimeEnd"
+								name="createTimeEnd" th:placeholder="#{text.placeholder.end.trade.date}">
+						</div>
+						<div class="layui-input-inline">
+							<select id="status" name="status" lay-filter="status">
+								<option value="">[[#{text.placeholder.status}]]</option>
+								<option value="1">[[#{text.placeholder.status.handling}]]</option>
+								<option value="2">[[#{text.placeholder.status.success}]]</option>
+								<option value="3">[[#{text.placeholder.status.fail}]]</option>
+							</select>
+						</div>
+					</div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{field:'id', align:'center'}">[[#{text.column.order.number}]]</th>
+                <th lay-data="{field:'topgateOrderId', align:'center'}">[[#{text.column.topgate.order.number}]]</th>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.column.wallet.user.id}]]</th>
+                <th lay-data="{field:'userName', align:'center'}">[[#{text.column.user.username}]]</th>
+                <th lay-data="{field:'countryCode', align:'center'}">[[#{text.country.code}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.placeholder.telephone}]]</th>
+                <th lay-data="{align:'center', width: 120, templet: function (data){return getStatusStr(data.status);}}">[[#{text.column.status}]]</th>
+                <th lay-data="{field:'payWayName', align:'center'}">[[#{text.column.withdrawal.method}]]</th>
+                <th lay-data="{field:'coinName', align:'center'}">[[#{text.column.withdraw.topgate.coin}]]</th>
+                <th lay-data="{field:'amount', align:'center'}">[[#{text.column.withdraw.topgate.amount}]]</th>
+                <th lay-data="{field:'actualAmount', align:'center'}">[[#{text.column.withdraw.topgate.actual.amount}]]</th>
+                <th lay-data="{field:'fee', align:'center'}">[[#{text.column.fee}]]</th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.column.trade.date}]]</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+        <script type="text/html" id="barData">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="detail">[[#{text.column.see.detail}]]</a>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    initCountryCode();
+    //初始化国家简码选择框
+    function initCountryCode(){
+        $.ajax({
+            url: '/globalCode/listPage',
+            type: 'POST',
+            data: {current: 1, size: 10000},
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.success) {
+                    if (undefined != data && undefined != data.data && undefined != data.data.records) {
+                        var html = '';
+                        $.each(data.data.records, function (i, item) {
+                            html +='<option value="' + item.countryCode + '">' + item.countryCode + '/' + item.phoneCode + '</option>';
+                        })
+                        // console.log(html)
+                        $('#countryCode').append(html);
+                    }
+                }
+            }
+        });
+    }
+
+
+    var current = 1;
+    var size = 10;
+    var coinId;
+    var userId;
+    var type;
+    var respData;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // [[#{text.time.selection.general.usage}]]
+        laydate.render({
+            elem: '#createTimeStart'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不[[#{text.update.time}]]会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#createTimeStart").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTimeStart").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#createTimeEnd'
+            ,type: 'datetime'
+            , done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不[[#{text.update.time}]]会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+//                layer.msg("[[#{text.end.of.trading.period.cannot.be.larger.than.the.current.period}]]");
+//                $("#createTimeEnd").val("");
+//                return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.the.end.of.the.trading.period.cannot.be.less.than.the.beginning.of.the.trading.period}]]");
+                    $("#createTimeEnd").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+        //[[#{text.initial.currency.drop.down}]]
+        $.ajax({
+            url: "/tradingRecord/withdrawTopgate/palway/list",
+            type: "GET",
+            contentType : "application/json; charset=utf-8",
+            // data: "{\"coinName\":null,\"current\":1,\"size\":1000}",
+            success: function (res) {
+                var msg = res.data;
+                $.each(msg.list, function (i, v) {
+                    var id = v.payWay;
+                    var text = v.payName;
+                    $("#payWay").append("<option value='" + id + "'>" + text + "</option>");
+                });
+                form.render();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // alert(errorThrown);
+            }
+        });
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/tradingRecord/withdrawTopgate/listPage', 'dataTable', 'searchForm');
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        if (status == 1) {
+            statusStr = "<font color='orange'>[[#{text.processing}]]</font>";
+        }else if (status == 2) {
+            statusStr = "<font color='green'>[[#{text.success}]]</font>";
+        }else if (status == 3) {
+            statusStr = "<font color='red'>[[#{text.failure}]]</font>";
+        }
+        return statusStr;
+    }
+
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool(){
+        layui.use('table', function (){
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function(obj){
+                if(obj.event === 'detail'){
+                    detail("/tradingRecord/withdrawTopgate/detail?id=" + obj.data.id);
+                }
+            });
+        });
+    }
+
+    //保存，[[#{text.edit}]]
+    function detail(url){
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight>200? ( winHeight - 110) : winHeight;
+        //[[#{text.limit.maximum.height}]]
+        height = height>maxHeight?maxHeight:height;
+        openModal("[[#{text.see.details}]]", url, "600px", height+"px");
+    }
+
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/tradingRecord/withdrawTopgate/download/list?"+ $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/tradingRecord/withdrawTopgate/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    //[[#{text.acquire.lock}]]后去下载
+                    //window.location.href = url;
+                    //[[#{text.acquire.lock}]]后去下载
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+    function refreshData() {
+        window.location.href="/tradingRecord/withdrawTopgate/index?refresh=true"
+    }
+
+</script>

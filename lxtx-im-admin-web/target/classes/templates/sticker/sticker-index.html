@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>表情包列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/wallet/sticker/sticker-index.js}"></script>
+</head>
+<body>
+<style>
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">表情包列表:</div>
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <select name="status" lay-verify="" id="status">
+                            <option value="">请选择状态</option>
+                            <option value="0">正常</option>
+                            <option value="1">下架</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" class="layui-input"
+                               placeholder="名称"/>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input lay-filter="startTime" name="startTime" type="text" class="layui-input" id="startTime" placeholder="上传时间开始" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input lay-filter="endTime" name="endTime" type="text" class="layui-input" id="endTime" placeholder="上传时间结束" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0px;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">搜索</button>
+                        <shiro:hasPermission name="sticker:toAdd">
+                            <button type="button" onclick="add()" class="layui-btn">新增</button>
+                        </shiro:hasPermission>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+                <tr>
+                    <th lay-data="{type:'numbers', align:'center'}" >序号</th>
+                    <th lay-data="{field:'name', align:'center'}" >名称</th>
+                    <th lay-data="{field:'cover', align:'center',templet: function (data) {
+                     return '<img width=\'40px\' height=\'40px\' src=\'' + data.cover + '\'>';
+                    }}">封面图</th>
+                    <th lay-data="{field:'stickerSize', align:'center'}" >尺寸</th>
+                    <th lay-data="{field:'num', align:'center'}" >内含表情数</th>
+                    <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">上传时间
+                    </th>
+                    <th lay-data="{field:'downloadNum', align:'center'}">下载次数</th>
+                    <th lay-data="{field:'status', align:'center',templet: '#switchTpl', unresize: true}">是否上架
+                    </th>
+                    <th lay-data="{width: 150, align:'center',toolbar: '#barData'}">操作</th>
+                </tr>
+
+            </thead>
+        </table>
+        <script type="text/html" id="switchTpl">
+            <input shiro:hasPermission="'sticker:update'" type="checkbox" name="updateStatus"  value="{{d.status}}" aid = "{{d.id}}"
+                   lay-skin="switch" lay-text="正常|下架" lay-filter="statusFilter" {{ d.status == 0 ? 'checked' : '' }}>
+        </script>
+        <script type="text/html" id="barData">
+            <shiro:hasPermission name="sticker:jump:edit">
+                <a class="layui-btn layui-btn-sm tableBtn"  lay-event="edit">编辑</a>
+            </shiro:hasPermission>
+            <shiro:hasPermission name="sticker:delete">
+                <a class="layui-btn layui-btn-sm tableBtn" lay-event="del">删除</a>
+            </shiro:hasPermission>
+        </script>
+    </fieldset>
+</div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>[[#{text.offline.exchange.order.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="orderId" id="orderId" class="layui-input" th:placeholder="#{text.placeholder.offsite.orderId}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="buyerAccount" id="buyerAccount" class="layui-input" th:placeholder="#{text.placeholder.offsite.buyer.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="buyerNickName" id="buyerNickName" class="layui-input" th:placeholder="#{text.placeholder.offsite.buyer.nickName}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="buyerTelephone" id="buyerTelephone" class="layui-input" th:placeholder="#{text.placeholder.offsite.buyer.telephone}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchantAccount" id="merchantAccount" class="layui-input" th:placeholder="#{text.placeholder.offsite.merchant.account}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchantNickName" id="merchantNickName" class="layui-input" th:placeholder="#{text.placeholder.offsite.merchant.nickName}"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="merchantTelephone" id="merchantTelephone" class="layui-input" th:placeholder="#{text.placeholder.offsite.merchant.telephone}"/>
+                </div>
+            </div>
+            <div class="layui-form-item search-input" style="margin: 5px 0px 0px 0px;">
+                <div class="layui-input-inline">
+                    <select lay-filter="waveRate" id="waveRateId" name="waveRateId">
+                        <option value="">[[#{text.placeholder.waveRate}]]</option>
+                        <option th:each="waveRate : ${waveRateList}"
+                                th:value="${waveRate.waveRateId}"
+                                th:text="${waveRate.targetCoin}+' => '+${waveRate.sourceCoin}"></option>
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <select lay-filter="status" id="status" name="status">
+                        <option value="">[[#{text.column.status}]]</option>
+                        <option value="1">[[#{text.placeholder.offsite.status.unpaid}]]</option>
+                        <option value="2">[[#{text.placeholder.offsite.status.completed}]]</option>
+                        <option value="3">[[#{text.placeholder.offsite.status.cancelled}]]</option>
+                        <option value="4">[[#{text.placeholder.offsite.status.buyerPaid}]]</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input name="startDate" type="text" class="layui-input" id="startDate" th:placeholder="#{text.bengin.of.creation.date}" lay-search>
+                </div>
+                <div class="layui-input-inline">
+                    <input name="endDate" type="text" class="layui-input" id="endDate" th:placeholder="#{text.end.of.creation.date}" lay-search>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">[[#{text.search.for}]]</button>
+                    <button type="button" class="layui-btn" onclick="reset()">[[#{text.clear}]]</button>
+                    <shiro:hasPermission name="offsite:exchange:order:download">
+                    <button type="button" onclick="download(this)" class="layui-btn">[[#{text.export.file}]]</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="dataTable">
+        <thead>
+            <tr>
+                <th lay-data="{field:'orderId', align:'center',style:'height:55px;'}">[[#{text.order.number}]]</th>
+                <th lay-data="{field:'buyerAccountId', align:'center'}">[[#{text.buyer.account}]]</th>
+                <th lay-data="{field:'buyerTelephone', align:'center'}">[[#{text.buyer.telephone}]]</th>
+                <th lay-data="{width:'12%', field:'buyerName', align:'center'}">[[#{text.buyer.name}]]</th>
+                <th lay-data="{field:'merchantAccountId', align:'center'}">[[#{text.merchant.account}]]</th>
+                <th lay-data="{field:'merchantTelephone', align:'center'}">[[#{text.merchant.telephone}]]</th>
+                <th lay-data="{field:'merchantName', align:'center'}">[[#{text.merchant.name}]]</th>
+                <th lay-data="{field:'targetAmount', align:'center', templet: function(data){
+                        return data.targetAmount + data.targetCurrency;
+                    }}">[[#{text.order.exchange.volume}]]</th>
+                <th lay-data="{field:'sourceAmount', align:'center', templet: function(data){
+                        return data.sourceAmount + data.sourceCurrency;
+                    }}">[[#{text.order.exchange.amount}]]</th>
+                <th lay-data="{field:'exchangeRate', align:'center'}">[[#{text.exchange.rate}]]</th>
+                <th lay-data="{field:'merchantRebateAmount', align:'center', templet: function(data){
+                        return (data.merchantRebateAmount) ? (data.merchantRebateAmount + (data.merchantRebateAmountCurrency ? data.merchantRebateAmountCurrency : '')) : (0 + (data.merchantRebateAmountCurrency ? data.merchantRebateAmountCurrency : ''));
+                    }}">[[#{text.al.re.profit}]]</th>
+                <th lay-data="{field:'inviteRebateAmount', align:'center', templet: function(data){
+                        return (data.inviteRebateAmount) ? (data.inviteRebateAmount + (data.merchantRebateAmountCurrency ? data.merchantRebateAmountCurrency : '')) : (0 + (data.merchantRebateAmountCurrency ? data.merchantRebateAmountCurrency : ''));
+                    }}">[[#{text.subordinate.rebate}]]</th>
+                <th lay-data="{field:'platformRebateAmount', align:'center', templet: function(data){
+                        return (data.platformRebateAmount) ? (data.platformRebateAmount + (data.platformRebateAmountCurrency ? data.platformRebateAmountCurrency : '')) : (0 + (data.platformRebateAmountCurrency ? data.platformRebateAmountCurrency : ''));
+                    }}">[[#{text.platform.profit}]]</th>
+                <th lay-data="{field:'paymentMethod', align:'center'}">[[#{text.exchange.payment.method}]]</th>
+                <th lay-data="{field:'receiveMethod', align:'center'}">[[#{text.exchange.receive.method}]]</th>
+                <th lay-data="{width:'10%', field:'createTime', align:'center', templet: function(data){
+                        return formatDateL(data.createTime);
+                    }}">[[#{text.column.trade.date}]]</th>
+                <th lay-data="{width:'10%', field:'operateTime', align:'center', templet: function(data){
+                        return formatDateL(data.operateTime);
+                    }}">[[#{text.completed.time}]]</th>
+                <th lay-data="{field:'status', align:'center',templet: function (data) {
+                               return formatStatus(data);
+                            }}">[[#{text.column.status}]]
+                </th>
+                <th lay-data="{width:'10%', align:'center',toolbar: '#barData'}">[[#{text.operating}]]</th>
+            </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="detail">[[#{text.details}]]</a>
+    </script>
+</div>
+</div>
+</body>
+
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate, tmpDate;
+
+        laydate.render({
+            elem: '#startDate'
+            , done: function (value, date) {
+                curDate = formatDate(new Date);
+                tmpDate = $('#endDate').val();
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#startDate").val("");
+                    return;
+                } else if (tmpDate != '' && value > tmpDate) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#startDate").val("");
+                    return;
+                }
+            }
+        });
+        laydate.render({
+            elem: '#endDate'
+            , done: function (value, date) {
+                curDate = formatDate(new Date);
+                tmpDate = $('#startDate').val();
+                if (value > curDate) {
+                    layer.msg("[[#{text.operation.begin.more.than.end}]]");
+                    $("#endDate").val("");
+                    return;
+                } else if (tmpDate != '' && value < tmpDate) {
+                    layer.msg("[[#{text.operation.end.less.begin.time}]]");
+                    $("#endDate").val("");
+                    return;
+                }
+                endTime = value;
+            }
+        });
+
+    });
+
+    loadTableWithoutColumns('/offsite/exchange/order/list', 'dataTable', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function formatStatus(data){
+        if(data.status === 1) {
+            return '[[#{text.unpaid}]]';
+        } else if(data.status === 2) {
+            return '[[#{text.completed}]]';
+        } else if(data.status === 3) {
+            return '[[#{text.cancelled}]]';
+        } else if(data.status === 4) {
+            return '[[#{text.the.buyer.has.paid}]]';
+        }
+    }
+
+    //订单详情
+    function rowTool(){
+        layui.use('table', function (){
+            //监听行工具事件
+            table.on('tool(dataTable)', function(obj){
+                var data = obj.data;
+                if(obj.event === 'detail'){
+                    openModal("[[#{text.offline.exchange.order.details}]]", "/offsite/exchange/order/detail?orderId=" + obj.data.orderId, 700, 400);
+                }
+            });
+        });
+    }
+
+    //订单列表文件导出
+    function download(obj) {
+        var url = "/offsite/exchange/order/download?" + $('#searchForm').serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "true",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {title: '[[#{text.information}]]', icon: 2});
+                } else {
+                    window.location.href = url;
+                }
+
+            },
+            error: function () {
+                layer.alert("[[#{text.system.abnormal.export.failure.prompt.message}]]", {title: '[[#{text.information}]]', icon: 2});
+            }
+        });
+
+    }
+</script>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.exchange.rate.management}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <shiro:hasPermission name="add:offsite:exchange:wave:rate">
+                    <button type="button" class="layui-btn" onclick="save(this)">[[#{text.add}]]</button>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center',style:'height:65px;',width:'3%'}">[[#{text.serial.number}]]</th>
+            <th lay-data="{align:'center',width:'10%',templet: function (data) {
+                           return (data.targetCoinName + ' - ' + data.sourceCoinName);
+                        }}">[[#{text.exchange.currency.pairs}]]</th>
+            <th lay-data="{field:'minAmount',width:'10%', align:'center'}">[[#{text.minimum}]]</th>
+            <th lay-data="{align:'center',width:'10%',templet: function (data) {
+                           return data.rateType === 0 ? (data.waveRate * 100 + '%') : data.waveRate;
+                        }}">[[#{text.column.fee}]]</th>
+            <th lay-data="{align:'center',width:'15%',templet: function (data) {
+                           return data.exchangeRateModel == 1 ?
+                           ('1 ' + data.targetCoinName + ' = ' + data.exchangeRate + ' ' + data.sourceCoinName):
+                           ('1 ' + data.sourceCoinName + ' = ' + data.exchangeRate + ' ' + data.targetCoinName);
+                        }}">[[#{text.edit.exchange.rate}]]</th>
+            <th lay-data="{field:'merchantOutPayment',width:'15%', align:'center'}">[[#{text.offsite.exchange.merchant.out.payment}]]</th>
+            <th lay-data="{field:'waveRateRebate',width:'15%', align:'center'}">[[#{text.offsite.exchange.buyer.out.payment}]]</th>
+            <th lay-data="{align:'center',width:'22%',toolbar: '#barData'}">[[#{text.operating}]]</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="edit" shiro:hasPermission="'edit:offsite:exchange:wave:rate'">
+            <i class="layui-icon"></i>[[#{text.edit}]]</a>
+        <a class="layui-btn tableBtn" lay-event="areaEdit" shiro:hasPermission="'edit:offsite:exchange:wave:rate:area'">
+            <i class="layui-icon"></i>[[#{text.locale}]]</a>
+        <a class="layui-btn tableBtn" lay-event="del" shiro:hasPermission="'del:offsite:exchange:wave:rate'">
+            <i class="layui-icon"></i>[[#{text.delete}]]</a>
+    </script>
+</div>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //查询数据
+    loadTableWithoutColumns('/offsite/exchange/wave/rate/list/page', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'edit') {
+                    save(obj.data);
+                } else if (obj.event === 'del') {
+                    del(obj.data.id);
+                } else if (obj.event === 'areaEdit') {
+                    areaEdit(obj.data);
+                }
+            });
+        });
+    }
+
+    //新增或编辑
+    function save(obj) {
+        var aid = $(obj).attr("id");
+        var url;
+        var title = '[[#{text.add}]]';
+        if (aid != undefined) {
+            url = "/offsite/exchange/wave/rate/edit?id=" + aid.toString();
+            title = '[[#{text.edit}]]';
+        } else {
+            url = "/offsite/exchange/wave/rate/add";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['560px', '800px'], //宽高
+            content: url
+        });
+    }
+
+    //删除
+    function del(id) {
+        layer.confirm('[[#{text.are.you.sure.you.want.to.delete}]]', {icon: 3, title: '[[#{text.operation.alert}]]', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/offsite/exchange/wave/rate/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg('[[#{text.successful.operation}]]');
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    function areaEdit(obj) {
+        var waveRateId = $(obj).attr("id");
+        var targetCoinId = $(obj).attr("targetCoinId");
+        var sourceCoinId = $(obj).attr("sourceCoinId");
+        var exchangeCoinName = $(obj).attr("targetCoinName");
+        var payCoinName = $(obj).attr("sourceCoinName");
+        var waveRate = $(obj).attr("waveRate");
+        var exchangeRateModel = $(obj).attr("exchangeRateModel");
+        var params = "?waveRateId=" + waveRateId
+            + "&exchangeCoinName=" + exchangeCoinName
+            + "&payCoinName=" + payCoinName
+            + "&targetCoinId=" + targetCoinId
+            + "&sourceCoinId=" + sourceCoinId
+            + "&exchangeRateModel=" + exchangeRateModel
+            + "&waveRate=" + waveRate;
+        var url = "/offsite/exchange/wave/rate/areaEdit/" + params;
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: 'auto',
+            title: '<b>[[#{text.edit.regional.exchange.rate}]]</b>',
+            area: ['1180px', '550px'], //宽高
+            content: url
+        });
+    }
+
+</script>
+</body>
+</html>

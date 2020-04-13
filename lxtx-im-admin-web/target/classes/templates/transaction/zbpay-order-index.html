@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title></title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+    .layuiadmin-btn-group{
+        position: absolute;
+        right: 15px;
+        top: 0px;
+    }
+    .account-css{
+        position: absolute;
+        right: 15px;
+    // top: 0px;
+
+    }
+    .telephone-css{
+        position: absolute;
+        right: 15px;
+        font-weight: bold;
+        top: 70px;
+    }
+    .amount-css{
+        color:#FFB800
+    }
+    .type-css{
+        font-weight: bold;
+        font-size:20px;
+    }
+</style>
+<body>
+
+<div style="padding: 20px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">[[#{text.topgate.recharge.statistics}]]</div>
+                <div class="layui-card-body amount-css" id="amountBody" name="amountBody"></div>
+                <div class="layui-card-body">
+                    <div carousel-item="">
+                        <ul class="layui-row layui-col-space10 layui-this">
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.withdraw.topgate.amount.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalAmount}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.actualAmount.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalActualAmount}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.TotalFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.innerFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalInnerFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.thirdFee.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalThirdFee}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.topgate.imMerchantIn.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalImMerchantIn}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.column.topgate.topgateMerchantIn.total}]]</h3>
+                                    <div class="layui-form-item" th:each="amountValue : ${totalStatistics.totalTopgateMerchantIn}">
+                                        <p class="type-css"><cite th:text="${amountValue.value}"></cite> [[${amountValue.coinName}]]</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <h3>[[#{text.cumulative.orders}]]</h3>
+                                    <p class="type-css"><cite th:text="${totalStatistics.successOrders}"></cite></p>
+                                </a>
+                            </li>
+                            <!--<li class="layui-col-xs3">
+                                <a class="layadmin-backlog-body">
+                                    <p class="type-css">
+                                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                                        <button type="button" class="layui-btn" onclick="refreshData()">[[#{text.refresh}]]</button>
+                                    </div>
+                                    </p>
+                                </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="id" id="id" class="layui-input" th:placeholder="#{text.placeholder.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="thirdPartyOrderNo" id="thirdPartyOrderNo" class="layui-input" th:placeholder="#{text.placeholder.zbpay.order.number}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input" th:placeholder="#{text.placeholder.wallet.user.id}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userName" id="userName" class="layui-input" th:placeholder="#{text.placeholder.user.username}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="countryCode" id="countryCode" lay-verify="">
+                            <option value="">[[#{text.column.platform.area.code}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="telephone" id="telephone" class="layui-input"
+                               th:placeholder="#{text.placeholder.telephone}"/>
+                    </div>
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-input-inline">
+                        <select id="status" name="status" lay-filter="capitalType">
+                            <option value="">[[#{text.placeholder.status}]]</option>
+                            <option value="1">[[#{text.placeholder.status.handling}]]</option>
+                            <option value="2">[[#{text.placeholder.status.success}]]</option>
+                            <option value="3">[[#{text.placeholder.status.fail}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="payWay" name="payWay" lay-filter="capitalType">
+                            <option value="">[[#{text.placeholder.type}]]</option>
+                            <option value="1">[[#{text.placeholder.payWay.WechatPay}]]</option>
+                            <option value="2">[[#{text.placeholder.payWay.AliPay}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime" th:placeholder="#{text.placeholder.start.trade.date}" lay-search>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime" th:placeholder="#{text.placeholder.end.trade.date}" lay-search>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <button type="button" onclick="download()" class="layui-btn">[[#{text.button.export.file}]]</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 40, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <!--资金托管订单号，6X订单号，用户钱包ID，用户昵称，类型，状态，币种，金额，手续费，交易时间-->
+            <tr>
+                <th lay-data="{field:'id', align:'center'}">[[#{text.column.order.number}]]</th>
+                <th lay-data="{field:'thirdPartyOrderNo', align:'center'}">[[#{text.placeholder.zbpay.order.number}]]</th>
+                <th lay-data="{field:'userId', align:'center'}">[[#{text.column.wallet.user.id}]]</th>
+                <th lay-data="{field:'userName', align:'center'}">[[#{text.column.user.username}]]</th>
+                <th lay-data="{field:'countryCode', align:'center'}">[[#{text.country.code}]]</th>
+                <th lay-data="{field:'telephone', align:'center'}">[[#{text.telephone.number}]]</th>
+                <th lay-data="{field:'payWay', align:'center', templet: function (data){return getPayWayName(data.payWay);}}">[[#{text.column.payWay}]]</th>
+                <th lay-data="{field:'status', align:'center',templet: function (data){return getStatusStr(data.status);}}">[[#{text.column.status}]]</th>
+                <th lay-data="{field:'actualAmount', align:'center'}">[[#{text.column.withdraw.topgate.actual.amount}]]</th>
+                <th lay-data="{field:'amount', align:'center'}">[[#{text.column.withdraw.topgate.amount}]]</th>
+                <th lay-data="{field:'coinName', align:'center'}">[[#{text.column.coin}]]</th>
+                <th lay-data="{field:'innerFee', align:'center'}">[[#{text.column.innerFee}]]</th>
+                <th lay-data="{field:'thirdFee', align:'center'}">[[#{text.column.thirdFee}]]</th>
+                <th lay-data="{field:'fee', align:'center'}">[[#{text.column.TotalFee}]]</th>
+                <th lay-data="{field:'createTime', align:'center',templet: function (data) {
+                           return formatDateL(data.createTime);
+                        }}">[[#{text.column.trade.date}]]</th>
+<!--                <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间</th>-->
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){
+                     return renderBtn(data);
+                }}">[[#{text.column.operate}]]
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    initCountryCode($('#countryCode'));
+    var current = 1;
+    var size = 10;
+    var iframeNode;
+    //控件初始化
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var curDate = formatDateL(new Date);
+        var createTime, updateTime;
+        // 时间选择常规用法
+        laydate.render({
+            elem: '#createTime',
+            type: 'datetime',
+            done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不更新时间会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+                    layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+                    $("#createTime").val("");
+                    return;
+                } else if (value > updateTime) {
+                    layer.msg("[[#{text.start.transaction.date.cannot.be.greater.than.end.transaction.date}]]");
+                    $("#createTime").val("");
+                    return;
+                }
+                createTime = value;
+            }
+        });
+        laydate.render({
+            elem: '#updateTime',
+            type: 'datetime',
+            done: function (value, date) {
+                //实时修正当前时间（场景是用户出于日交替的时间前一天跨度到后一天时候，不更新时间会出现时间还是昨天）
+                curDate = formatDateL(new Date);
+                if (value > curDate) {
+//                layer.msg("[[#{text.start.trading.period.cannot.be.larger.than.current.period}]]");
+//                $("#updateTime").val("");
+//                return;
+                } else if (value < createTime) {
+                    layer.msg("[[#{text.the.end.of.the.trading.period.cannot.be.less.than.the.beginning.of.the.trading.period}]]");
+                    $("#updateTime").val("");
+                    return;
+                }
+                updateTime = value;
+            }
+        });
+
+    });
+
+    //列表数据
+    loadTableWithoutColumns('/transaction/zbpay/order/listPage', 'dataTable', 'searchForm');
+
+    //列表文件导出
+    function download() {
+        var url = "/transaction/zbpay/order/download?"+ $("#searchForm").serialize();
+        // 获取锁
+        var urlLock = "/transaction/zbpay/order/downloadLock?"+ $("#searchForm").serialize();
+        $.ajaxUkey({
+            url : urlLock,
+            type : "post",
+            async : "true",
+            contentType : "application/x-www-form-urlencoded; charset=utf-8",
+            success : function(responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title : '[[#{text.information}]]',
+                        icon : 2
+                    });
+                } else {
+                    //获取锁后去下载
+                    //window.location.href = url;
+                    //获取锁后去下载
+                    if(iframeNode!=undefined&&iframeNode!=null){
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent){ // 兼容IE写法
+                        iframeNode.attachEvent("onload", function(){
+                            // iframeNode加载完成后要进行的操作
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function(){
+                            // iframeNode加载完成后要进行的操作
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if(!""==msgerror){
+                                layer.alert(msgerror, {
+                                    title : '[[#{text.information}]]',
+                                    icon : 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error : function() {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title : '[[#{text.information}]]',
+                    icon : 2
+                });
+            }
+        });
+    }
+
+
+    //查看详情
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.column.see.detail}]]</a>';
+    }
+    function detail(obj) {
+        var me = $(obj);
+        var id = me.attr('aid');
+        var url = "/transaction/zbpay/order/detail?id=" + id;
+        openModal("[[#{text.column.see.detail}]]", url, "800px", "620px");
+    }
+
+    function getStatusStr(status) {
+        var statusStr = "";
+        switch (status) {
+            case 0 :
+            case 1 :
+                statusStr = "<font color='orange'>[[#{text.processing}]]</font>";break
+            case 2 :
+                statusStr = "<font color='green'>[[#{text.success}]]</font>";break
+            case 3 :
+                statusStr = "<font color='red'>[[#{text.failure}]]</font>";break
+            default:
+                statusStr = status;break
+        }
+        return statusStr;
+    }
+
+    function getPayWayName(payWay) {
+        var payWayNameStr = "";
+        switch (payWay) {
+            case 1 :
+                payWayNameStr = '[[#{text.placeholder.payWay.WechatPay}]]';break
+            case 2 :
+                payWayNameStr = '[[#{text.placeholder.payWay.AliPay}]]';break
+            case 3 :
+                payWayNameStr = '[[#{text.placeholder.payWay.DigitalPay}]]';break
+            case 4 :
+                payWayNameStr = '[[#{text.placeholder.payWay.AliPay_QN}]]';break
+            case 5 :
+                payWayNameStr = '[[#{text.placeholder.payWay.WechatPhone}]]';break
+            default: {
+                payWayNameStr = payWay;break
+            }
+        }
+        return payWayNameStr;
+    }
+
+    function refreshData() {
+        window.location.href="/transaction/zbpay/order/index?refresh=true"
+    }
+
+</script>

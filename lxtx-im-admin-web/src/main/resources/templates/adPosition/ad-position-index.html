@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>广告位管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="adPositionName" id="adPositionName" class="layui-input"
+                               th:placeholder="#{text.ad.position.please.enter.adPositionName}">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="attributionPage" name="attributionPage">
+                            <option value="">[[#{text.select.placeholder}]]</option>
+                            <option value="1">[[#{text.ad.position.discoveryPage}]]</option>
+                            <option value="2">[[#{text.ad.position.startupPage}]]</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="displayMethod" name="displayMethod">
+                            <option value="">[[#{text.select.placeholder}]]</option>
+                            <option value="1">[[#{text.ad.position.picturePoll}]]</option>
+                            <option value="2">[[#{text.ad.position.singleImage}]]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">[[#{text.button.search}]]</button>
+                        <button type="button" class="layui-btn" onclick="reset()">[[#{text.button.clear}]]</button>
+                        <shiro:hasPermission name="ad:position:toAdd">
+                        <button type="button" onclick="add()" class="layui-btn">[[#{text.operation.add}]]</button>
+                        </shiro:hasPermission>
+                    </div>
+
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{field:'adPositionName', align:'center'}">[[#{text.ad.position.adPositionName}]]</th>
+                <th lay-data="{align:'center', width: 120, templet: function (data){return getAttributionPage(data.attributionPage);}}">[[#{text.ad.position.attributionPage}]]</th>
+                <th lay-data="{align:'center', width: 120, templet: function (data){return getsize(data.height,data.width);}}">[[#{text.ad.position.ad.size}]]</th>
+                <th lay-data="{align:'center', width: 120, templet: function (data){return getDisplayMethod(data.displayMethod);}}">[[#{text.ad.position.displayMethod}]]</th>
+                <th lay-data="{field:'adNumber', align:'center'}">在线广告数</th>
+                <th lay-data="{minWidth: 100, align:'center',toolbar: '#barData'}">[[#{text.column.operate}]]</th>
+            </tr>
+            </thead>
+        </table>
+        <script type="text/html" id="barData">
+            <shiro:hasPermission name="ad:position:edit">
+            <a class="layui-btn layui-btn-sm tableBtn" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            </shiro:hasPermission>
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="detail">[[#{text.column.see.detail}]]</a>
+            <shiro:hasPermission name="ad:position:del">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="del">[[#{text.delete}]]</a>
+            </shiro:hasPermission>
+            <shiro:hasPermission name="ad:position:toAdd">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="put">[[#{text.ad.position.put}]]</a>
+            </shiro:hasPermission>
+        </script>
+    </fieldset>
+</div>
+
+</body>
+</html>
+<script type="text/javascript">
+    var current = 1;
+    var size = 10;
+    var type;
+    var iframeNode;
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+    });
+
+    //debugger;
+    loadTableWithoutColumns('/ad/position/listPage', 'dataTable', 'searchForm');
+
+
+
+    function renderBtn(data) {
+        return '<a href="javascript:;" onclick="detail(this)" aid="' + data.id + '" class="layui-btn layui-btn-sm">[[#{text.see.details}]]</a>';
+    }
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool(){
+        layui.use('table', function (){
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function(obj){
+                if(obj.event === 'detail'){
+                    detail("/ad/position/detail?id=" + obj.data.id);
+                }else if(obj.event === 'del'){
+                    del(obj.data.id);
+                }else if(obj.event === 'edit'){
+                    add(obj.data.id);
+                }else if(obj.event === 'put'){
+                    put(obj.data.id);
+                }
+            });
+        });
+    }
+
+    //投放广告
+    function  put(id) {
+        var e = $(this);
+        var i = "/ad/toAdd?id=" + id;
+        var t = "投放广告";
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+    //保存，[[#{text.edit}]]
+    function detail(url){
+        var maxHeight = 750;
+        var winHeight = window.parent.document.body.clientHeight;
+        var height = winHeight>200? ( winHeight - 110) : winHeight;
+        //[[#{text.limit.maximum.height}]]
+        height = height>maxHeight?maxHeight:height;
+        openModal("[[#{text.see.details}]]", url, "600px", height+"px");
+    }
+
+    //新增或编辑
+    function add(obj) {
+        var aid = obj;
+        var url;
+        var title = '[[#{text.add}]]';
+        if (aid != undefined) {
+            url = "/ad/position/edit?id=" + aid.toString();
+            title = '[[#{text.edit}]]';
+        } else {
+            url = "/ad/position/toAdd";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['560px', '600px'], //宽高
+            content: url
+        });
+    }
+
+    function del(id) {
+        layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]',
+            offset: 100
+        }, function (index) {
+            //[[#{text.close.popup.layer}]]
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                data: JSON.stringify({id: id}),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/ad/position/del',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("[[#{text.successful.operation}]]");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    function getAttributionPage(attributionPage) {
+        var attributionPageStr = "";
+        if (attributionPage == 1) {
+            attributionPageStr = "[[#{text.ad.position.discoveryPage}]]";
+        }else if (attributionPage == 2) {
+            attributionPageStr = "[[#{text.ad.position.startupPage}]]";
+        }
+        return attributionPageStr;
+    }
+    function getDisplayMethod(displayMethod) {
+        var displayMethodStr = "";
+        if (displayMethod == 1) {
+            displayMethodStr = "[[#{text.ad.position.picturePoll}]]";
+        }else if (displayMethod == 2) {
+            displayMethodStr = "[[#{text.ad.position.singleImage}]]";
+        }
+        return displayMethodStr;
+    }
+
+    function getsize(height,width){
+        return height+"*"+width;
+    }
+
+</script>

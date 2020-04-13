@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建广告位</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" action="" >
+    <input type="hidden" th:value="${detail} ? ${detail.id}" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.ad.position.adPositionName}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="adPositionName" name="adPositionName" th:value="${detail} ? ${detail.adPositionName}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="#{text.ad.position.adPositionName}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.select.placeholder}]]</label>
+        <div class="layui-input-inline">
+            <select  name="attributionPage">
+                <option value="">[[#{text.select.placeholder}]]</option>
+                <option value="1" th:selected="${detail != null and detail.attributionPage == 1}">[[#{text.ad.position.discoveryPage}]]</option>
+                <option value="2" th:selected="${detail != null and detail.attributionPage == 2}">[[#{text.ad.position.startupPage}]]</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.ad.position.ad.height}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="height" name="height" th:value="${detail} ? ${detail.height}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="#{text.ad.position.unit.px}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.ad.position.ad.width}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="width" name="width" th:value="${detail} ? ${detail.width}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="#{text.ad.position.unit.px}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label" >[[#{text.ad.position.displayMethod}]]</label>
+        <div class="layui-input-inline">
+            <select  name="displayMethod">
+                <option value="">[[#{text.select.placeholder}]]</option>
+                <option value="1" th:selected="${detail != null and detail.displayMethod == 1}">[[#{text.ad.position.picturePoll}]]</option>
+                <option value="2" th:selected="${detail != null and detail.displayMethod == 2}">[[#{text.ad.position.singleImage}]]</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.ad.position.picturePoll.count}]]</label>
+        <div class="layui-input-inline">
+            <input type="text" id="number" name="number" th:value="${detail} ? ${detail.number}" lay-verify="required"
+                   autocomplete="off" class="layui-input" th:placeholder="#{text.ad.position.please.enter.picturePoll.count}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">[[#{text.ad.position.materialNotes}]]</label>
+        <div class="layui-input-inline">
+            <textarea id="materialNotes" name="materialNotes"  th:text="${detail} ? ${detail.materialNotes}" lay-verify="required"
+                      th:placeholder="#{text.ad.position.please.enter.materialNotes}"  class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+<script>
+    layui.use(['layer', 'upload'], function () {
+        var layer = layui.layer
+            , upload = layui.upload;
+
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+    });
+    //[[#{text.save}]]
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        data.field.enable = $("#enable").is(':checked');
+
+        $.ajaxUkey({
+            url: "/ad/position/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

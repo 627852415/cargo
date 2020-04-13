@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>[[#{text.exchange.rate.configuration.save}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+    <input type="hidden" th:value="${waveRateModel} ? ${waveRateModel.id}" name="id"/>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.payment.currency}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="targetCoinId" lay-search="" id="targetCoinIdFilter" lay-filter="targetCoinIdFilter">
+                    <option th:each="coin : ${coinList}" th:text="${coin.legalCoinName}" th:value="${coin.relationCoinId}" th:cny="${coin.toCny}" th:usdx="${coin.toUsdx}"
+                            th:selected="${waveRateModel != null and coin != null and coin.relationCoinId == waveRateModel.targetCoinId}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px;">[[#{text.offsite.exchange.buyer.out.payment}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="rebateIds" xm-select="rebateList" xm-select-direction="down" lay-verify="required" lay-verType="tips">
+                    <option th:each="rebate : ${rebateList}" th:text="${rebate.payTypeName}" th:value="${rebate.id}" th:selected="${rebate.chooseFlag}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.exchange.currency}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="sourceCoinId" lay-search="" id="sourceCoinIdFilter" lay-filter="sourceCoinIdFilter">
+                    <option th:each="coin : ${coinList}" th:text="${coin.legalCoinName}" th:value="${coin.relationCoinId}" th:cny="${coin.toCny}" th:usdx="${coin.toUsdx}"
+                            th:selected="${waveRateModel != null and coin != null and coin.relationCoinId == waveRateModel.sourceCoinId}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px;">[[#{text.offsite.exchange.merchant.out.payment}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <select name="merchantOutPaymentIds" xm-select="merchantOutPaymentList" xm-select-direction="down" lay-verify="required" lay-verType="tips">
+                    <option th:each="merchantOutPayment : ${merchantOutPaymentList}" th:text="${merchantOutPayment.payTypeName}" th:value="${merchantOutPayment.id}" th:selected="${merchantOutPayment.chooseFlag}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.minimum}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="number" name="minAmount" th:value="${waveRateModel} ? ${waveRateModel.minAmount}"
+                       lay-verify="number" th:placeholder="#{text.please.enter.a.minimum.amount}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-block" style="margin-left: 140px; display: none;">
+                <input lay-filter="rateTypeFilter" type="radio" name="rateType" value="0" title="[[#{text.floating.exchange.rate}]]" th:checked="${waveRateModel == null || waveRateModel.rateType == 0}">
+                <input lay-filter="rateTypeFilter" type="radio" name="rateType" value="1" title="[[#{text.fixed.exchange.rate}]]" th:checked="${waveRateModel != null && waveRateModel.rateType == 1}">
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:85px;">[[#{text.default.fee}]]</label>
+                <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                    <input style="width: 220px;display: inline-block" type="number" name="waveRate"
+                           th:value="${waveRateModel != null && waveRateModel.rateType == 0} ? (${waveRateModel.waveRate} * 100) : (${waveRateModel != null} ? ${waveRateModel.waveRate})"
+                           lay-verify="number" th:placeholder="#{text.if.enter.percentage}" autocomplete="off"
+                           class="layui-input"><label id="waveRatePerId" th:hidden="${waveRateModel != null && waveRateModel.rateType != 0}">%</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.sort}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="" type="number" name="sort"
+                       lay-verify="number" th:placeholder="#{text.please.enter.sort}" autocomplete="off"
+                       class="layui-input" th:value="${waveRateModel} ? ${waveRateModel.sort}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.reference.exchange.rate}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="radio" name="exchangeRateModel" id="exchangeRateModel0" th:checked="${waveRateModel} == null ? false : (${waveRateModel.exchangeRateModel} == 0 ? true : false)" value="0" title=" - ">
+                <input type="radio" name="exchangeRateModel" id="exchangeRateModel1" th:checked="${waveRateModel} == null ? true : (${waveRateModel.exchangeRateModel} == 1 ? true : false)" value="1" title=" - ">
+            </div>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="number" name="referenceRate" th:value="${waveRateModel} ? ${waveRateModel.referenceRate} : 0" lay-verify="number|fourDecimalNumber" th:placeholder="#{text.please.enter.a.reference.exchange.rate}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display: none;">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">换汇汇率</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="" type="number" name="exchangeRate"
+                       placeholder="根据输入的参考汇率与浮动汇率计算得出" autocomplete="off"
+                       class="layui-input" readonly>
+                <!--<label class="layui-input-block">&#45;&#45;</label>-->
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <dvi class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.offsite.exchange.sort.rule}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input type="radio" name="sortRule" th:checked="${waveRateModel} == null ? true : (${waveRateModel.sortRule} == 0 ? true : false)" value="0" th:title="#{text.offsite.exchange.priority.high.exchange.rate}">
+                <input type="radio" name="sortRule" th:checked="${waveRateModel} == null ? false : (${waveRateModel.sortRule} == 1 ? true : false)" value="1" th:title="#{text.offsite.exchange.priority.low.exchange.rate}">
+            </div>
+        </dvi>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">[[#{text.offsite.exchange.float.scope}]]</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="width: 220px;display: inline-block" type="number" name="floatScope" lay-verify="number" th:placeholder="#{text.please.offsite.exchange.float.scope}" autocomplete="off" class="layui-input"
+                       th:value="${waveRateModel} ? (${waveRateModel.floatScope} ? ${waveRateModel.floatScope} : 0) : 0" ><label>%</label>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    /**
+     * 根据输入的浮动汇率计算换汇汇率
+     * @param waveRateInput
+     */
+    function countExchangeRate() {
+        var rateType = $("input[name='rateType']:checked").val();
+        if (rateType == 0) {
+            var referenceRate = $("input[name='referenceRate']").val();
+            $("input[name='referenceRate']").val(referenceRate);
+            $("input[name='exchangeRate']").val(referenceRate);
+        } else if (rateType == 1) {
+            $("input[name='exchangeRate']").val($("input[name='waveRate']").val());
+        }
+    }
+
+    $(function(){
+        let countCurrentRate;
+
+        countCurrentRate = getCurrentRate($('#targetCoinIdFilter option:selected').val(), $('#sourceCoinIdFilter option:selected').val());
+        $("input[name='currentRate']").val(countCurrentRate);
+
+        //监听计算换汇汇率
+        $("input[name='waveRate'],input[name='referenceRate']").bind("input propertychange", function () {
+            $(this).val($(this).val().replace("-",""));
+            countExchangeRate();
+        });
+
+    });
+
+    layui.formSelects.render('merchantOutPaymentList');
+    layui.formSelects.render('rebateList');
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+
+    if($('.xm-select--suffix input[placeholder="请选择"]').length > 0){
+        $('.xm-select--suffix input[placeholder="请选择"]').attr('placeholder', '[[#{text.select.placeholder}]]');
+    }
+    if($('.xm-select--suffix input[back="请选择"]').length > 0){
+        $('.xm-select--suffix input[back="请选择"]').attr('back', '[[#{text.select.placeholder}]]');
+    }
+    $('.xm-cz-group [method="全选"] span').html('[[#{text.select.all.span}]]');
+    $('.xm-cz-group [method="清空"] span').html('[[#{text.select.clear.span}]]');
+    $('.xm-cz-group [method="反选"] span').html('[[#{text.select.invert.span}]]');
+
+    $('#exchangeRateModel0').attr('title', ($('#sourceCoinIdFilter option:selected').text() + " - " + $('#targetCoinIdFilter option:selected').text()));
+    $('#exchangeRateModel1').attr('title', ($('#targetCoinIdFilter option:selected').text() + " - " + $('#sourceCoinIdFilter option:selected').text()));
+
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.verify({
+            fourDecimalNumber: function(value){
+                debugger;
+                var reg = /^\d+(?:\.\d{1,4})?$/;
+                if(!reg.test(Number(value))){
+                    return '[[#{text.max.four.decimal.number}]]';
+                }
+                if(Number(value) <= 0){
+                    return '[[#{text.greater.than.zero}]]'
+                }
+            }
+        });
+
+        //汇率类型
+        form.on('radio(rateTypeFilter)', function (data) {
+            if (data.value == 0) {
+                $("#waveRatePerId").show();
+            } else if (data.value == 1) {
+                $("#waveRatePerId").hide();
+            }
+
+            $("input[name='waveRate']").val("");
+            $("input[name='exchangeRate']").val("");
+            return false;
+        });
+
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+        //计算实时汇率
+        form.on('select(sourceCoinIdFilter)', function (data) {
+            let countCurrentRate;
+
+            countCurrentRate = getCurrentRate($('#targetCoinIdFilter option:selected').val(), $('#sourceCoinIdFilter option:selected').val());
+            $("input[name='currentRate']").val(countCurrentRate);
+
+            //若已输入浮动汇率，则同步换汇汇率
+            var waveRateInput = $("input[name='waveRate']").val();
+            if (waveRateInput !== "") {
+                countExchangeRate();
+            }
+            changeExchangeRateModel();
+        });
+        form.on('select(targetCoinIdFilter)', function (data) {
+            let countCurrentRate;
+
+            countCurrentRate = getCurrentRate($('#targetCoinIdFilter option:selected').val(), $('#sourceCoinIdFilter option:selected').val());
+            $("input[name='currentRate']").val(countCurrentRate);
+
+            //若已输入浮动汇率，则同步换汇汇率
+            var waveRateInput = $("input[name='waveRate']").val();
+            if (waveRateInput !== "") {
+                countExchangeRate();
+            }
+            changeExchangeRateModel();
+        });
+
+    });
+
+    function changeExchangeRateModel(){
+        $('#exchangeRateModel0').attr('title', ($('#sourceCoinIdFilter option:selected').text() + " - " + $('#targetCoinIdFilter option:selected').text()));
+        $('#exchangeRateModel1').attr('title', ($('#targetCoinIdFilter option:selected').text() + " - " + $('#sourceCoinIdFilter option:selected').text()));
+        layui.form.render();
+    }
+
+    function getCurrentRate(sourceCoin, targetCoin) {
+        if (sourceCoin == targetCoin) {
+            return 1;
+        }
+
+        var waveRateInput = $("input[name='waveRate']").val();
+        if (waveRateInput !== "") {
+            countExchangeRate(waveRateInput);
+        }
+    }
+
+    //保存
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        formData.merchantOutPaymentIds = layui.formSelects.value('merchantOutPaymentList', 'val');
+        formData.rebateIds = layui.formSelects.value('rebateList', 'val');
+
+        //浮动汇率百分比
+        if (formData.rateType == 0) {
+            formData.waveRate = formData.waveRate/100;
+        }
+        $.ajaxUkey({
+            url: "/offsite/exchange/wave/rate/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]！', {title: '[[#{text.operation.message}]]', icon: 6}, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // 提示失败
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {title: '[[#{text.operation.message}]]', icon: 5});
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>系统用户管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!--<link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/layui/lay/modules/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/layui.define.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>-->
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="username" class="layui-input" placeholder="请输入用户名" />
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="mobile" class="layui-input" placeholder="请输入电话号码" />
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn"  onclick="search()">搜索</button>
+                    <button type="button" class="layui-btn"  onclick="reset()">清空</button>
+                    <button type="button" class="layui-btn"  onclick="create()">新增用户</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th>角色</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="content"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="5">
+                        <!--分页容器-->
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+
+<!--  新增或修改用户信息 -->
+<div id="modifyData" style="display: none;">
+    <form class="layui-form"  action="" id="modifyForm" style="padding-top: 30px">
+        <input type="hidden" id="userId" name="userId">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">用户名</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text" autocomplete="off" name="username"
+                           placeholder=""  class="layui-input"
+                           id="username">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" id="pas-div1">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">密码</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="password" autocomplete="new-password" name="password" value=""
+                           placeholder=""  class="layui-input"
+                           id="password">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" id="pas-div2" >
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">确认密码</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="password" autocomplete="new-password" name="password2" value=""
+                           placeholder=""  class="layui-input"
+                           id="password2">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">token编号</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text"  name="usbTokenNo" value=""
+                           placeholder=""  class="layui-input"
+                           id="usbTokenNo">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">IP绑定</label>
+                <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                    <input type="text"  name="ip"
+                           placeholder=""  class="layui-input"
+                           id="ip">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:80px;">所属角色</label>
+                <div class="layui-input-block" style="margin-left:110px;" id="roleDiv">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 200px;">
+                <a class="layui-btn" onclick="modify('modifyForm')">确定</a>
+                <a class="layui-btn" onclick="cancelModify()">取消</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    });
+    layui.use('form', function() {
+        var form = layui.form;
+    });
+
+    var current = 1;
+    var size = 10;
+    var respData;
+    $(function () {
+        //初始化加载数据
+        search(current, size);
+    });
+
+    //重置查询条件
+    function reset(){
+        $('#searchForm')[0].reset();
+    };
+
+    function modifyPage(userId) {
+        var url = "/sys/user/toUpdatePass?userId=" +userId;
+        var title = "新增";
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            title: '<b>修改密码</b>',
+            area: ['490px', '270px'], //宽高
+            content: url
+        });
+
+    }
+
+    //查询用户列表
+    var userMap = new Map();
+    function search(current, size){
+        if(!size){
+            size = 10;
+        }
+        if(!current){
+            current = 1;
+        }
+        var data = $.param({"current":current, "size":size}) + "&" + $("#searchForm").serialize();
+        $.ajax({
+            url: '/sys/user/listPage',
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    respData = data.data.records;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        userMap.set(item.userId+'',item);
+                        var status;
+                        if(item.status == "0"){
+                            status = "禁用";
+                        }else if(item.status == "1"){
+                            status = "正常";
+                        }else{
+                            status = item.status;
+                        }
+                        html += '<tr>';
+                        html += '<td>' + (item.username == undefined ? "" : item.username) + '</td>';
+                        html += '<td>' + (item.roleName == undefined ? "" : item.roleName) + '</td>';
+                        html += '<td>' + status + '</td>';
+                        html += '<td>' + formatDateL(item.createTime) + '</td>';
+                        html += '<td> <button  onclick="openModify(\'' + item.userId + '\')"   class="layui-btn layui-btn-mini" >修改</button>'+
+                            '<button  onclick="deleteUser(\'' + item.userId + '\')"  class="layui-btn layui-btn-mini">删除</button>'+
+                            '<button  onclick="modifyPage(\'' + item.userId + '\')"  class="layui-btn layui-btn-mini">密码修改</button>';
+                        if(item.status == "0"){
+                            html += '<button  onclick="statusChange(\'' + item.userId + '\',\'1\', \'启用\')"  class="layui-btn layui-btn-mini">启用</button></td>';
+                        }else if(item.status == "1"){
+                            html += '<button  onclick="statusChange(\'' + item.userId + '\',\'0\', \'禁用\')"  class="layui-btn layui-btn-mini">禁用</button></td>';
+                        }else{
+                            html += '</td>';
+                        }
+
+                        html += '</tr>'
+                    });
+                    $("#content").html(html);
+                    <!------- 分页 -------->
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage
+                            , layer = layui.layer;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: size
+                            , curr: current
+                            , count: data.data.total
+                            , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                            , jump: function (obj, first) {
+                                this.current = obj.curr;
+                                this.size = obj.limit;
+                                if(!first){
+                                    search(obj.curr, obj.limit);
+                                }
+                            }
+                        });
+                    });
+                }else{
+                    $("#content").html('<tr><td colspan="5" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                }
+            }
+        });
+    }
+
+    //打开修改用户弹窗
+    function openModify(obj){
+        // debugger;
+        var user = userMap.get(obj);
+        //用户已经拥有的角色
+        var roleIdList = user.roleIdList;
+        //后台动态获取所有角色，并设置用户角色选中状态
+        $.ajax({
+            url : '/sys/role/findAll',
+            type : 'POST',
+            dataType : 'json',
+            success : function(data) {
+                if (data.success) {
+                    var respData = data.data.list;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        //角色已拥有，设置为选中状态
+                        if(roleIdList == undefined){
+                            html += '<input type="checkbox"  name="roleIdList" value="' + item.roleId + '" title="' + item.roleName + '"/>';
+                        }else if(roleIdList.indexOf(item.roleId) != -1){
+                            html += '<input type="checkbox"  name="roleIdList" value="' + item.roleId + '" title="' + item.roleName + '" checked/>';
+                        }else{
+                            html += '<input type="checkbox"  name="roleIdList" value="' + item.roleId + '" title="' + item.roleName + '"/>';
+                        }
+                    });
+                    $("#roleDiv").html(html);
+                    layer.open({
+                        type: 1,
+                        closeBtn: 1,
+                        title: '<b>系统用户信息修改</b>',
+                        area: ['540px', '480px'], //宽高
+                        content: $("#modifyData")});
+
+                    $("#userId").val(user.userId);
+                    $("#username").val(user.username);
+                    $("#pas-div1").hide();
+                    $("#pas-div2").hide();
+                    $("#email").val(user.email);
+                    $("#mobile").val(user.mobile);
+                    $("#usbTokenNo").val(user.usbTokenNo);
+                    $("#ip").val(user.ip);
+                    layui.form.render(); //更新全部
+                    layui.form.render('select'); //刷新select选择框渲染
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error : function(e) {
+                layer.close(tishi);
+                layer.msg('获取用户角色失败！');
+            }
+        });
+    }
+
+    //提交到后台修改用户信息
+    function modify(fid){
+        var email = $("#email").val();
+        if(email){
+            var patrn = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+            if (!patrn.test(email)) {
+                layer.msg("邮箱格式格式错误");
+                return false;
+            }
+        }
+        var data = $("#" + fid).serialize().replace(/\+/g," ");
+        var url = "/sys/user/modify";
+        var userId = $("#userId").val();
+        if(!userId){
+            var pas1 = $("#password").val();
+            var pas2 = $("#password2").val();
+            if(pas1==''){
+                layer.msg("请输入密码");
+                return false;
+            }
+            if(pas2==''){
+                layer.msg("请输入确认密码");
+                return false;
+            }
+            url = "/sys/user/add";
+        }
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        //url参数转对象，先通过？分解得到？后面的所需字符串，再将其通过&分解开存放在数组里
+        let arr = data.split("&");
+        let obj = {};
+        for (let i of arr) {
+            if (obj.hasOwnProperty(i.split("=")[0])) {
+                obj[i.split("=")[0]] = obj[i.split("=")[0]] + "," + i.split("=")[1];
+            } else {
+                obj[i.split("=")[0]] = i.split("=")[1];  //对数组每项用=分解开，=前为对象属性名，=后为属性值
+            }
+        }
+
+        //参数设置
+        obj.password = md5(obj.password).toUpperCase();
+        obj.password2 = md5(obj.password2).toUpperCase();
+        if (undefined != obj.roleIdList) {
+            obj.roleIdList = obj.roleIdList.split(",");
+        }
+        if(userId){
+            obj.isUpdate = "true";
+        }
+        $.ajaxUkey({
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(obj),
+            contentType : 'application/json;charset=UTF-8',
+            dataType : 'json',
+            success : function(data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.msg(data.data,
+                        {
+                            offset : '15px',
+                            time : 1000
+                        },
+                        function() {
+                            $("#modifyData").attr("style","display: none;");
+                            layer.closeAll();
+                            $(".layui-laypage-btn")[0].click();
+                        });
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error : function(e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('系统升级维护中，请稍后重试');
+            }
+        });
+    }
+
+    //取消修改用户信息
+    function cancelModify(){
+        $("#modifyData").attr("style","display: none;");
+        layer.closeAll();
+    }
+
+    //删除用户
+    function deleteUser(userId){
+        layer.confirm("请确定是否删除该账号？", {icon: 3, title:'提示'}, function(index){
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url : '/sys/user/delete',
+                type : 'POST',
+                data : {
+                    userId : userId
+                },
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error : function(e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //新增用户
+    function create(){
+        $('#modifyForm')[0].reset();
+        $("#userId").val("");
+        //后台动态获取所有角色
+        $.ajax({
+            url : '/sys/role/findAll',
+            type : 'POST',
+            dataType : 'json',
+            success : function(data) {
+                if (data.success) {
+                    var respData = data.data.list;
+                    var html = '';
+                    $.each(respData, function (i, item) {
+                        html += '<input type="checkbox"  name="roleIdList" value="' + item.roleId + '" title="' + item.roleName + '"/>';
+                    });
+                    $("#roleDiv").html(html);
+                    $("#pas-div1").show();
+                    $("#pas-div2").show();
+                    layer.open({
+                        type: 1,
+                        closeBtn: 1,
+                        title: '<b>新增用户</b>',
+                        area: ['540px', '480px'], //宽高
+                        content: $("#modifyData")});
+
+                    $('#modifyForm')[0].reset();
+                    layui.form.render(); //更新全部
+                    layui.form.render('select'); //刷新select选择框渲染
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error : function(e) {
+                layer.msg('获取用户角色失败！');
+            }
+        });
+    }
+
+    //密码重置
+    function resetPwd(userId){
+        layer.confirm('确定将该帐号密码重置为123456？', {icon: 3, title:'提示'}, function(index){
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url : '/sys/user/resetPwd',
+                type : 'POST',
+                data : {
+                    userId : userId
+                },
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error : function(e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //禁用启用
+    function statusChange(userId,status,stateValue){
+        layer.confirm('请确定是否' + stateValue + "该账号？", {icon: 3, title:'提示'}, function(index){
+            //关闭弹出层
+            layer.close(index);
+            var url = "/sys/user/enable";
+            if('0'==status){
+                url = '/sys/user/disable';
+            }
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']})
+            $.ajaxUkey({
+                url : url,
+                type : 'POST',
+                data : {
+                    userId : userId,
+                    status: status
+                },
+                dataType : 'json',
+                success : function(data) {
+                    if (data.success) {
+                        layer.msg(data.data);
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error : function(e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+</script>
+
+</body>
+</html>

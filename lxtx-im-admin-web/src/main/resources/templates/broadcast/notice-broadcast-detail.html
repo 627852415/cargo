@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/wangEditor/wangEditor.js}"></script>
+
+    <style>
+        .layui-form-selectup dl {
+            top: auto;
+        }
+
+        .toolbar {
+            border: 1px solid #ccc;
+        }
+
+        .text {
+            border: 1px solid #ccc;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题 &nbsp;</label>
+            <div class="layui-input-block">
+                <input id="bid" type="text" name="bid" hidden th:value="${detail.id}">
+                <input id="title" type="text" name="title" required lay-verify="required" onfocus="this.blur()"
+                       autocomplete="off"
+                       class="layui-input" th:value="${detail.title}">
+            </div>
+        </div>
+        <!--<div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">发布内容</label>
+            <div class="layui-input-block">
+                <textarea name="content" id="content" readonly class="layui-textarea" style="height: 200px;"
+                          th:text="${detail.content}"></textarea>
+            </div>
+            <div id="editor" class="text" th:utext="${detail.html}">
+            </div>
+        </div>-->
+        <div id="div1" class="toolbar">
+        </div>
+        <!--        <div style="padding: 5px 0; color: #ccc"></div>-->
+        <div id="div2" class="text" th:utext="${detail.html}" th:disabled="true"> <!--可使用 min-height 实现编辑区域自动增加高度-->
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布地区</label>
+            <div class="layui-input-block">
+                <select name="countryCodes" xm-select="countryCodes" xm-select-direction="down"
+                        lay-verify="required" lay-verType="tips" xm-select-search="" onfocus="this.blur()" disabled>
+                    <option th:each="code : ${globalCodes}" th:text="${code.countryName}" th:value="${code.countryCode}"
+                            th:selected="${code.chooseFlag}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布状态</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="status" id="status" onfocus="this.blur()"
+                       th:value="${detail.statusName}"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布者</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="publisher" id="publisher" onfocus="this.blur()"
+                       th:value="${detail.publisherName}"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">发布时间</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="publishTime" id="publishTime" onfocus="this.blur()"
+                       th:value="${detail.publishTime}"/>
+            </div>
+        </div>
+        <div class="layui-form-item" th:if="${detail.repealerName}!=null">
+            <label class="layui-form-label">撤销者</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="repealer" id="repealer" onfocus="this.blur()"
+                       th:value="${detail.repealerName}"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item" th:if="${detail.repealTime}!=null">
+            <label class="layui-form-label">撤销时间</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" name="repealTime" id="repealTime" onfocus="this.blur()"
+                       th:value="${detail.repealTime}"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="display: table;width:100%;">
+            <div class="layui-input-block" style="display: table-cell;vertical-align: middle;text-align: center;">
+                <button type="button" class="layui-btn" onclick="pushMsg(0)"
+                        th:if="${detail.status!=1&&detail.status!=2}">发布
+                </button>
+                <button type="button" class="layui-btn" onclick="edit()" th:if="${detail.status!=2}">编辑</button>
+                <button type="button" class="layui-btn" onclick="pushMsg(1)"
+                        th:if="${detail.status!=0&&detail.status!=2}">撤销
+                </button>
+                <button type="button" class="layui-btn" onclick="del()" th:if="${detail.status!=1&&detail.status!=2}">删除
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+
+<script>
+    // console.log([[${detail.html}]])
+    var E = window.wangEditor
+    var editor = new E('#div1', '#div2');
+    // editor.txt.html([[${detail.html}]])
+    // editor.$textElem.attr('contenteditable', false)
+    editor.create()
+    editor.$textElem.attr('contenteditable', false)
+
+    var layer;
+    var form;
+
+    layui.formSelects.render('countryCodes');
+
+    //发送消息或撤销消息
+    function pushMsg(msgType) {
+        var loading = layer.load(1, {shade: [0.8, '#393D49']})
+        var id = $("#bid").val();
+
+        var url;
+        if (msgType == 0) {
+            url = '/notice/broadcast/push';
+        } else if (msgType == 1) {
+            url = '/notice/broadcast/repeal/push';
+        }
+        $.ajaxUkey({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify({
+                id: id
+            }),
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(loading);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg, function () {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    }, function () {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]', function () {
+                    parent.layer.closeAll();
+                    parent.location.reload();
+                });
+            }
+        });
+    }
+
+    function edit() {
+        var index = parent.layer.getFrameIndex(window.name)
+        var id = $("#bid").val();
+        var url = "/notice/broadcast/edit?id=" + id;
+        var title = "广播公告";
+        parent.layer.open({
+            type: 2,
+            closeBtn: 1,
+            shadeClose: true,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['800px', '600px'], //[[#{text.width.height}]]
+            content: url
+        })
+        parent.layer.close(index)
+    }
+
+    //删除
+    function del() {
+        layer.confirm("[[#{text.are.you.sure.you.want.to.delete}]]", {
+            icon: 3,
+            title: '[[#{text.operation.alert}]]',
+            offset: 100
+        }, function (index) {
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            var id = $("#bid").val();
+            console.log(id)
+            $.ajaxUkey({
+                data: JSON.stringify({
+                    ids: new Array(id)
+                }),
+                type: 'POST',
+                dataType: "JSON",
+                contentType: 'application/json;charset=UTF-8',
+                url: '/notice/broadcast/delete',
+                async: false,
+                success: function (data) {
+                    layer.close(tishi);
+                    if (data.success) {
+                        layer.alert('[[#{text.successful.operation}]]', {
+                            title: '[[#{text.operation.message}]]',
+                            icon: 6
+                        }, function (index) {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        });
+                    } else if (data.msg != null) {
+                        layer.msg(data.msg, function () {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        });
+                    } else {
+                        // [[#{text.prompt.failed}]]
+                        layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                            title: '[[#{text.operation.message}]]',
+                            icon: 5
+                        }, function () {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        });
+                    }
+                },
+                error: function (e) {
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                    layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]', function () {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                }
+            });
+        });
+    }
+
+    /**
+     * 发布时间选择器
+     */
+
+    // layui.use('laydate', function () {
+    //     var laydate = layui.laydate;
+    //     curDate = formatDateL(new Date);
+    //     laydate.render({
+    //         elem: '#time',
+    //         type: 'datetime',
+    //         min: curDate
+    //     })
+    // });
+
+</script>
+
+</html>

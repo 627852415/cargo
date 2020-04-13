@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.menu.fee.manage}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script>var hasSavePermission = false;</script>
+    <script>var hasDelPermission = false;</script>
+</head>
+<style>
+    .layui-table th {
+        text-align: center;
+        font-weight: 400;
+    }
+
+    .fontweight th {
+        font-weight: 800;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+
+</style>
+<body>
+<shiro:hasPermission name="coinCharge:add">
+    <script>hasSavePermission = true</script>
+</shiro:hasPermission>
+<shiro:hasPermission name="coinCharge:delete">
+    <script>hasDelPermission = true</script>
+</shiro:hasPermission>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form">
+            <div class="layui-form-item search-input" style="margin:0;">
+
+                <div class="layui-input-inline">
+                    <select lay-filter="coinId" name="coinId" id="coinId" lay-search>
+                        <option value="">[[#{text.placeholder.coin}]]</option>
+                        <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}"></option>
+                    </select>
+                    <!--<input type="text" name="coinName" id="coinName" class="layui-input" placeholder="请输入币种名称">-->
+                </div>
+
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" id="search">[[#{text.operation.search}]]</button>
+                    <shiro:hasPermission name="coinCharge:add">
+                        <a href="javascript:;" onclick="save(this)" class="layui-btn site-demo-active" data-type="tabAdd" th:data-title="#{text.operation.add}">[[#{text.operation.add}]]</a>
+                    </shiro:hasPermission>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.Red.envelope.handling.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId1"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId1"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.friend.transfer.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId2"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId2"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.wallet.transfer.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId3"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId3"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.niu.niu.game.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId4"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId4"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.21.game.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId5"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId5"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.minesweeper.game.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId6"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId6"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.wallet.coin.charge.title.merchant.settlement.game.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId7"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId7"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field border1">
+        <div class="titleClas">[[#{text.recharge.fee}]]</div>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr class="fontweight">
+                    <th>[[#{text.wallet.coin.manage.table.name}]]</th>
+                    <th>[[#{text.column.fee.type}]]</th>
+                    <th>[[#{text.column.value}]]</th>
+                    <th>[[#{text.operation.name}]]</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="tableId8"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <!--分页容器-->
+                        <div id="pageId8"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+
+    var  layer;
+    layui.use([ 'layer', 'form' ], function () {
+        var layer = layui.layer
+    })
+
+    var current = 1;
+    var size = 10;
+
+    var respData;
+    $(function () {
+        //初始化加载数据
+        sendReq(current, size, null, "tableId1", "pageId1", 1);
+        sendReq(current, size, null, "tableId2", "pageId2", 2);
+        sendReq(current, size, null, "tableId3", "pageId3", 3);
+        sendReq(current, size, null, "tableId4", "pageId4", 4);
+        sendReq(current, size, null, "tableId5", "pageId5", 5);
+        sendReq(current, size, null, "tableId6", "pageId6", 6);
+        sendReq(current, size, null, "tableId7", "pageId7", 8);
+        sendReq(current, size, null, "tableId8", "pageId7", 11);
+        //搜索
+        $('#search').on('click', function () {
+            var coinId = $("#coinId").val();
+            sendReq(current, size, coinId, "tableId1", "pageId1", 1);
+            sendReq(current, size, coinId, "tableId2", "pageId2", 2);
+            sendReq(current, size, coinId, "tableId3", "pageId3", 3);
+            sendReq(current, size, coinId, "tableId4", "pageId4", 4);
+            sendReq(current, size, coinId, "tableId5", "pageId5", 5);
+            sendReq(current, size, coinId, "tableId6", "pageId5", 6);
+            sendReq(current, size, coinId, "tableId7", "pageId7", 8);
+            sendReq(current, size, coinId, "tableId8", "pageId7", 11);
+        });
+
+    });
+    var sendReq = function (current, size,  coinId, tableId, pageId, chargeType) {
+        $.ajax({//异步请求返回给后台
+            url: '/coinCharge/list',
+            type: 'POST',
+            data: JSON.stringify({
+                coinId: coinId,
+                chargeType: chargeType,
+                current: current,
+                size: size
+            }),
+            dataType: 'json',
+            contentType:'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    respData = data.data.records;
+                    if(respData != undefined && respData.length > 0){
+                        var html = '';
+                        $.each(respData, function (i, item) {
+                            html += '<tr>';
+                            html += '<th>' + item["coinName"] + '</th>';
+                            var type = item["type"];
+                            if(1 === type){
+                                html += '<th>百分比</th>';
+                            }
+                            if(2 === type){
+                                html += '<th>固定值</th>';
+                            }
+
+                            html += '<th>' + item["value"] + '</th>';
+                            html += '<th>';
+                            if (hasSavePermission) {
+                                html += '<a href="javascript:;" onclick="save(this)" aid="' + item["id"] + '" class="layui-btn layui-btn-mini">[[#{text.operation.edit}]]</a>';
+                            }
+                            if (hasDelPermission) {
+                                html += '<a href="javascript:;" onclick="del(this)" aid="' + item["id"] + '" data-id="1"  class="layui-btn layui-btn-danger layui-btn-mini">[[#{text.operation.delete}]]</a></th>';
+                            }
+                            html += '</tr>'
+                        });
+                        $("#" + tableId).html(html);
+                        <!------- 分页 -------->
+                        layui.use(['laypage', 'layer'], function () {
+                            var laypage = layui.laypage
+                                , layer = layui.layer;
+                            laypage.render({
+                                elem: pageId
+                                , limit: data.data.size
+                                , curr: data.data.current
+                                , count: data.data.total
+                                , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                                , jump: function (obj, first) {
+                                    this.current = obj.curr;
+                                    this.size = obj.limit;
+                                    if (!first) {
+                                        sendReq(obj.curr, obj.limit,  coinId, tableId, pageId, chargeType);
+                                    }
+                                }
+                            });
+                        });
+                    }else{
+                        $("#" + tableId).html('<tr><td colspan="6" style="color: red;text-align: center"><b>[[#{text.no.search.data}]]</b></td></tr>');
+                        $("#" + pageId).html(null);
+                    }
+                }
+            },
+            error: function () {
+                $("#" + tableId).html('<tr><td colspan="6" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+                $("#" + pageId).html(null);
+            }
+        });
+    }
+    //编辑、保存
+    function save(obj){
+        var aid = $(obj).attr("aid");
+        var url;
+        var title = "[[#{text.add}]]";
+        if (aid != undefined) {
+            url = "/coinCharge/info?id=" + aid.toString();
+            title = "[[#{text.edit}]]";
+        } else {
+            url = "/coinCharge/add";
+        }
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title +'</b>',
+            area: ['540px', '560px'], //宽高
+            //content: $("#modifyData")});//TODO 修改为打开新页面
+            content: url
+        });
+    }
+
+    function del(obj) {
+        var gid = $(obj).attr("aid");
+        layer.confirm('[[#{text.are.you.sure.you.want.to.delete}]]', {icon: 3,title: '[[#{text.operation.message}]]',  offset: '100px'}, function (index) {
+            $.ajaxUkey({
+                url: '/coinCharge/delete',
+                type: "POST",
+                data: JSON.stringify({id: gid}),
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    console.info(result);
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '[[#{text.operation.message}]]', icon: 5});
+                            return;
+                        }
+                        layer.alert('[[#{text.successful.operation}]]！', {title: '[[#{text.operation.message}]]', icon: 1},function (index) {
+                            layer.close(index);
+                            tabChangeDef('/dict/index');
+                            location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '[[#{text.operation.message}]]', icon: 2});
+                            return;
+                        }
+                        layer.alert('[[#{text.sys.op.fail}]]', {title: '[[#{text.operation.message}]]', icon: 2});
+                    }
+                }
+            });
+
+        });
+    }
+
+</script>
+
+</body>
+</html>

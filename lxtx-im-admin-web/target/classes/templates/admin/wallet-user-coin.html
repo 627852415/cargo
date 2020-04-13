@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>[[#{text.menu.wallet.detail}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item" style="margin:0;">
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="userId" id="userId" class="layui-input"
+                               th:placeholder="#{text.operation.input.tips.user.id}"/>
+                        <input type="hidden" id="userIdHidden" th:value="${userId}"/>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="coinId" class="layui-select" lay-search>
+                            <option></option>
+                            <option th:each="coin:${coins}" th:value="${coin}?${coin.id}">[[${coin}?${coin.coinName}]]
+                            </option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="rangeTime" id="time" class="layui-input"
+                               th:placeholder="#{text.operation.input.tips.user.id}"/>
+                    </div>
+                    <!--<button type="submit" class="layui-btn" onclick="search()">[[#{text.button.search}]]</button>-->
+                    <button type="submit" class="layui-btn" lay-submit lay-filter="data-search-btn">
+                        [[#{text.button.search}]]
+                    </button>
+                    <button type="reset" class="layui-btn">[[#{text.button.clear}]]</button>
+                    <button type="button" onclick="download()" class="layui-btn">[[#{text.operation.export.file}]]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>[[#{text.wallet.user.coin.title}]]</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+            <!--<table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>[[#{text.wallet.user.coin..table.id}]]</th>
+                    <th>[[#{text.wallet.capital.table.user.id}]]</th>
+                    <th>[[#{text.column.coin}]]</th>
+                    <th>[[#{text.wallet.user.coin.balance}]]</th>
+                    <th>[[#{text.wallet.user.coin.frozen.amount}]]</th>
+                    <th>[[#{text.wallet.user.coin.lock.amount}]]</th>
+                    <th>[[#{text.column.platform.create.time}]]</th>
+                    <th>[[#{text.wallet.user.coin.update.time}]]</th>
+                </tr>
+                </thead>
+                &lt;!&ndash;内容容器&ndash;&gt;
+                <tbody id="content"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="8">
+                        &lt;!&ndash;分页容器&ndash;&gt;
+                        <div id="page"></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>-->
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    // layui.use('layer', function () {
+    //     var layer = layui.layer;
+    // });
+    layui.use(['form', 'laydate', 'table', 'layer', 'jquery'], function () {
+        var form = layui.form,
+            date = layui.laydate,
+            table = layui.table,
+            layer = layui.layer,
+            $ = layui.$;
+
+        date.render({
+            elem: '#time',
+            type: 'date',
+            range: true
+        });
+
+        table.render({
+            elem: '#currentTableId',
+            url: '/user/coin/list',
+            method: 'post',
+            cols: [//
+                [
+                    {field: 'id', title: '[[#{text.wallet.user.coin..table.id}]]', sort: false, align: "center"},
+                    {field: 'userId', title: '[[#{text.wallet.capital.table.user.id}]]', align: "center"},
+                    {field: 'coinName', title: '[[#{text.column.coin}]]', sort: false, align: "center"},
+                    {field: 'leftAmount', title: '[[#{text.wallet.user.coin.balance}]]', sort: false, align: "center"},
+                    {
+                        field: 'frozenAmount',
+                        title: '[[#{text.wallet.user.coin.frozen.amount}]]',
+                        sort: false,
+                        align: "center"
+                    },
+                    {
+                        field: 'lockAmount',
+                        title: '[[#{text.wallet.user.coin.lock.amount}]]',
+                        sort: false,
+                        align: "center"
+                    },
+                    {
+                        field: 'createTime', title: '[[#{text.column.platform.create.time}]]', align: "center"
+                        , templet: function (i) {
+                            return formatDateL(i.createTime);
+                        }
+                    },
+                    {
+                        field: 'updateTime', title: '[[#{text.wallet.user.coin.update.time}]]', align: "center"
+                        , templet: function (i) {
+                            return formatDateL(i.updateTime)
+                        }
+                    },
+                ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true,
+            request: {
+                pageName: 'current',
+                limitName: 'size'
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.success == true ? 0 : 0, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                }
+            }
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var field = data.field;
+            var rangeTime = field.rangeTime;
+            var times = [];
+            if (rangeTime) {
+                times = rangeTime.split(' - ');
+            }
+            field = {
+                userId: field.userId,
+                coinId: field.coinId,
+                createTimeBegin: times.length == 2 ? times[0] : null,
+                createTimeEnd: times.length == 2 ? times[1] : null,
+            }
+            var result = JSON.stringify(field);
+            /*var index = layer.alert(result, {
+                title: '最终的搜索信息'
+            }, function () {
+
+            });*/
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: {
+                    current: 1
+                }
+                , where: field
+            });
+            // layer.close(index);
+            return false;
+        });
+    });
+
+    // var coinId;
+    // var userId;
+    // var type;
+    // var iframeNode;
+    // var current = 1;
+    // var size = 10;
+    // var respData;
+    // $(function () {
+    //     var uid = $("#userIdHidden").val();
+    //     $("#userId").val(uid);
+    //     //初始化加载数据
+    //     search(current, size);
+    //
+    //
+    // });
+
+    //
+    // function reset() {
+    //     $('#searchForm')[0].reset();
+    // };
+
+    // function search(current, size) {
+    //     if (!size) {
+    //         size = 10;
+    //     }
+    //     if (!current) {
+    //         current = 1;
+    //     }
+    //     var data = $.param({"current": current, "size": size}) + "&" + $("#searchForm").serialize();
+    //     $.ajax({
+    //         url: '/user/coin/list',
+    //         type: 'POST',
+    //         data: data,
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             if (data.success) {
+    //                 respData = data.data.records;
+    //                 var html = '';
+    //                 if ($.isEmptyObject(respData)) {
+    //                     layer.msg("暂无数据");
+    //                 } else {
+    //                     $.each(respData, function (i, item) {
+    //                         html += '<tr>';
+    //                         html += '<td class="userCoinId">' + item.id + '</td>';
+    //                         html += '<td>' + item.userId + '</td>';
+    //                         html += '<td>' + item.coinName + '</td>';
+    //                         html += '<td class="leftAmount">' + item.leftAmount + '</td>';
+    //                         html += '<td class="frozenAmount">' + item.frozenAmount + '</td>';
+    //                         html += '<td class="lockAmount">' + item.lockAmount + '</td>';
+    //                         html += '<td>' + formatDateL(item.createTime) + '</td>';
+    //                         html += '<td>' + formatDateL(item.updateTime) + '</td>';
+    //                         html += '</tr>'
+    //                     });
+    //                 }
+    //                 $("#content").html(html);
+    //                 <!------- 分页 -------->
+    //                 layui.use(['laypage', 'layer'], function () {
+    //                     var laypage = layui.laypage
+    //                         , layer = layui.layer;
+    //                     laypage.render({
+    //                         elem: 'page'
+    //                         , limit: size
+    //                         , curr: current
+    //                         , count: data.data.total
+    //                         , layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+    //                         , jump: function (obj, first) {
+    //                             this.current = obj.curr;
+    //                             this.size = obj.limit;
+    //                             if (!first) {
+    //                                 search(obj.curr, obj.limit);
+    //                             }
+    //                         }
+    //                     });
+    //                 });
+
+    //更改余额
+    // $(".leftAmount,.frozenAmount,.lockAmount").dblclick(function () {
+    //     var td = $(this);
+    //     // 根据表格文本创建文本框 并加入表表中--文本框的样式自己调整
+    //     var text = td.text();
+    //     var txt = $('<input class="layui-input" autocomplete="off" type="text">').val(text);
+    //     txt.focus();
+    //     var userCoinId = $(this).parent().find(".userCoinId").text();
+    //     var key = $(this).attr("class");
+    //
+    //     if (text != "") {
+    //         td.text("");
+    //         td.append(txt);
+    //     }
+    //
+    //     txt.blur(function () {
+    //         var newText = $(this).val();
+    //         // 失去焦点，保存值。于服务器交互
+    //         // 移除文本框,显示新值
+    //         $(this).remove();
+    //         // 有更新时才发送更新请求
+    //         if (newText != null && newText != "" && text != newText) {
+    //             if (updateUserCoin(userCoinId, key, newText)) {
+    //                 td.text(newText);
+    //             } else {
+    //                 td.text(text);
+    //             }
+    //         } else {
+    //             td.text(text);
+    //         }
+    //     });
+    // });
+    //             } else {
+    //                 $("#content").html('<tr><td colspan="8" style="color: red;text-align: center"><b>' + data.msg + '</b></td></tr>');
+    //             }
+    //         }
+    //     });
+    // }
+
+    // function updateUserCoin(userCoinId, key, value) {
+    //     var result = false;
+    //     $.ajaxUkey({
+    //         contentType:'application/json;charset=UTF-8',
+    //         url: '/user/coin/update',
+    //         type: 'POST',
+    //         async: false,
+    //         data: JSON.stringify({
+    //             "userCoinId":userCoinId,
+    //             "key":key,
+    //             "value":value
+    //         }),
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             if (data.success) {
+    //                 result = true;
+    //             } else if (data.msg != null) {
+    //                 layer.msg(data.msg);
+    //             } else {
+    //                 // 提示失败
+    //                 layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+    //             }
+    //         }
+    //     });
+    //     return result;
+    // }
+
+    function download2() {
+        var url = "/user/coin/download?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: url,
+            type: "get",
+            async: "false",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title: '[[#{text.information}]]',
+                        icon: 2
+                    });
+                }
+            },
+            error: function () {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title: '[[#{text.information}]]',
+                    icon: 2
+                });
+            }
+        });
+    }
+
+
+    //文件导出
+    //[[#{text.application.list.file.export}]]
+    function download() {
+        var url = "/user/coin/download?" + $("#searchForm").serialize();
+        // [[#{text.acquire.lock}]]
+        var urlLock = "/user/coin/downloadLock?" + $("#searchForm").serialize();
+        $.ajaxUkey({
+            url: urlLock,
+            type: "post",
+            async: "false",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            success: function (responseText) {
+                if (responseText.success == false) {
+                    layer.alert(responseText.msg, {
+                        title: '[[#{text.information}]]',
+                        icon: 2
+                    });
+                } else {
+                    //[[#{text.acquire.lock}]]后去下载
+                    //window.location.href = url;
+                    //[[#{text.acquire.lock}]]后去下载
+                    if (iframeNode != undefined && iframeNode != null) {
+                        document.body.removeChild(iframeNode);
+                    }
+                    iframeNode = document.createElement("iframe");
+                    iframeNode.src = url;
+                    iframeNode.style.display = "none";
+                    document.body.appendChild(iframeNode);
+                    if (iframeNode.attachEvent) { // 兼容IE写法
+                        iframeNode.attachEvent("onload", function () {
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if (!"" == msgerror) {
+                                layer.alert(msgerror, {
+                                    title: '[[#{text.information}]]',
+                                    icon: 2
+                                });
+                            }
+                        })
+                    } else {
+                        iframeNode.onload = function () {
+                            // iframeNode[[#{text.what.to.do.after.loading}]]
+                            var msgerror = iframeNode.contentWindow.document.body.innerHTML;
+                            if (!"" == msgerror) {
+                                layer.alert(msgerror, {
+                                    title: '[[#{text.information}]]',
+                                    icon: 2
+                                });
+                            }
+                        }
+                    }
+                }
+
+            },
+            error: function () {
+                layer.alert("[[#{text.system.exception.export.failed}]]", {
+                    title: '[[#{text.information}]]',
+                    icon: 2
+                });
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

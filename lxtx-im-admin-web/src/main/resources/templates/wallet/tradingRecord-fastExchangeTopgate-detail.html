@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>OTC充值详情</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .my-label {
+        width: 120px;
+    }
+	.my-inline{
+		width: 320px !important;
+	}
+	.my-inline-remark{
+		width: 320px !important;
+	}
+</style>
+
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.trade.id}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.id}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label my-label">[[#{text.column.topgate.order.number}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.thirdPartyOrderNo}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.wallet.user.id}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.userId}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.user.username}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.userName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.country.code}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.countryCode}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.placeholder.telephone}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.telephone}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.wallet.capital.table.status}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" id="statusValue" th:value="${detail.statusValue}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.pay.coin}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.payCoinName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.pay.amount}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="actualPayAmount" th:value="${detail.actualPayAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.receive.coin}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" th:value="${detail.gotCoinName}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.amount.received}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="actualGotAmount" th:value="${detail.actualGotAmount}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.real.exchange.rate}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="actualRate" th:value="${detail.actualRate}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.fee}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="fee" th:value="${detail.fee}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.innerFee}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="innerFee" th:value="${detail.innerFee}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.external.fee}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="thirdFee" th:value="${detail.thirdFee}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.topgate.imMerchantIn}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="imMerchantIn" th:value="${detail.imMerchantIn}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.topgate.topgateMerchantIn}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="topgateMerchantIn" th:value="${detail.topgateMerchantIn}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.topgate.imMerchantOut}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="imMerchantOut" th:value="${detail.imMerchantOut}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.topgate.topgateMerchantOut}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="topgateMerchantOut" th:value="${detail.topgateMerchantOut}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.column.merchant.profit}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="profit" th:value="${detail.profit}" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.wallet.capital.table.transfer.time}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="createTime" class="layui-input" disabled>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label my-label">[[#{text.wallet.capital.table.update.time}]]</label>
+        <div class="layui-input-inline my-inline">
+            <input type="text" name="updateDate" class="layui-input" disabled>
+        </div>
+    </div>
+</form>
+<script th:inline="javascript">
+    var detail = [[${detail}]];
+    console.log(detail)
+    $('input[name=actualPayAmount]').val(detail.actualPayAmount);
+    $('input[name=actualGotAmount]').val(detail.actualGotAmount);
+    $('input[name=actualRate]').val(detail.actualRate);
+    $('input[name=fee]').val(detail.fee);
+    $('input[name=innerFee]').val(detail.innerFee);
+    $('input[name=thirdFee]').val(detail.thirdFee);
+    $('input[name=imMerchantIn]').val(detail.imMerchantIn);
+    $('input[name=topgateMerchantIn]').val(detail.topgateMerchantIn);
+    $('input[name=imMerchantOut]').val(detail.imMerchantOut);
+    $('input[name=topgateMerchantOut]').val(detail.topgateMerchantOut);
+    $('input[name=profit]').val(detail.profit);
+
+    $('input[name=transferNum]').val( getTransferNum(detail));
+    $('input[name=updateDate]').val(detail.updateTime);
+    $('input[name=createTime]').val(detail.createTime);
+
+    function getTransferNum(data) {
+        return data.type === 15 ? data.orderNo : (data.transferNum !== undefined ? data.transferNum : '无');
+    }
+
+</script>
+</body>
+</html>

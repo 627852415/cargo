@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+    <title>第三方游戏管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/thirdGame/third-game-index.js}"></script>
+</head>
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="name" id="name" class="layui-input"
+                           placeholder="游戏名称"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="companyName" id="companyName" class="layui-input"
+                           placeholder="公司名称"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn"
+                            onclick="search('searchForm', 'dataReload')">
+                        搜索
+                    </button>
+                    <a onclick="save()" class="layui-btn site-demo-active"
+                       data-type="tabAdd" data-title="新增游戏">新增</a>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}"
+           lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{field:'icon', align:'center',templet: function (data) {
+                     return '<img width=\'40px\' height=\'40px\' src=\'' + data.icon + '\'>';
+                    }}">图标
+            </th>
+            <th lay-data="{field:'name', align:'center'}">游戏名称</th>
+            <th lay-data="{field:'url', align:'center'}">游戏url</th>
+            <th lay-data="{field:'companyId', align:'center'}">公司工商号</th>
+            <th lay-data="{field:'companyName', align:'center'}">公司名称</th>
+            <th lay-data="{field:'appKey', align:'center'}">appKey</th>
+            <th lay-data="{field:'appSecret', align:'center'}">appSecret</th>
+            <th lay-data="{width: 270, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </thead>
+    </table>
+    <!--<a href="javascript:;" onclick="openSend(this)" aid=' + item.account + ' data-id="1" data-opt="send" class="layui-btn layui-btn-normal layui-btn-mini" data-type="tabAdd">发送消息</a></th>';-->
+    <script type="text/html" id="barData">
+        <a class="layui-btn layui-btn-sm tableBtn"  lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del" ><i class="layui-icon layui-icon-close"></i>删除</a>
+        {{# if(d.status == 0){ }}
+        <a class="layui-btn  layui-btn-normal  layui-btn-sm tableBtn" lay-event="isEnable">禁用</a>
+        {{#  } }}
+        {{# if(d.status == 1){ }}
+        <a class="layui-btn  layui-btn-danger  layui-btn-sm tableBtn" lay-event="isEnable">启用</a>
+        {{#  } }}
+    </script>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>分佣设置列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+<form id="from1" class="layui-form" action="" >
+    <div class="admin-main fadeInUp animated">
+        <fieldset class="layui-elem-field border1">
+            <legend>撮合交易</legend>
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn1">保存</button>
+            <table class="layui-table" lay-data="{cellMinWidth: 80,page: true, id: 'dataTable1'}" lay-filter="dataTable1">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'id', align:'center',hide}">ID</th>
+                    <th lay-data="{field:'rebateType', align:'center',hide}">分佣类型</th>
+                    <th lay-data="{field:'levelId', align:'center',hide}">级别ID</th>
+                    <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                    <th lay-data="{field:'levelRebateRatio', align:'center',edit: 'text'}">伙伴级别</th>
+                    <th lay-data="{field:'platformRebateRatio', align:'center'}">平台</th>
+                </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</form>
+<!--
+
+<form id="from2" class="layui-form" action="" >
+    <div class="admin-main fadeInUp animated">
+        <fieldset class="layui-elem-field border1">
+            <legend>理财宝</legend>
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn2">保存</button>
+            <table class="layui-table" lay-data="{cellMinWidth: 80,page: true, id: 'dataTable2'}" lay-filter="dataTable2">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'id', align:'center',hide}">ID</th>
+                    <th lay-data="{field:'rebateType', align:'center',hide}">分佣类型</th>
+                    <th lay-data="{field:'levelId', align:'center',hide}">级别ID</th>
+                    <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                    <th lay-data="{field:'levelRebateRatio', align:'center',edit: 'text'}">伙伴级别</th>
+                    <th lay-data="{field:'platformRebateRatio', align:'center'}">平台</th>
+                </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</form>
+
+<form id="from3" class="layui-form" action="" >
+    <div class="admin-main fadeInUp animated">
+        <fieldset class="layui-elem-field border1">
+            <legend>提现</legend>
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn3">保存</button>
+            <table class="layui-table" lay-data="{cellMinWidth: 80,page: true, id: 'dataTable3'}" lay-filter="dataTable3">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'id', align:'center',hide}">ID</th>
+                    <th lay-data="{field:'rebateType', align:'center',hide}">分佣类型</th>
+                    <th lay-data="{field:'levelId', align:'center',hide}">级别ID</th>
+                    <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                    <th lay-data="{field:'levelRebateRatio', align:'center',edit: 'text'}">伙伴级别</th>
+                    <th lay-data="{field:'platformRebateRatio', align:'center'}">平台</th>
+                </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</form>
+
+<form id="from4" class="layui-form" action="" >
+    <div class="admin-main fadeInUp animated">
+        <fieldset class="layui-elem-field border1">
+            <legend>支付</legend>
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn4">保存</button>
+            <table class="layui-table" lay-data="{cellMinWidth: 80,page: true, id: 'dataTable4'}" lay-filter="dataTable4">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'id', align:'center',hide}">ID</th>
+                    <th lay-data="{field:'rebateType', align:'center',hide}">分佣类型</th>
+                    <th lay-data="{field:'levelId', align:'center',hide}">级别ID</th>
+                    <th lay-data="{field:'levelName', align:'center'}">级别名称</th>
+                    <th lay-data="{field:'levelRebateRatio', align:'center',edit: 'text'}">伙伴级别</th>
+                    <th lay-data="{field:'platformRebateRatio', align:'center'}">平台</th>
+                </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</form>
+-->
+
+
+</body>
+</html>
+<script type="text/javascript">
+
+    //debugger;
+    loadTableWithoutColumns('/commission/config/list?rebateType=1', 'dataTable1', 'searchForm');
+    loadTableWithoutColumns('/commission/config/list?rebateType=2', 'dataTable2', 'searchForm');
+    loadTableWithoutColumns('/commission/config/list?rebateType=3', 'dataTable3', 'searchForm');
+    loadTableWithoutColumns('/commission/config/list?rebateType=4', 'dataTable4', 'searchForm');
+
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(sub-btn1)', function (data) {
+            save(layui.table.cache.dataTable1);
+            return false;
+        });
+
+        form.on('submit(sub-btn2)', function (data) {
+            save(layui.table.cache.dataTable2);
+            return false;
+        });
+
+        form.on('submit(sub-btn3)', function (data) {
+            save(layui.table.cache.dataTable3);
+            return false;
+        });
+
+        form.on('submit(sub-btn4)', function (data) {
+            save(layui.table.cache.dataTable4);
+            return false;
+        });
+    });
+
+    function save(data) {
+        $.ajaxUkey({
+            url: "/commission/config/add",
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        //parent.location.reload();
+                        window.location.href = '/commission/config/index';
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>

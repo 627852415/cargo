@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建字典</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+</head>
+<style>
+    .layui-form-item .layui-input-inline {
+        float: left;
+        width: 400px;
+        margin-right: 10px;
+    }
+
+</style>
+<body>
+<form class="layui-form" action="" style="margin-top: 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">钱包id</label>
+        <div class="layui-input-inline">
+            <input type="text" id="walletUserId" name="walletUserId"
+                   autocomplete="off" class="layui-input" placeholder="请输入钱包id">
+        </div>
+    </div>
+
+    <!--<div class="layui-form-item">-->
+        <!--<label class="layui-form-label">模块</label>-->
+        <!--<div class="layui-input-inline">-->
+            <!--<input type="text" class="layui-input" id="createTimeStart" name="createTimeStart" placeholder="创建时间开始">-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="layui-form-item">-->
+        <!--<label class="layui-form-label">key</label>-->
+        <!--<div class="layui-input-inline">-->
+            <!--<input type="text" class="layui-input" id="createTimeEnd" name="createTimeStart" placeholder="创建时间开始">-->
+        <!--</div>-->
+    <!--</div>-->
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    });
+
+
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.on('submit(sub-btn)', function (data) {
+            var formData = JSON.stringify(data.field)
+
+            $.ajaxUkey({
+                type: "post",
+                url: "/user/coin/asset/generateFlowReport",
+                contentType: "application/json",
+                data: formData,
+                dataType: "json",
+                success: function () {
+                    layer.alert('操作成功！', {title: '提示信息', icon: 6}, function () {
+                        parent.layer.closeAll();
+                    });
+                },
+                error: function () {
+                    layer.alert('操作失败！', {title: '提示信息', icon: 5}, function () {
+                        parent.layer.closeAll();
+                    });
+                }
+            });
+
+            layer.alert('操作成功！', {title: '提示信息', icon: 6}, function () {
+                parent.layer.closeAll();
+            });
+
+            return false;
+        });
+    });
+
+
+
+</script>
+</body>
+</html>

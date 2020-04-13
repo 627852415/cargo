@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+    <title>[[#{text.complaint.completed}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<div id="modifyData">
+    <form class="layui-form" action="" id="modifyForm" >
+        <input type="hidden" id="complaintId"  th:value="${complaint.arbitrationId}"  name="complaintId">
+        <div class="layui-form-item">
+<!--            <label class="layui-form-label">[[#{text.single.box}]]</label>-->
+            <div class="layui-input-block">
+                <input type="radio" name="winner" value="1" th:title="#{text.buyer.wins}" checked>
+                <input type="radio" name="winner" value="2" th:title="#{text.seller.wins}" >
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label" style="text-align: left;">[[#{text.processing.instructions}]]</label>
+            <div class="layui-input-block" style="margin: 5px 10px 20px 10px;">
+
+                <textarea id="content"  class="layui-textarea"
+                          style="height: 220px;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: table;width:100%;">
+            <div class="layui-input-block" style="display: table-cell;vertical-align: middle;text-align: center;">
+                <button type="button" class="layui-btn" style="width: 150px;" onclick="pushMsg(this)">[[#{text.processing.completed}]]</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+
+<script>
+//[[#{text.processing.completed}]]
+function pushMsg(obj) {
+    var content = $("#content").val();
+    var complaintId = document.getElementById("complaintId").value;
+    var winner = $("input[name='winner']:checked").val();
+    var sendData = JSON.stringify({"arbitrationId": complaintId,"content":content,"winner":winner});
+    var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+    $.ajaxUkey({
+        url: "/offsite/exchange/complaint/completed",
+        type: 'POST',
+        data: sendData,
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        success : function(data) {
+            if (data.success) {
+                layer.msg("[[#{text.processing.succeeded}]]！");
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index);
+                layui.router();
+                var l = parent === self ? layui : top.layui;
+                //[[#{text.close.current}]]tab
+                l.element.tabDelete('layadmin-layout-tabs', "/offsite/exchange/complaint/processing?id="+complaintId);
+                //[[#{text.go.to.homepage}]]
+                l.index.openTabsPage("/offsite/exchange/complaint/index");
+            } else {
+                layer.msg(data.msg);
+
+            }
+            //最后数据加载完 让 loading层消失
+            layer.close(tishi);
+        },
+        error : function(e) {
+            layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+        }
+    });
+}
+
+</script>
+
+</html>

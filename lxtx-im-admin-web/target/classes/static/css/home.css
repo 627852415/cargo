@@ -1,0 +1,67 @@
+ @charset "UTF-8";
+ .homepage {
+    margin-top: 14px;
+}
+.homepage .itemMes.totalMoney {
+    background-color: #1baf99;
+}
+.homepage .itemMes:first-child {
+    height: 200px;
+    margin-bottom: 20px;
+}
+.homepage .itemMes {
+    position: relative;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 6px;
+    padding: 20px 15px 20px 36px;
+    box-sizing: border-box;
+    color: #fff;
+}
+.homepage .itemMes {
+    position: relative;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 6px;
+    padding: 20px 15px 20px 36px;
+    box-sizing: border-box;
+    color: #fff;
+}
+
+ .homepage .totalMoney .moneyImage {
+    width: 78px;
+    height: 78px;
+    background-image: url(data:image/jpeg;base64,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);
+}
+
+
+.homepage .moneyType {
+    margin-top: 24px;
+}
+
+ .homepage .moneyType>div {
+    display: inline-block;
+    width: 20%;
+    margin-bottom: 20px;
+}
+
+.homepage .itemMes .balance {
+    position: absolute;
+    top: 14px;
+    right: 15px;
+}
+
+ .homepage .fontSetting {
+    font-size: 12px;
+    opacity: .6;
+}
+
+ .homepage .moneyType .littleSpan {
+    font-size: 14px;
+    opacity: .6;
+    margin-right: 4px;
+}
+ .homepage .numberSetting {
+    margin-top: 2px;
+    font-size: 18px;
+}

@@ -1,0 +1,87 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>广播指令</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link type="text/css" rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/ajax.js}"></script>
+    <script type="text/javascript" th:src="@{/js/date.js}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+
+    </blockquote>
+    <fieldset class="layui-elem-field">
+        <legend>指令列表</legend>
+        <div class="layui-field-box table-responsive">
+            <table class="layui-table table-hover">
+                <thead>
+                <tr>
+                    <th>指令名称</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <!--内容容器-->
+                <tbody id="con">
+                <tr>
+                    <th>1、向所有在线用户发送指令<span style="color: #CF1900">（所有用户都将退出至登录界面并提示账号在别处登录。）</span></th>
+                    <th>
+                        <shiro:hasPermission name="send:instruction:index">
+                            <a href="javascript:;" onclick="sendMsg()" data-id="1"
+                               class="layui-btn layui-btn-mini">发送</a>
+                        </shiro:hasPermission>
+                    </th>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    layui.use('layer', function () {
+        layer = layui.layer;
+    });
+
+    function sendMsg() {
+        layer.confirm('您确定要向所有在线用户发送改指令吗？', {icon: 3, offset: 100}, function (index) {
+            layer.close(index);
+            $.ajaxUkey({
+                url: '/broadcast/all/offline/msg',
+                type: "POST",
+                data: {},
+                dataType: "json",
+                // contentType:'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (result.success) {
+                        if (!$.isEmptyObject(result.data)) {
+                            layer.alert(result.data, {title: '提示信息', icon: 5});
+                            return;
+                        }
+                        layer.alert('操作成功！', {title: '提示信息', icon: 1}, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        if (!$.isEmptyObject(result.msg)) {
+                            layer.alert(result.msg, {title: '提示信息', icon: 2});
+                            return;
+                        }
+                        layer.alert('系统异常，操作失败！', {title: '提示信息', icon: 2});
+                    }
+                }
+            });
+        });
+
+    }
+</script>
+
+</body>
+</html>

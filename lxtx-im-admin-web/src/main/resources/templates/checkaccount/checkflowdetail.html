@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<title>流水详情</title>
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+	<script type="text/javascript" th:src="@{/js/echarts.js}"></script>
+</head>
+<body>
+<fieldset class="layui-elem-field">
+		<legend>交易明细</legend>
+		<form action="">
+			<input type="hidden" th:value="${checkTime}" id="checkTime" style="display:none"/>
+			<input type="hidden" th:value="${coinId}" id="coinId"/>
+			<input type="hidden" th:value="${userId}" id="userId"/>
+		</form>
+		<table class="layui-table table-hover" id="detail" lay-filter="detail">
+		</table>
+	</fieldset>
+
+	<script>
+		layui.config({
+			base : '/modules/'
+		}).use(
+				[ 'form', 'layer', 'table', 'laydate', 'element', 'mychart',
+						'util'],
+				function() {
+					var form = layui.form;
+					var layer = layui.layer;
+					var table = layui.table;
+					var util = layui.util;
+					var laydate = layui.laydate;
+					var element = layui.element;
+					var mychart = layui.mychart;
+					//var showamount = layui.showamount;
+					var $ = layui.$;
+
+					var intable = table.render({//数据表格
+						elem : '#detail',
+						url : '/check/getFlowDetail',
+						method : 'post',
+						where : {
+							checkTime : $('#checkTime').val(),
+							coinId : $('#coinId').val(),
+							userId: $('#userId').val()
+						},
+						contentType : 'application/json',
+						request : {
+							pageName : 'current',
+							limitName : 'size'
+						},
+						parseData : function(res) {
+							//console.log(res);
+							return {
+								"code" : 0,
+								"msg" : "",
+								"count" : res.data.list.length,
+								"data" : res.data.list
+							}
+						},
+						title : '对账记录',
+						cellMinWidth : 80,
+						page : true,
+						cols : [//------
+						[
+								{
+									field : 'typeName',
+									title : '交易类型',
+								},
+								{
+									field : 'decimal',
+									title : '交易金额',
+								},
+								{
+									field : 'fee',
+									title : '手续费',
+								},
+								{
+									field : 'time',
+									title : '交易时间',
+									templet : function(d) {
+										var time = d.time;
+										return util
+												.toDateString(
+														time,
+														'yyyy-MM-dd HH:mm:ss');
+									}
+								} ] ]
+					});
+				});
+	</script>
+</body>
+</html>

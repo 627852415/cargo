@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>[[#{text.wallet.airdrop.manage.title}]]</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+    <div class="admin-main fadeInUp animated">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <select lay-filter="coinName" lay-verify="coinName" name="coinName" >
+                            <option value="">[[#{text.placeholder.coin}]]</option>
+                            <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:title="${coin.sixFlag}" th:value="${coin.id}"></option>
+                        </select>
+                    </div>
+
+                    <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                        <button type="button" class="layui-btn" onclick="search('searchForm')">[[#{text.operation.search}]]</button>
+                        <shiro:hasPermission name="airdrop:save">
+                            <a onclick="airdropSave()" class="layui-btn site-demo-active"
+                               data-type="tabAdd" th:data-title="#{text.operation.add}">[[#{text.operation.add}]]</a>
+                        </shiro:hasPermission>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-hide" id="dataTable" lay-filter="dataTable"></table>
+    </div>
+    <script type="text/html" id="toolbarData">
+        <span class="tableTitle">[[#{text.wallet.airdrop.title}]]</span>
+    </script>
+    <script type="text/html" id="barData" >
+        <shiro:hasPermission name="airdrop:save">
+            <a class="layui-btn layui-btn-sm tableBtn"  lay-event="edit"><i class="layui-icon layui-icon-edit"></i>[[#{text.operation.edit}]]</a>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="airdrop:delete">
+            <a class="layui-btn layui-btn-danger layui-btn-sm tableBtn" lay-event="del" ><i class="layui-icon layui-icon-close"></i>[[#{text.operation.delete}]]</a>
+        </shiro:hasPermission>
+        <a class="layui-btn layui-btn-normal layui-btn-sm tableBtn" lay-event="detail" ><i class="layui-icon layui-icon-form"></i>[[#{text.operation.details}]]</a>
+    </script>
+<script>
+    var _datetime = new Date();
+    //列数据
+    var columns = eval("[" +
+        "                [" +
+        "                    {field: 'coinName',  title: '[[#{text.wallet.airdrop.table.coin.name}]]', align:'center', sort: false}" +
+        "                    ,{title: 'startTime',title: '[[#{text.wallet.airdrop.table.status}]]',align:'center', templet: function (data) {" +
+        "                           if (compareCalendar(_datetime, data.startTime)) {" +
+        "                               return '未开始';" +
+        "                            } else if (compareCalendar(_datetime, data.endTime)) {" +
+        "                               return '进行中';" +
+        "                            } else {" +
+        "                               return '已结束';" +
+        "                            }" +
+        "                        }" +
+        "                     }" +
+        "                    ,{field: 'type',  title: '[[#{text.wallet.airdrop.table.object}]]', align:'center', sort: false, templet: function (data) {" +
+        "                           if (data.type === 1) {" +
+        "                               return '新用户';" +
+        "                            } else {" +
+        "                               return '全站用户';" +
+        "                            }" +
+        "                        }" +
+        "                    }" +
+        "                    ,{field: 'endTime', title: '[[#{text.wallet.airdrop.table.activity.time}]]', width:320, align:'center', sort: false, templet: function (data) {" +
+        "                            var startTime =  formatDateL(data.startTime);" +
+        "                            var endTime =  formatDateL(data.endTime);" +
+        "                            var time =  startTime + '~' + endTime;" +
+        "                            return time;" +
+        "                        }" +
+        "                    }" +
+        "                    ,{field: 'unlockTime', title: '[[#{text.wallet.airdrop.table.unlock.time}]]', align:'center', sort: false, templet: function (data) {" +
+        "                            return formatDateL(data.unlockTime);" +
+        "                        }" +
+        "                    }" +
+        "                    ,{field: 'amount', title: '[[#{text.wallet.airdrop.table.amount}]]', align:'center', sort: false}" +
+        "                    ,{field: 'unitAmount', title: '[[#{text.wallet.airdrop.table.unit.amount}]]', align:'center', sort: false}" +
+        "                    ,{width:250, title: '[[#{text.operation.name}]]', align:'center', sort: false,toolbar: '#barData'}" +
+        "                ]" +
+        "            ]");
+    //加载列表数据
+    loadTable("dataTable", '/airdrop/list', columns);
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool(){
+        layui.use('table', function (){
+            //监听行工具事件
+            table.on('tool(dataTable)', function(obj){
+                var data = obj.data;
+                if(obj.event === 'del'){
+                    var jsonData = JSON.stringify({id: obj.data.id});
+                    delData("/airdrop/delete" , jsonData);
+                } else if(obj.event === 'edit'){
+                    airdropSave(obj.data.id);
+                } else if(obj.event === 'detail'){
+                    openTab("[[#{text.wallet.airdrop.details}]]", "/airdrop/detail?id=" + obj.data.id);
+                }
+            });
+        });
+    }
+
+    //保存，编辑
+    function airdropSave(id){
+        var title = "[[#{text.wallet.airdrop.add}]]";
+        var url = "/airdrop/save";
+        if (id) {
+            title = "[[#{text.wallet.airdrop.edit}]]";
+            url += "?id=" + id;
+        }
+        openTab(title, url);
+    }
+</script>
+</body>
+</html>

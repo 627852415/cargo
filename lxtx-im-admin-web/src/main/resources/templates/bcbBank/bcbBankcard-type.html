@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>卡种管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/wallet/bcbBank/index.js}"></script>
+</head>
+<style>
+    .layui-body {
+        overflow-y: scroll;
+    }
+
+    body {
+        overflow-y: scroll;
+    }
+
+    fieldset.border1 {
+        border-style: solid;
+        border-width: 10px;
+        /*background-color: #1c8de0;*/
+    }
+
+    .titleClas {
+        font-size: 20px;
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<body>
+<div class="admin-main fadeInUp animated">
+    <fieldset class="layui-elem-field border1">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin:0;">
+                    <div class="layui-input-inline">
+                        <select lay-filter="coinId" name="coinId" lay-search  th:value="${coinId}">
+                            <option value="" >请选择币种:</option>
+                            <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}" th:selected="${coinId != null and coinId == coin.id}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="cardType" name="cardType" lay-filter="cardType">
+                            <option value="">请选择银行卡类型</option>
+                            <option value="1">银联</option>
+                            <option value="2">visa</option>
+                        </select>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="createTime" name="createTime"
+                               placeholder="请选择开始日期">
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="updateTime" name="updateTime"
+                               placeholder="请选择结束日期">
+                    </div>
+
+                </div>
+                <div class="layui-form-item search-input" style="margin-top:10px;">
+                    <div class="layui-form-mid layui-word-aux" style="padding:0">
+                        <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">搜索</button>
+                        <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                        <button type="button" class="layui-btn" onclick="add(this)">新增</button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page: true, id: 'dataLoad'}" lay-filter="dataTable">
+            <thead>
+            <tr>
+                <th lay-data="{align:'center',field:'legalCoinName'}">币种名称
+                </th>
+                <th lay-data="{ align:'center',templet:function(data){
+                        return getTypeName(data.cardType);
+                }}">银行卡类型
+                </th>
+                <th lay-data="{field:'symbol', align:'center'}">金钱符号
+                </th>
+                <th lay-data="{ align:'center',templet: function (data) {
+                     return renderImg(data.cardImgUrl);
+                 }}">银行卡图片
+                </th>
+                <th lay-data="{field:'remarks',  align:'center'}">备注
+                </th>
+                <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间
+                </th>
+                <th lay-data="{fixed: 'right', align:'center',templet: function(data){
+        return renderBtn(data);
+                }}">操作
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </fieldset>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+    <title>第三方游戏订单管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <script type="text/javascript" th:src="@{/js/buss/thirdGame/third-game-order-index.js}"></script>
+</head>
+<body>
+    <div class="admin-main fadeInUp animated">
+        <blockquote class="layui-elem-quote">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item search-input" style="margin: 0;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="id" class="layui-input"
+                               placeholder="订单编号"/>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select lay-filter="coinId" name="coinId" lay-search>
+                            <option value="">请选择币种:</option>
+                            <option th:each="coin : ${coins}" th:text="${coin.coinName}" th:value="${coin.id}"></option>
+                        </select>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <select name="status">
+                            <option value="">请选择订单状态</option>
+                            <option value="1">待审核</option>
+                            <option value="2">通过</option>
+                            <option value="3">拒绝</option>
+                        </select>
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                        <button type="button" class="layui-btn"
+                                onclick="search('searchForm', 'dataReload')">
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </blockquote>
+        <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}"
+               lay-filter="tableData">
+            <thead>
+            <tr>
+                <th lay-data="{field:'id', width: 200, align:'center'}">订单编号</th>
+                <th lay-data="{field:'coinName', align:'center'}">币种名称</th>
+                <th lay-data="{field:'amount', align:'center'}">数量</th>
+                <th lay-data="{field:'userName', align:'center'}">转出方用户名称</th>
+                <th lay-data="{field:'receiverUserName', align:'center'}">转入方用户名称</th>
+                <th lay-data="{field:'transferRemark', align:'center'}">转账说明</th>
+                <th lay-data="{field:'auditOpinion', align:'center'}">审核意见</th>
+                <th lay-data="{field:'status', align:'center',templet: function (data) {
+                            if(1 == data.status){
+                                return '待审核';
+                            }
+                            if(2 == data.status){
+                                return '通过';
+                            }
+                            if(3 == data.status){
+                                return '拒绝';
+                            }
+                        }}">订单状态
+                </th>
+                <th lay-data="{field:'updateTime', align:'center',templet: function (data) {
+                           return formatDateL(data.updateTime);
+                        }}">更新时间
+                </th>
+                <th lay-data="{width: 100, align:'center',toolbar: '#barData'}">操作</th>
+            </tr>
+            </thead>
+        </table>
+        <script type="text/html" id="barData">
+            {{# if(d.status == 1){ }}
+            <a class="layui-btn  layui-btn-normal  layui-btn-sm tableBtn" lay-event="audit"><i class="layui-icon layui-icon-edit"></i>审核</a>
+            {{#  } }}
+        </script>
+    </div>
+
+
+    <div id="auditData" style="display: none;">
+        <form class="layui-form" action="" id="auditForm" style="padding-top: 30px">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:80px;">订单编号：</label>
+                    <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                        <input type="text" name="id" style="background-color: #EEF1F6;" id="id"
+                               autocomplete="off" class="layui-input" layui-disabled readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 80px;">审核状态</label>
+                    <div class="layui-input-block" style="width:350px;margin-left:110px;">
+                        <input type="radio" name="status"  value="2" title="通过">
+                        <input type="radio" name="status"  value="3" title="拒绝">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:80px;">审核意见：</label>
+                    <div class="layui-input-block" style="height:80px;width:350px;">
+                    <textarea name="auditOpinion" id="auditOpinion" placeholder="请输入审核意见"
+                              class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="margin-left: 200px;margin-top: 30px;">
+                    <a class="layui-btn" onclick="audit('auditForm')">确定</a>
+                    <a class="layui-btn"
+                       onclick="cancelModify()">取消</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

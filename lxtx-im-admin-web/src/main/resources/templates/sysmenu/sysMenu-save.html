@@ -1,0 +1,155 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<title>系统用户管理</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1">
+	<script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+<link rel="stylesheet" th:href="@{/css/cyType.css}" media="all">
+<link rel="stylesheet" th:href="@{/css/cyStyle.css}" media="all">
+<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}" media="all">
+<link rel="stylesheet" th:href="@{/ztree/css/zTreeStyle/zTreeStyle.css}">
+<script type="text/javascript" th:src="@{/ztree/jquery.ztree.all-3.5.min.js}"></script>
+<script type="text/javascript" th:src="@{/ztree/dropDownTool.js}"></script>
+</head>
+
+<body>
+<body>
+<form class="layui-form" action="" >
+	<input type="hidden" name="menuId" id="menuId" th:value="${sysMenu} ? ${sysMenu.menuId}">
+	<div class="layui-form-item" style="margin-top: 20px;">
+		<div class="layui-inline">
+			<label class="layui-form-label">类型*</label>
+			<div class="layui-input-block" style="width: 330px;">
+				<input type="radio" name="type" th:checked="${sysMenu != null and sysMenu.type == 0} " value="0" title="目录">
+				<input type="radio" name="type" th:checked="${sysMenu != null and sysMenu.type == 1} " value="1" title="菜单">
+				<input type="radio" name="type" th:checked="${sysMenu != null and sysMenu.type == 2} " value="2" title="按钮">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label" >菜单名称</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="name" placeholder="" lay-verify="required" autocomplete="off" th:value="${sysMenu} ? ${sysMenu.name}"
+					   class="layui-input" id="menuName">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">上级菜单</label>
+			<div cyType="dropDownTool" cyProps="url:'/sys/menu/zreeSelect',search:'true',checkbox:'false'"
+				 name="parentId" th:value="${sysMenu} ? ${sysMenu.parentId}" class="layui-input-inline" style="width: 330px;">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">菜单URL</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="url" lay-verify="" th:value="${sysMenu} ? ${sysMenu.url}"
+					   placeholder="" autocomplete="off" class="layui-input" id="url">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">国际化key</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="textKey" lay-verify="" th:value="${sysMenu} ? ${sysMenu.textKey}"
+					   placeholder="" autocomplete="off" class="layui-input" id="textKey">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">授权标识</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="perms" lay-verify="required" th:value="${sysMenu} ? ${sysMenu.perms}"
+					   placeholder="" autocomplete="off" class="layui-input" id="perms">
+			</div>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">排序号</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="orderNum" lay-verify="" th:value="${sysMenu} ? ${sysMenu.orderNum}"
+					   placeholder="" autocomplete="off" class="layui-input"
+					   id="sortNo">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">图标</label>
+			<div class="layui-input-block"  style="width: 330px;">
+				<input type="text" name="icon" lay-verify="" th:value="${sysMenu} ? ${sysMenu.icon}"
+					   placeholder="" autocomplete="off" class="layui-input" id="iconName">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-input-block" style="margin-left: 200px;">
+			<button class="layui-btn" lay-submit="" lay-filter="menuSubmit">确定</button>
+			<a class="layui-btn" onclick="cancelModify()">取消</a>
+		</div>
+	</div>
+</form>
+<script>
+    layui.use('form', function () {
+        var form = layui.form;
+        /**搜索监听  **/
+        $(document).on("keypress", ".drop-search-div .search_condition", function (event) {
+            if (/^13$/.test(event.keyCode)) { //是否为Enter键
+				search_ztree($(this).parents(".drop-panel").find(".ztree").attr("id"), $(this).attr("id"));
+				return false;
+            }
+        });
+
+        //监听提交
+        form.on('submit(menuSubmit)', function (data) {
+            var menuId = data.field.menuId;
+            var url = "/sys/menu/save";
+            if(menuId){
+                url = "/sys/menu/update";
+			}
+            $.ajaxUkey({
+                type: "post",
+                url: url,
+                contentType: "application/json",
+                data: JSON.stringify(data.field),
+                async: false,
+                dataType: "json",
+                success: function (R) {
+                    if (R.success) {
+                        layer.alert('操作成功！', {title: '提示信息', icon: 6}, function (index) {
+                            parent.layer.closeAll();
+                            parent.$(".layui-btn")[0].click();
+                        });
+                    } else {
+                        layer.alert(R.msg, { title: '提示信息', icon: 2 });
+                    }
+                },
+                error: function () {
+                    // 提示失败
+                    layer.alert('系统异常，操作失败!', {title: '提示信息', icon: 5});
+                }
+            });
+            return false;
+        });
+    });
+
+
+
+
+    function cancelModify(){
+        parent.layer.closeAll();
+    }
+</script>
+</body>
+</html>

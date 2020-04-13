@@ -1,0 +1,60 @@
+server:
+  port: 8767
+spring:
+  application:
+    name: lxtx-im-admin
+  cloud:
+    config:
+      fail-fast: true #如果服务无法连接到配置服务器，则启动服务失败
+      label: ${cloudConfigLabel.${spring.cloud.config.profile}} #分支
+      discovery:
+        enabled: true
+        service-id: lxtx-framework-config
+      username: lxtx
+      password: kVuxyNz1cwLm
+      profile: local
+      name: lxtx-im-admin
+  profiles:
+    active: ${spring.cloud.config.profile}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    shutdown:
+      enabled: false
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${eurekaDefaultZone.${spring.cloud.config.profile}}
+  instance:
+    metadata-map:
+      version: 0 #服务负载开放标识，0-关闭，1-开启
+
+#eureka多环境url配置
+eurekaDefaultZone:
+  local: http://127.0.0.1:8761/eureka/
+  dev: http://192.168.11.244:8761/eureka/
+  test: http://HK-test-java-1:8761/eureka/,http://HK-test-java-3:8762/eureka/,http://HK-test-java-4:8763/eureka/
+  pre: http://server-1:8761/eureka/,http://server-2:8761/eureka/,http://server-3:8761/eureka/
+  pro: http://secret1-server-1:8762/eureka/,http://secret2-server-1:8761/eureka/,http://secret3-server-1:8761/eureka/
+
+#config多环境分支名配置
+cloudConfigLabel:
+  local: feature_v240 #分支
+  dev: feature_v240 #分支
+  test: release_v240 #分支
+  pre: release_v240 #预发布环境
+  pro: master
+
+logging:
+  file: /home/lxtx/logs/im/admin/${spring.application.name}

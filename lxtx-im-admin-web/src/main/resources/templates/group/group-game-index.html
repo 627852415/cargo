@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>群游戏管理</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin:0;">
+                <div class="layui-input-inline">
+                    <input type="text" name="groupId" class="layui-input" placeholder="请输入群组ID"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" class="layui-input" placeholder="请输入群组名称"/>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="founder" class="layui-input" placeholder="请输入群主帐号"/>
+                </div>
+                <div class="layui-form-mid layui-word-aux" style="padding:0;">
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataReload')">搜索</button>
+                    <button type="button" class="layui-btn" onclick="reset()">清空</button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataReload'}" lay-filter="tableData">
+        <thead>
+        <tr>
+            <th lay-data="{type:'numbers', align:'center'}">序号</th>
+            <!--<th lay-data="{field:'gid', align:'center'}">gid</th>-->
+            <th lay-data="{field:'name', align:'center'}">群名称</th>
+            <th lay-data="{field:'founder', align:'center'}">群主帐号</th>
+            <!--<th lay-data="{field:'gameType', align:'center'}">游戏类型</th>-->
+            <th lay-data="{field:'gameName', align:'center'}">游戏名称</th>
+            <th lay-data="{field:'bankerName', align:'center'}">发起人</th>
+            <th lay-data="{field:'playerNum', align:'center'}">参与人数</th>
+            <!--<th lay-data="{field:'modeName', align:'center'}">游戏模式</th>-->
+            <th lay-data="{field:'mode', align:'center',templet:function(data){
+                return modeFormat(data.mode);
+            }}">游戏模式
+                <!--<th lay-data="{field:'redPacketCoinId', align:'center'}">红包币种Id-->
+            <th lay-data="{field:'redPacketCoin', align:'center'}">红包币种
+            <th lay-data="{field:'redPacketAmount', align:'center'}">红包金额
+            <th lay-data="{field:'redPacketFee', align:'center'}">红包手续费
+                <!--<th lay-data="{field:'gameCoinId', align:'center'}">游戏币种Id-->
+            <th lay-data="{field:'gameCoin', align:'center'}">游戏币种
+            <th lay-data="{field:'gameAnte', align:'center'}">游戏底注
+            <th lay-data="{field:'gameTotalAmount', align:'center'}">游戏金额
+            <th lay-data="{field:'burningTime', align:'center'}">持续时间(秒)
+            <th lay-data="{field:'multiples', align:'center'}">倍数
+            <th lay-data="{field:'stateName', align:'center'}">游戏状态
+            <th lay-data="{width: 100, align:'center',toolbar: '#barData'}">操作</th>
+        </tr>
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <shiro:hasPermission name="group:information:flag">
+            {{# if(d.state == 0) { }}
+            <!--<a class="layui-btn layui-btn-sm tableBtn" lay-event="cancelGame"><i class="layui-icon"></i>取消排队</a>-->
+            {{# } else if(d.state == 1) { }}
+            <a class="layui-btn layui-btn-sm tableBtn" lay-event="stopGame"><i class="layui-icon"></i>结束游戏</a>
+            {{# } }}
+        </shiro:hasPermission>
+    </script>
+</div>
+
+<script>
+
+    layui.use('layer', function () {
+        var layer = layui.layer;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+    });
+
+    //查询数据
+    loadTableWithoutColumns('/group/game/listPage', 'tableData', 'searchForm');
+
+    //延时加载
+    setTimeout('rowTool()', 1000); //延迟1秒
+    function rowTool() {
+        layui.use('table', function () {
+            //监听行工具事件
+            table.on('tool(tableData)', function (obj) {
+                if (obj.event === 'stopGame') {
+                    stopGame(obj.data);
+                }else if(obj.event === 'cancelGame'){
+                    cancelGame(obj.data);
+                }
+            });
+        });
+    }
+
+    //取消排队
+    function cancelGame(obj) {
+        let taskId = obj.gid;
+        let groupId = obj.groupId;
+        let cancelerUserId = obj.account;
+        layer.confirm("确定取消游戏排队吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/group/game/cancel',
+                type: 'POST',
+                data: JSON.stringify({taskId: taskId, groupId: groupId, cancelerUserId: cancelerUserId}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg("操作成功");
+                        $(".layui-laypage-btn")[0].click();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //停止游戏
+    function stopGame(obj) {
+        let gid = obj.gid;
+        let redPacketId = obj.redPacketId;
+        let account = obj.account;
+        layer.confirm("确定结束该游戏吗？", {icon: 3, title: '提示', offset: 100}, function (index) {
+            //关闭弹出层
+            layer.close(index);
+            var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+            $.ajaxUkey({
+                url: '/group/game/stop',
+                type: 'POST',
+                data: JSON.stringify({gid: gid, redPacketId: redPacketId, account: account}),
+                dataType: "json",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if (data.success) {
+                        loadTableWithoutColumns('/group/game/listPage', 'tableData', 'searchForm');
+                        // $(".layui-laypage-btn")[0].click();
+                        setTimeout('rowTool()', 500); //延迟1秒
+                        layer.msg("操作成功");
+                        // table.reload("dataReload");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                },
+                error: function (e) {
+                    layer.msg('系统升级维护中，请稍后重试');
+                    //最后数据加载完 让 loading层消失
+                    layer.close(tishi);
+                }
+            });
+        });
+    }
+
+    //游戏模式格式化
+    function modeFormat(mode) {
+        var modeStr = "";
+        if (0 == mode) {
+            modeStr = "无庄";
+        } else if (1 == mode) {
+            modeStr = "有庄";
+        }
+        return modeStr;
+    }
+</script>
+</body>
+</html>
