@@ -27,16 +27,14 @@ public class ShiroConfig {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(manager);
         //配置登录的url和登录成功的url
-        String loginUrl = "/manage/toLogin";
+        String loginUrl = "/admin/toLogin";
         bean.setLoginUrl(loginUrl);
-        bean.setSuccessUrl("/manage/index");
+        bean.setSuccessUrl("/admin/index");
         //配置访问权限
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         //anon表示可以匿名访问  authc表示需要认证才可以访问
         filterChainDefinitionMap.put(loginUrl, "anon");
         filterChainDefinitionMap.put("/**/login", "anon");
-        filterChainDefinitionMap.put("/manage/usb/token/switch", "anon");
-        filterChainDefinitionMap.put("/manage/usb/token/verify", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/**/*.mp4", "anon");
         filterChainDefinitionMap.put("/**/*.css", "anon");
@@ -48,8 +46,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/captcha.jpg", "anon");
         filterChainDefinitionMap.put("/actuator/**", "anon");
         filterChainDefinitionMap.put("/locale", "anon");
-        filterChainDefinitionMap.put("/notice/broadcast/push/scheduler", "anon");
         filterChainDefinitionMap.put("/admin/**", "authc");
+        filterChainDefinitionMap.put("/admin/toLogin", "anon");
         bean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return bean;
     }

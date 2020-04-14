@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>IM[[#{text.management.system}]]</title>
+    <title>国际物流管理系统</title>
     <script th:src="@{/js/jquery.js}"></script>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -45,14 +45,14 @@
             <li class="layui-nav-item">
                 <a href="javascript:;" style="COLOR:#666">[[#{text.language}]]</a>
                 <dl class="layui-nav-child">
-                    <dd><a th:href="@{/locale(lang=zh_CN)}" th:text="#{text.language.chinese}">中文</a></dd>
-                    <dd><a th:href="@{/locale(lang=en_US)}" th:text="#{text.language.english}">英语</a></dd>
+                    <!--<dd><a th:href="@{/locale(lang=zh_CN)}" th:text="#{text.language.chinese}">中文</a></dd>
+                    <dd><a th:href="@{/locale(lang=en_US)}" th:text="#{text.language.english}">英语</a></dd>-->
                 </dl>
             </li>
         </ul>
         <div class="layadmin-user-login-main">
             <div class="layadmin-user-login-box layadmin-user-login-header">
-                <h2>[[#{text.management.system}]]</h2>
+                <h2>国际物流管理系统</h2>
             </div>
             <div
                     class="layadmin-user-login-box layadmin-user-login-body layui-form">
@@ -122,58 +122,11 @@
             layer.msg(elem.text());
         });
     });
-    /**
-     * 校验USB token并且登录
-     */
-    function verifyTokenAndLogin(loginData,layer,token){
-
-        var org = {};
-        var extensionId = 'ihjdinpccpakfpcafodpgfgcfmapokhc';
-
-        var str = getCurrentTime();
-        var hex = sha256(str);
-        try {
-            chrome.runtime.sendMessage(
-                extensionId,
-                {
-                    "jsonrpc": "2.0",
-                    "method": "Token_signRsa",
-                    "params": {
-                        "hash": hex
-                    },
-                    id: ""
-                },
-                function (response) {
-                    if (!response) {
-                        // layer.msg('操作失败，失败原因：usbtoken签名过程无返回\n');
-                        loginData.field.usbTokenStatus = 404;
-                    }
-                    else if (!response.result) {
-                        loginData.field.usbTokenStatus = 500;
-                        // layer.msg('操作失败，没有USB token');
-                    } else if (response && response.result) {
-                        org.sign = response.result.signature;
-                        org.cert = response.result.cert;
-                    }
-                    // else {
-                        org.time = str;
-                        org.userName = loginData.field.username;
-                        var headers = {'token': token, "sign": org.sign, "time": org.time, "cert": org.cert};
-                        toLogin(loginData, layer, headers);
-
-                });
-        }
-        catch(err)
-        {
-            layer.msg('[[#{text.ukey.not.yuming.config}]]');
-        }
-       return false;
-    }
 
     function toLogin(data, layer, headers) {
         data.field.password = md5(data.field.password).toUpperCase();
         $.ajax({//[[#{text.asynchronous.requests.are.returned.to.the.background}]]
-            url: '/manage/login',
+            url: '/user/login',
             type: 'POST',
             contentType: 'application/json;charset=UTF-8',
             data: JSON.stringify(data.field),
@@ -183,7 +136,8 @@
                 if (res.success) {
                     //[[#{text.determine.if.you.are.logging.in.for.the.first.time}]]
                     var user = res.data;
-                    if ($.isEmptyObject(user)) {
+                    console.log(user);
+                    if (res.success) {
                         //[[#{text.tips.and.jumps.for.successful.login}]]
                         layer.msg('[[#{text.login.successful}]]',
                             {
@@ -192,10 +146,8 @@
                                 time: 1000
                             },
                             function () {
-                                window.location.href = '/manage/index'; //[[#{text.homepage}]]
+                                window.location.href = '/admin/index'; //[[#{text.homepage}]]
                             });
-                    } else {
-                        googleAuthenticator(user);
                     }
                 } else {
                     layer.msg(
@@ -228,16 +180,7 @@
                 //[[#{text.encryption}]] Encrypt
                 //data.field.password = encrypt($.trim(data.field.password), null);
                 data.field.password = $.trim(data.field.password);
-                $.get('/manage/usb/token/switch',function(result){
-                    var isOpenUsbToken = result.data.openUsbMode;
-                    if(isOpenUsbToken){
-                        //开关打开，进行USB验证并且登录
-                        var token = result.data.token;
-                        verifyTokenAndLogin(data,layer,token);
-                    }else{
-                        toLogin(data, layer, null);
-                    }
-                });
+                toLogin(data, layer, null);
                 return false;
             });
 
@@ -251,7 +194,7 @@
                 dataType : 'json',
                 success : function(data) {
                     if (data.success) {
-                        window.location.href = '/manage/index'; //[[#{text.homepage}]]
+                        window.location.href = '/admin/index'; //[[#{text.homepage}]]
                     } else {
                         layer.msg(data.msg);
                     }
@@ -264,55 +207,6 @@
             return false;
         });
     });
-
-    function googleAuthenticator(user){
-        if( 1 == user.firstLogin){//[[#{text.setting.up.google.authentication.for.the.first.time}]]
-            var url = "/manage/google/Authenticator/index";
-            var title = "[[#{text.google.verification}]]";
-            openModalWithOffet(title, url, '580px', '580px', 50);
-        }else{//[[#{text.google.certification}]]
-            layer.open({
-                type: 1,
-                closeBtn: 1,
-                offset:100,
-                title: '<b>[[#{text.google.certification}]]</b>',
-                area: ['700px', '250px'], //[[#{text.width.height}]]
-                move: false,
-                content: $("#googleAuthenticator")});
-        }
-    }
-
-    function verifyPwd(fid, msg) {
-        var str = $("#" + fid).val();
-        if (str.length == 0) {
-            layer.msg(msg + "[[#{text.can.not.be.empty}]]");
-            return false;
-        } else {
-            var patrn = /^[0-9a-zA-Z]{8,32}$/;
-            if (!patrn.test(str)) {
-                layer.msg(msg + "[[#{text.wrong.format}]]");
-                return false;
-            }
-        }
-    }
-
-    /**
-      * 获取[[#{text.current.time}]] 格式：yyyy-MM-dd HH:MM:SS
-      */
-    function getCurrentTime() {
-        var date = new Date();//[[#{text.current.time}]]
-        var month = zeroFill(date.getMonth() + 1);//[[#{text.month}]]
-        var day = zeroFill(date.getDate());//[[#{text.day}]]
-        var hour = zeroFill(date.getHours());//[[#{text.time}]]
-        var minute = zeroFill(date.getMinutes());//[[#{text.minute}]]
-        var second = zeroFill(date.getSeconds());//[[#{text.second}]]
-
-        //[[#{text.current.time}]]
-        var curTime = date.getFullYear() + "-" + month + "-" + day
-            + " " + hour + ":" + minute + ":" + second;
-
-        return curTime;
-    }
 
     /**
       * [[#{text.zero-padding}]]

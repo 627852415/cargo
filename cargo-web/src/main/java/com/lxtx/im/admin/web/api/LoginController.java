@@ -22,6 +22,8 @@ import javax.servlet.http.HttpSession;
 public class LoginController {
 
 
+
+
     @ResponseBody
     @RequestMapping("/login")
     public BaseResult login(@RequestBody  LoginReq req , HttpSession session) {
