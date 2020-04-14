@@ -41,6 +41,7 @@ public class LoginController {
             throw LxtxBizException.newException("账号密码错误");
         }
         SysUser sysUser = ShiroUtils.getUserEntity();
+        sysUser.setPassword(null);
         session.setAttribute("userInfo",sysUser);
         return BaseResult.success(sysUser);
     }
