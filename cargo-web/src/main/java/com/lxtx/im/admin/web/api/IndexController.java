@@ -12,7 +12,7 @@ public class IndexController {
      */
     @RequestMapping("/front")
     public String login() {
-        return "frontindex";
+        return "index";
     }
 
 }
