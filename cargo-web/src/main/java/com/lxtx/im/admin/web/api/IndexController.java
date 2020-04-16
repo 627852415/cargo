@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/index")
 public class IndexController {
 
-
+    /**
+     * sds
+     * @return
+     */
     @RequestMapping("/front")
     public String login() {
         return "frontindex";
