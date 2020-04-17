@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:http="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!-- th:fragment 定义需要引入的代码块，该div包含的内容即为引用的公共内容 -->
+<div th:fragment="headers">
+    <div class="headers">
+        <div class="topbar-one">
+            <div class="container">
+                <div class="topbar-one__left">
+                    <div class="topbar-one__social"> <a href="#"><i class="fa fa-facebook-f"></i><!-- /.fa fa-facebook-f --></a> <a href="#"><i class="fa fa-twitter"></i><!-- /.fa fa-twitter --></a> <a href="#"><i class="fa fa-rss"></i><!-- /.fa fa-rss --></a> <a href="#"><i class="fa fa-google-plus"></i><!-- /.fa fa-google-plus --></a> <a href="#"><i class="fa fa-vimeo"></i><!-- /.fa fa-vimeo --></a> </div><!-- /.topbar-one__social -->
+                </div><!-- /.topbar-one__left -->
+                <div class="topbar-one__right">
+                    <div class="topbar-one__links"> <a href="#" class="topbar-one__search search-popup__toggler"><i class="indext-icon-Search"></i> <!-- /.indext-icon-Search --></a><!-- /.topbar-one__search --> <a href="#" class="topbar-one__cart"><i class="indext-icon-Bag"></i> <!-- /.indext-icon-Bag --></a><!-- /.topbar-one__cart --> <a href="#" class="topbar-one__link"><i class="indext-icon-clock"></i><!-- /.indext-icon-clock -->Mon - Fri: 9.00 - 18.00</a><!-- /.topbar-one__link --> <a href="#" class="topbar-one__link"><i class="indext-icon-envelope"></i> <!-- /.indext-icon-envelope -->info@example.com </a><!-- /.topbar-one__link -->
+                    </div><!-- /.topbar-one__links -->
+                </div><!-- /.topbar-one__right -->
+            </div><!-- /.container -->
+        </div><!-- /.topbar-one -->
+        <header class="site-header site-header__header-one site-header__home-one ">
+            <nav class="navbar navbar-expand-lg navbar-light header-navigation stricky">
+                <div class="container clearfix">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="logo-box"> <a class="navbar-brand" href="index.html"> <img src="/images/resources/full-light-logo.png" width="185" class="main-logo" alt="Awesome Image" /> </a> <button class="menu-toggler" data-target=".main-navigation"> <span class="fa fa-bars"></span> </button> </div><!-- /.logo-box -->
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="main-navigation">
+                        <ul class=" navigation-box @@extra_class">
+                            <li class="current">
+                                <a href="index.html">Home</a>
+                                <ul class="submenu">
+                                    <li><a href="index.html">Home One</a></li>
+                                    <li><a href="index-2.html">Home Two</a></li>
+                                    <li><a href="index-3.html">Home Three</a></li>
+                                    <li><a href="index-4.html">Home Four</a></li>
+                                    <li><a href="index-5.html">Home Five</a></li>
+                                    <li><a href="index.html">Header Varations</a>
+                                        <ul class="submenu">
+                                            <li><a href="index.html">Home One</a></li>
+                                            <li><a href="index-2.html">Home Two</a></li>
+                                            <li><a href="index-3.html">Home Three</a></li>
+                                            <li><a href="index-4.html">Home Four</a></li>
+                                            <li><a href="index-5.html">Home Five</a></li>
+                                        </ul><!-- /.submenu -->
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a href="about-1.html">About</a>
+                                <ul class="submenu">
+                                    <li><a href="about-1.html">About One</a></li>
+                                    <li><a href="about-2.html">About Two</a></li>
+                                    <li><a href="history.html">Our History</a></li>
+                                    <li><a href="team.html">Team Page</a></li>
+                                </ul><!-- /.submenu -->
+                            </li>
+
+                            <li>
+                                <a href="#">Pages</a>
+                                <ul class="submenu">
+                                    <li><a href="service-1.html">Services</a>
+                                        <ul class="submenu ">
+                                            <li><a href="service-1.html">Services One</a></li>
+                                            <li><a href="service-2.html">Services Two</a></li>
+                                            <li><a href="service-3.html">Services Three</a></li>
+                                            <li><a href="service-details.html">Services Details</a></li>
+                                        </ul><!-- /.submenu -->
+                                    </li>
+                                    <li><a href="project-1.html">Projects</a>
+                                        <ul class="submenu ">
+                                            <li><a href="project-1.html">Projects One</a></li>
+                                            <li><a href="project-2.html">Projects Two</a></li>
+                                            <li><a href="project-3.html">Projects Three</a></li>
+                                            <li><a href="project-details.html">Projects Details</a></li>
+                                        </ul><!-- /.submenu -->
+                                    </li>
+                                    <li><a href="testimonials-1.html">Testimonials</a>
+                                        <ul class="submenu ">
+                                            <li><a href="testimonials-1.html">Testimonials One</a></li>
+                                            <li><a href="testimonials-2.html">Testimonials Two</a></li>
+                                        </ul><!-- /.submenu -->
+                                    </li>
+                                    <li><a href="faqs.html">FAQ</a></li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a href="shop.html">Shop</a>
+                                <ul class="submenu">
+                                    <li><a href="shop.html">Shop Page</a></li>
+                                    <li><a href="product.html">Product Page</a></li>
+                                    <li><a href="cart.html">Cart Page</a></li>
+                                    <li><a href="checkout.html">Checkout Page</a></li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a href="blog-classic.html">News</a>
+                                <ul class="submenu">
+                                    <li><a href="blog-classic.html">News Classic</a></li>
+                                    <li><a href="blog-grid.html">News Grid</a></li>
+                                    <li><a href="blog-details.html">News Details</a></li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                    <div class="right-side-box">
+                        <a href="#" class="thm-btn site-header__qoute-btn">Get A Quote <i class="fa fa-long-arrow-right"></i>
+                        </a><!-- /.thm-btn -->
+                    </div><!-- /.right-side-box -->
+                </div>
+                <!-- /.container -->
+            </nav>
+        </header><!-- /.site-header -->
+    </div>
+</div>
+
+
+</html>
