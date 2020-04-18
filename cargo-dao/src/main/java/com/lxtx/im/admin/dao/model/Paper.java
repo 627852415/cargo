@@ -32,13 +32,9 @@ public class Paper extends BaseModel {
      */
     private String name;
     /**
-     * 1 文章 ; 0 菜单
-     */
-    private Integer isLeaf;
-    /**
      * 关联类型ID
      */
-    private String typeId;
+    private String refId;
     /**
      * 作者
      */

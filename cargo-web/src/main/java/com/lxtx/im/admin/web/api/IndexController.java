@@ -16,7 +16,6 @@ public class IndexController {
     private CargoService cargoService;
 
     /**
-     * sds
      * @return
      */
     @RequestMapping("/front")
@@ -24,6 +23,14 @@ public class IndexController {
         return "index";
     }
 
+
+    /**
+     * @return
+     */
+    @RequestMapping("/paper")
+    public String showPaper() {
+        return "paper";
+    }
 
 
     @RequestMapping("/paper/list")

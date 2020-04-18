@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建广告位</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<body>
+<form id="saveForm" class="layui-form" action="" >
+    <div class="layui-form-item">
+        <label class="layui-form-label">1232</label>
+        <div class="layui-input-inline">
+            <input type="text" id="adPositionName" name="adPositionName"  lay-verify="required"
+                   class="layui-input" >
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">neirong</label>
+        <div class="layui-input-inline">
+            <div id="editor">
+                <p>Hello World!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor">
+        <p>Hello World!</p>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 210px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
+<script>
+
+    var editor = new Quill('#editor', {
+        modules: { toolbar: '#toolbar' },
+        theme: 'snow'
+    });
+
+    layui.use(['layer', 'upload'], function () {
+        var layer = layui.layer
+            , upload = layui.upload;
+
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+    });
+    //[[#{text.save}]]
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        data.field.enable = $("#enable").is(':checked');
+
+        $.ajaxUkey({
+            url: "/ad/position/save",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

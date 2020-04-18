@@ -2,11 +2,15 @@ package com.lxtx.im.admin.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Lists;
 import com.lxtx.framework.common.base.BaseResult;
+import com.lxtx.im.admin.dao.dao.PaperDao;
 import com.lxtx.im.admin.dao.dao.PaperTypeDao;
+import com.lxtx.im.admin.dao.model.Paper;
 import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.CargoService;
+import com.lxtx.im.admin.service.request.BasePageReq;
 import com.lxtx.im.admin.service.vo.PaperTypeVo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +27,17 @@ public class CargoServiceImpl implements CargoService {
 
     @Autowired
     private PaperTypeDao paperTypeDao;
+    @Autowired
+    private PaperDao paperDao;
+
+
+    @Override
+    public BaseResult aboutList(BasePageReq basePageReq){
+        EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.eq("ref_id","0");
+        Page page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
+        return BaseResult.success(page);
+    }
 
     @Override
     public BaseResult paperList(){

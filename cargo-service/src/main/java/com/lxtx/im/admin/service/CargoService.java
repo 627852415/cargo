@@ -1,6 +1,7 @@
 package com.lxtx.im.admin.service;
 
 import com.lxtx.framework.common.base.BaseResult;
+import com.lxtx.im.admin.service.request.BasePageReq;
 
 /**
  * @author Lin hj
@@ -10,5 +11,9 @@ import com.lxtx.framework.common.base.BaseResult;
  * @date 2020/4/1714:08
  */
 public interface CargoService {
+
+    BaseResult aboutList(BasePageReq basePageReq);
     BaseResult paperList();
+
+
 }

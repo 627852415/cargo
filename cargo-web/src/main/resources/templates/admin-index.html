@@ -28,10 +28,6 @@
                                                            layadmin-event="refresh" title="刷新"> <i
                         class="layui-icon layui-icon-refresh-3"></i>
                 </a></li>
-                <!-- <li class="layui-nav-item layui-hide-xs" lay-unselect><input
-                    type="text" placeholder="搜索..." autocomplete="off"
-                    class="layui-input layui-input-search" layadmin-event="serach"
-                    lay-action="template/search.html?keywords="></li> -->
             </ul>
             <ul class="layui-nav layui-layout-right"
                 lay-filter="layadmin-layout-right">
@@ -72,15 +68,6 @@
                         </dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;">
-                        <span data-th-text="#{text.language}">语言</span>
-                    </a>
-                    <dl class="layui-nav-child">
-                        <a th:href="@{/locale(lang=zh_CN)}" th:text="#{text.language.chinese}">中文</a>
-                        <a th:href="@{/locale(lang=en_US)}" th:text="#{text.language.english}">英语</a>
-                    </dl>
-                </li>
                 <li class="layui-nav-item layui-hide-xs" lay-unselect=""><a
                         href="javascript:;" layadmin-event="about"><i
                         class="layui-icon"></i></a></li>
@@ -94,7 +81,7 @@
         <div class="layui-side layui-side-menu">
             <div class="layui-side-scroll">
                 <div class="layui-logo" lay-href="javascript:void(0)">
-                    <span class="layui-icon">[[#{text.index.title}]]</span>
+                    <span class="layui-icon">djCargo后台管理系统</span>
                 </div>
 
                 <ul class="layui-nav layui-nav-tree" lay-shrink="all"
@@ -102,7 +89,7 @@
                     <li data-name="get" class="layui-nav-item" th:each="parent : ${session.menuList}" shiro:hasPermission="${parent.perms}" th:if="${parent.parentId == '0'}">
 
                         <a href="javascript:;" th:lay-tips="#{${parent.textKey}}" lay-direction="2" th:lay-href="${parent.url}">
-                            <i th:class="${parent.icon != null && parent.icon != ''} ? ${parent.icon} : 'layui-icon layui-icon-auz'"></i> <cite th:text="#{${parent.textKey}}">系统管理</cite>
+                            <i th:class="${parent.icon != null && parent.icon != ''} ? ${parent.icon} : 'layui-icon layui-icon-auz'"></i> <cite th:text="${parent.name}">系统管理</cite>
                         </a>
                         <dl class="layui-nav-child" th:if="${parent.type == 0}">
                             <!--								children.parentId == parent.menuId-->

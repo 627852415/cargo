@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org" >
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home Page One || Indext || Responsive HTML Template</title>
+
+<!--
+    <script type="text/javascript" th:src="@{/acargo/commonHead.js}"></script>
+-->
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
+    <link rel="manifest" th:href="@{/images/favicon/site.webmanifest}">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CRubik:400,400i,500,700,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="https://www.jq22.com/jquery/bootstrap-4.2.1.css">
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://www.jq22.com/jquery/font-awesome.4.7.0.css">
+    <link rel="stylesheet" href="/css/hover-min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/plugins/indext-icons/style.css">
+    <link rel="stylesheet" href="/css/nouislider.css">
+    <link rel="stylesheet" href="/css/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/responsive.css}">
+
+</head>
+
+<body>
+    <div class="preloader"><span></span></div><!-- /.preloader -->
+    <div class="page-wrapper">
+        <div th:replace="header :: headers"  ></div>
+
+        <div> 这是内容</div>asdasdas
+
+        <div th:replace="/footer :: myfooter"  ></div>
+    </div><!-- /.page-wrapper -->
+    <div class="search-popup">
+        <div class="search-popup__overlay custom-cursor__overlay">
+            <div class="cursor"></div>
+            <div class="cursor-follower"></div>
+        </div><!-- /.search-popup__overlay -->
+        <div class="search-popup__inner">
+            <form action="#" class="search-popup__form">
+                <input type="text" name="search" placeholder="Type here to Search....">
+                <button type="submit"><i class="indext-icon-Search"></i></button>
+            </form>
+        </div><!-- /.search-popup__inner -->
+    </div><!-- /.search-popup -->
+    <a href="#" data-target="html" class="scroll-to-target scroll-to-top"><i class="indext-icon-arrow-up"></i></a>
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/bootstrap-datepicker.min.js"></script>
+    <script src="/js/bootstrap-select.min.js"></script>
+    <script src="/js/isotope.js"></script>
+    <script src="/js/jquery.counterup.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/TweenMax.min.js"></script>
+    <script src="/js/waypoints.min.js"></script>
+    <script src="/js/wow.min.js"></script>
+
+    <script src="/js/nouislider.js"></script>
+    <script src="/js/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="/js/theme.js"></script>
+
+</body>
+
+<script src="https://cdn.bootcss.com/angular.js/1.5.0/angular.min.js"></script>
+
+<script>
+    var app = angular.module('myApp', []);
+    app.controller('siteCtrl', function($scope, $http) {
+        $http.post("/index/paper/list")
+            .then(function (response) {
+                $scope.menumList = response.data.data.list;
+                console.log($scope.menumList);
+            });
+    });
+</script>
+
+
+</html>

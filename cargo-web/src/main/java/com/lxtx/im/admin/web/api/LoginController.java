@@ -3,7 +3,6 @@ package com.lxtx.im.admin.web.api;
 import com.lxtx.framework.common.base.BaseResult;
 import com.lxtx.im.admin.dao.model.SysMenu;
 import com.lxtx.im.admin.dao.model.SysUser;
-import com.lxtx.im.admin.service.CargoService;
 import com.lxtx.im.admin.service.SysRoleService;
 import com.lxtx.im.admin.service.exception.LxtxBizException;
 import com.lxtx.im.admin.service.shiro.ShiroUtils;
@@ -26,8 +25,6 @@ import java.util.List;
 @RequestMapping("/user")
 public class LoginController {
 
-    @Autowired
-    private CargoService cargoService;
     @Autowired
     private SysRoleService sysRoleService;
 
