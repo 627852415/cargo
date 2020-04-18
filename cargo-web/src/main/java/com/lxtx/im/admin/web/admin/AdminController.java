@@ -7,18 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author tangdy
  */
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/manager")
 public class AdminController {
 
 
     @RequestMapping("/index")
     public String listPage() {
-        return "index";
-    }
-
-    @RequestMapping("/toLogin")
-    public String toLogin() {
-        return "login";
+        return "admin-index";
     }
 
 

@@ -1,10 +1,13 @@
 package com.lxtx.im.admin.dao.model;
 
 
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * @author Czh
@@ -45,5 +48,16 @@ public class SysUser extends BaseModel {
      */
     private Integer status;
 
+    /**
+     * 角色
+     */
+    @TableField(exist = false)
+    private String roleName;
+
+    /**
+     * 用户所属角色
+     */
+    @TableField(exist = false)
+    private List<String> roleIdList;
 
 }

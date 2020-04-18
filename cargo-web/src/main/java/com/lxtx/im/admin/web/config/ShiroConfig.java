@@ -15,10 +15,11 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.LinkedHashMap;
 
-// @Configuration
+@Configuration
 public class ShiroConfig {
 
     @Bean(name = "shiroFilter")
@@ -26,9 +27,9 @@ public class ShiroConfig {
         ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(manager);
         //配置登录的url和登录成功的url
-        String loginUrl = "/admin/toLogin";
+        String loginUrl = "/user/toLogin";
         bean.setLoginUrl(loginUrl);
-        bean.setSuccessUrl("/admin/index");
+        bean.setSuccessUrl("/manager/index");
         //配置访问权限
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         //anon表示可以匿名访问  authc表示需要认证才可以访问
@@ -46,8 +47,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/captcha.jpg", "anon");
         filterChainDefinitionMap.put("/actuator/**", "anon");
         filterChainDefinitionMap.put("/locale", "anon");
-        filterChainDefinitionMap.put("/admin/**", "authc");
-        filterChainDefinitionMap.put("/admin/toLogin", "anon");
+        filterChainDefinitionMap.put("/manager/**", "authc");
+        filterChainDefinitionMap.put("/user/toLogin", "anon");
         bean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return bean;
     }
