@@ -122,6 +122,8 @@
         });
         var mainNavToggler = $('.header-navigation .menu-toggler');
         var subNavToggler = $('.main-navigation .sub-nav-toggler');
+        var subNavToggler2 = $('.main-navigation .sub-nav-toggler2');
+        var subNavToggler3 = $('.main-navigation .sub-nav-toggler3');
         mainNavToggler.on('click', function () {
             var Self = $(this);
             var menu = Self.closest('.header-navigation').find(Self.data('target'));
@@ -132,6 +134,16 @@
         subNavToggler.on('click', function () {
             var Self = $(this);
             Self.parent().parent().children('.submenu').slideToggle();
+            return false;
+        });
+        subNavToggler2.on('click', function () {
+            var Self = $(this);
+            Self.parent().children('.submenu').slideToggle();
+            return false;
+        });
+        subNavToggler3.on('click', function () {
+            var Self = $(this);
+            Self.parent().parent().parent().children('.submenu').slideToggle();
             return false;
         });
     }
