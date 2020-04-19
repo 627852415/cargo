@@ -2,98 +2,142 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <title>新建广告位</title>
-    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
 </head>
 <body>
-<form id="saveForm" class="layui-form" action="" >
-    <div class="layui-form-item">
-        <label class="layui-form-label">1232</label>
-        <div class="layui-input-inline">
-            <input type="text" id="adPositionName" name="adPositionName"  lay-verify="required"
-                   class="layui-input" >
-        </div>
-    </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label">neirong</label>
-        <div class="layui-input-inline">
-            <div id="editor">
-                <p>Hello World!</p>
+<form class="form-horizontal" role="form">
+    <fieldset>
+        <legend>标题</legend>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <input class="form-control" id="name"  type="text" />
             </div>
         </div>
-    </div>
+    </fieldset>
 
-    <div id="editor">
-        <p>Hello World!</p>
-    </div>
+    <fieldset>
+        <legend>文章内容</legend>
+        <!-- 创建编辑容器 -->
+        <!-- 自定义编辑器工具栏 -->
+        <!-- 创建工具栏组件 -->
+        <div id="toolbar">
+            <<span class="ql-formats">
+        <select class="ql-font"></select>
+        <select class="ql-size"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-strike"></button>
+    </span>
+            <span class="ql-formats">
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-script" value="sub"></button>
+        <button class="ql-script" value="super"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-header" value="1"></button>
+        <button class="ql-header" value="2"></button>
+        <button class="ql-blockquote"></button>
+        <button class="ql-code-block"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-indent" value="-1"></button>
+        <button class="ql-indent" value="+1"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-direction" value="rtl"></button>
+        <select class="ql-align"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+        <button class="ql-video"></button>
+        <button class="ql-formula"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-clean"></button>
+    </span>
+        </div>
 
-    <div class="layui-form-item">
-        <div class="layui-input-block" style="margin-left: 210px;">
-            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
-            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        <!-- 创建文本编辑器 -->
+        <div id="editor">
+            <p>Hello World!</p>
+        </div>
+    </fieldset>
+
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3" style=" margin-top: 20px">
+            <input class="btn btn-primary" type="submit" onclick="subPost()" value="提交"/>
         </div>
     </div>
+
 </form>
 
-<script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.4/quill.js"></script>
 <script>
 
-    var editor = new Quill('#editor', {
-        modules: { toolbar: '#toolbar' },
-        theme: 'snow'
-    });
+    // 提交表单
+    function subPost() {
+        var html = document.querySelector('#editor').children[0].innerHTML;
+        html = '<div class="ql-container ql-snow"><div class="ql-editor">'+html+"</div></div>";
+        var name  = $("#name").val();
 
-    layui.use(['layer', 'upload'], function () {
-        var layer = layui.layer
-            , upload = layui.upload;
-
-    });
-    layui.use('form', function () {
-        var form = layui.form;
-
-        form.on('submit(sub-btn)', function (data) {
-            save(data);
-            return false;
+        $.ajax({
+            url: "/manager/save/paper",
+            type: 'POST',
+            data: JSON.stringify({
+                'name':name,
+                'content':html,
+                "refId":'0'
+            }),
+            dataType: "json",
+            contentType: "application/json", //必须有
+            success:function(res) {
+                console.log(res);
+                if(res.success){
+                    alert("添加成功");
+                }else{
+                    alert(res.msg);
+                }
+                return false;
+            },error:function (res) {
+                alert("网络错误");
+            }
         });
 
-    });
-    //[[#{text.save}]]
-    function save(data) {
-        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
-        var formData = data.field;
-        data.field.enable = $("#enable").is(':checked');
+        return true;
+    }
 
-        $.ajaxUkey({
-            url: "/ad/position/save",
-            type: 'POST',
-            data: JSON.stringify(formData),
-            dataType: "JSON",
-            contentType: 'application/json;charset=UTF-8',
-            success: function (data) {
-                layer.close(tishi);
-                if (data.success) {
-                    layer.alert('[[#{text.successful.operation}]]', {
-                        title: '[[#{text.operation.message}]]',
-                        icon: 6
-                    }, function (index) {
-                        parent.layer.closeAll();
-                        parent.location.reload();
-                    });
-                } else if (data.msg != null) {
-                    layer.msg(data.msg);
-                } else {
-                    // [[#{text.prompt.failed}]]
-                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
-                        title: '[[#{text.operation.message}]]',
-                        icon: 5
-                    });
-                }
-            },
-            error: function (e) {
-                //最后数据加载完 让 loading层消失
-                layer.close(tishi);
-                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
-            }
+    window.onload=function(){
+        var BackgroundClass = Quill.import('attributors/class/background');
+        var ColorClass = Quill.import('attributors/class/color');
+        var SizeStyle = Quill.import('attributors/style/size');
+        Quill.register(BackgroundClass, true);
+        Quill.register(ColorClass, true);
+        Quill.register(SizeStyle, true);
+
+
+        var editor = new Quill('#editor', {
+            modules: { toolbar: '#toolbar' },
+            placeholder: 'Compose an epic...',
+            theme: 'snow'
         });
     }
 </script>

@@ -40,6 +40,18 @@ public class CargoServiceImpl implements CargoService {
     }
 
     @Override
+    public boolean savePapaer(String refId,String name,String content){
+        Paper paper = new Paper();
+        paper.setAuthor("sys");
+        paper.setName(name);
+        paper.setRefId(refId);
+        paper.setContent(content);
+        paperDao.insert(paper);
+        return true;
+    }
+
+
+    @Override
     public BaseResult paperList(){
         List<PaperTypeVo> voList = Lists.newArrayList();
         EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();

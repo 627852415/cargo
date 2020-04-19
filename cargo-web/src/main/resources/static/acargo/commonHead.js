@@ -11,11 +11,19 @@ function getPath(){
     //var projectName = pathName.substring(0, pathName.substr(1).indexOf('/') + 1);
     return localhostPath;
 }
-
-document.write(' <link type="text/css" rel="stylesheet" href="' + getPath() + '/acargo/nav/css/font-awesome.css"/>');
-document.write(' <link type="text/css" rel="stylesheet" href="' + getPath() + '/acargo/nav/css/style.css"/>');
-
-document.write('<script type="text/javascript" src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>');
-document.write(' <script type="text/javascript" src="' + getPath() + '/acargo/nav/js/script.js"></script>');
-
-
+document.write('<meta charset="utf-8">');
+document.write('<meta name="renderer" content="webkit">');
+document.write('<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">');
+document.write('<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">');
+document.write(' <link type="text/css" rel="stylesheet" href="' + getPath() + '/layui/css/layui.css"/>');
+document.write(' <link type="text/css" rel="stylesheet" href="' + getPath() + '/css/common.css"/>');
+document.write('<script type="text/javascript" src="' + getPath() + '/js/jquery.js"></script>');
+document.write(' <script type="text/javascript" src="' + getPath() + '/js/ukey.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() + '/js/sha256.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() + '/layui/layui.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() + '/js/date.js"></script>');
+document.write(' <script type="text/javascript" src="' + getPath() + '/js/layui.define.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() + '/js/common.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() + '/js/ajax.js"></script>');
+document.write('<script type="text/javascript" src="' + getPath() +'/formSelects/js/formSelects-v4.js"></script>');
+document.write('<link type="text/css" rel="stylesheet" href="' + getPath() +'/formSelects/css/formSelects-v4.css"/>');
