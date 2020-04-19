@@ -1,7 +1,7 @@
 package com.lxtx.im.admin.service;
 
 import com.lxtx.framework.common.base.BaseResult;
-import com.lxtx.im.admin.service.request.BasePageReq;
+import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 
 /**
  * @author Lin hj
@@ -12,9 +12,9 @@ import com.lxtx.im.admin.service.request.BasePageReq;
  */
 public interface CargoService {
 
-    BaseResult detail();
+    BaseResult detail(String id);
 
-    BaseResult aboutList(BasePageReq basePageReq);
+    BaseResult aboutList(PaperListPage basePageReq);
 
     boolean savePapaer(String refId, String name, String content);
 

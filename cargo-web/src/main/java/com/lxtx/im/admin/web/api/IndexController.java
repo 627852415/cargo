@@ -29,8 +29,8 @@ public class IndexController {
      * @return
      */
     @RequestMapping("/paper")
-    public ModelAndView showPaper() {
-        BaseResult detail = cargoService.detail();
+    public ModelAndView showPaper(String id) {
+        BaseResult detail = cargoService.detail(id);
         ModelAndView mav = new ModelAndView();
         mav.setViewName("paper");
         mav.addObject("obj", detail.getData());

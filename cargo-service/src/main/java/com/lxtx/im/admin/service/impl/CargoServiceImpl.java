@@ -10,7 +10,8 @@ import com.lxtx.im.admin.dao.dao.PaperTypeDao;
 import com.lxtx.im.admin.dao.model.Paper;
 import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.CargoService;
-import com.lxtx.im.admin.service.request.BasePageReq;
+import com.lxtx.im.admin.service.cargo.req.PaperListPage;
+import com.lxtx.im.admin.service.response.BasePageResp;
 import com.lxtx.im.admin.service.vo.PaperTypeVo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -32,18 +33,21 @@ public class CargoServiceImpl implements CargoService {
 
 
     @Override
-    public BaseResult detail(){
+    public BaseResult detail(String id){
         Paper paper = new Paper();
-        paper.setId("1251777781788700673");
+        paper.setId(id);
         return BaseResult.success(paperDao.selectOne(paper));
     }
 
     @Override
-    public BaseResult aboutList(BasePageReq basePageReq){
+    public BaseResult aboutList(PaperListPage basePageReq){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.eq("ref_id","0");
+        paperTypeEntityWrapper.setSqlSelect(" ref_id,name,id,author,create_time");
         Page page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
-        return BaseResult.success(page);
+        BasePageResp<Paper> basePageResp = new BasePageResp();
+        BeanUtils.copyProperties(page,basePageResp);
+        return BaseResult.success(basePageResp);
     }
 
     @Override
