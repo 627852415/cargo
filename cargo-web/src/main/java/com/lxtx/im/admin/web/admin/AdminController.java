@@ -32,6 +32,12 @@ public class AdminController {
         return BaseResult.success(cargoService.aboutList(req));
     }
 
+    @RequestMapping("/detail")
+    @ResponseBody
+    public BaseResult detail( ){
+        return cargoService.detail();
+    }
+
     /**
      * 跳转关于我们
      * @return

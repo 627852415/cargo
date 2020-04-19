@@ -98,7 +98,6 @@
         var html = document.querySelector('#editor').children[0].innerHTML;
         html = '<div class="ql-container ql-snow"><div class="ql-editor">'+html+"</div></div>";
         var name  = $("#name").val();
-
         $.ajax({
             url: "/manager/save/paper",
             type: 'POST',

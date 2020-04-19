@@ -12,6 +12,8 @@ import com.lxtx.im.admin.service.request.BasePageReq;
  */
 public interface CargoService {
 
+    BaseResult detail();
+
     BaseResult aboutList(BasePageReq basePageReq);
 
     boolean savePapaer(String refId, String name, String content);

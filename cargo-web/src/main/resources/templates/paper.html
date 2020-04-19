@@ -6,7 +6,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Home Page One || Indext || Responsive HTML Template</title>
+    <!-- Theme included stylesheets -->
+    <link href="//cdn.quilljs.com/1.0.3/quill.bubble.css" rel="stylesheet">
+    <link href="http://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
+
+    <title th:text="${obj.name}">${obj.name}</title>
 
 <!--
     <script type="text/javascript" th:src="@{/acargo/commonHead.js}"></script>
@@ -40,7 +44,7 @@
     <div class="page-wrapper">
         <div th:replace="header :: headers"  ></div>
 
-        <div> 这是内容</div>asdasdas
+        <div th:utext="${obj.content}"> </div>
 
         <div th:replace="/footer :: myfooter"  ></div>
     </div><!-- /.page-wrapper -->

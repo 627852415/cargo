@@ -32,6 +32,13 @@ public class CargoServiceImpl implements CargoService {
 
 
     @Override
+    public BaseResult detail(){
+        Paper paper = new Paper();
+        paper.setId("1251777781788700673");
+        return BaseResult.success(paperDao.selectOne(paper));
+    }
+
+    @Override
     public BaseResult aboutList(BasePageReq basePageReq){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.eq("ref_id","0");
@@ -40,7 +47,7 @@ public class CargoServiceImpl implements CargoService {
     }
 
     @Override
-    public boolean savePapaer(String refId,String name,String content){
+    public boolean savePapaer(String refId, String name, String content){
         Paper paper = new Paper();
         paper.setAuthor("sys");
         paper.setName(name);
