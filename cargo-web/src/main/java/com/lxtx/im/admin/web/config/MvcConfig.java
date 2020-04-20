@@ -1,7 +1,6 @@
 package com.lxtx.im.admin.web.config;
 
 import com.lxtx.framework.common.log.interceptor.LoggerInterceptor;
-import com.lxtx.im.admin.web.request.CheckSignatureInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,12 +24,12 @@ public class MvcConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private LoggerInterceptor loggerInterceptor;
-    @Autowired
+   /* @Autowired
 	private CheckSignatureInterceptor checkSignatureInterceptor;
-
+*/
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(checkSignatureInterceptor).addPathPatterns("/**");
+       // registry.addInterceptor(checkSignatureInterceptor).addPathPatterns("/**");
 		registry.addInterceptor(loggerInterceptor).addPathPatterns("/**");
         registry.addInterceptor(localeChangeInterceptor());
 	}

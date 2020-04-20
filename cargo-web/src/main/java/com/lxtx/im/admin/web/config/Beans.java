@@ -3,8 +3,6 @@ package com.lxtx.im.admin.web.config;
 import com.lxtx.framework.common.log.interceptor.LoggerInterceptor;
 import com.lxtx.framework.common.utils.FileUtils;
 import com.lxtx.framework.common.utils.environment.PropertiesUtil;
-import com.lxtx.im.admin.web.request.CheckSignatureInterceptor;
-import com.lxtx.im.admin.web.request.FeignRequestInterceptor;
 import feign.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,19 +21,6 @@ public class Beans {
 	@DependsOn("propertiesUtil")
 	public LoggerInterceptor loggerInterceptor() {
 		return new LoggerInterceptor();
-	}
-
-	@Bean
-	@DependsOn("propertiesUtil")
-	public CheckSignatureInterceptor checkSignatureInterceptor() {
-		return new CheckSignatureInterceptor();
-	}
-
-
-	@Bean
-	@DependsOn("propertiesUtil")
-	public FeignRequestInterceptor FeignRequestInterceptor() {
-		return new FeignRequestInterceptor();
 	}
 
     @Bean
