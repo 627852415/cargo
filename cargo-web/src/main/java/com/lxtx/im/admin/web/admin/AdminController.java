@@ -6,10 +6,7 @@ import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 import com.lxtx.im.admin.service.cargo.req.SaveReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -30,7 +27,7 @@ public class AdminController {
 
     @PostMapping("/listPage")
     @ResponseBody
-    public BaseResult listPage(PaperListPage req){
+    public BaseResult listPage( PaperListPage req){
         return cargoService.listPage(req);
     }
 
