@@ -14,9 +14,13 @@ public interface CargoService {
 
     BaseResult detail(String id);
 
-    BaseResult aboutList(PaperListPage basePageReq);
+    BaseResult listPage(PaperListPage basePageReq);
 
     boolean savePapaer(String refId, String name, String content);
+
+    boolean delPapaer(String id);
+
+    boolean update(String id, String name, String content);
 
     BaseResult paperList();
 

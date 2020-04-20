@@ -11,8 +11,9 @@ import lombok.Data;
  */
 @Data
 public class  SaveReq{
-    String refId;
-    String name;
-    String content;
+    private String refId;
+    private String name;
+    private String content;
+    private String id;
 
 }

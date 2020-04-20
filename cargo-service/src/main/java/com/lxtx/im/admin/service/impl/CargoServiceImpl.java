@@ -40,7 +40,7 @@ public class CargoServiceImpl implements CargoService {
     }
 
     @Override
-    public BaseResult aboutList(PaperListPage basePageReq){
+    public BaseResult listPage(PaperListPage basePageReq){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.eq("ref_id","0");
         paperTypeEntityWrapper.setSqlSelect(" ref_id,name,id,author,create_time");
@@ -60,6 +60,25 @@ public class CargoServiceImpl implements CargoService {
         paperDao.insert(paper);
         return true;
     }
+
+    @Override
+    public boolean delPapaer(String id){
+        Paper paper = new Paper();
+        paper.setId(id);
+        paperDao.delete(paper);
+        return true;
+    }
+
+    @Override
+    public boolean update(String id, String name, String content){
+        Paper paper = new Paper();
+        paper.setId(id);
+        paper.setName(name);
+        paper.setContent(content);
+        paperDao.updateById(paper);
+        return true;
+    }
+
 
 
     @Override

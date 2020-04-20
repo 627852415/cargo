@@ -16,6 +16,7 @@ public class IndexController {
     @Autowired
     private CargoService cargoService;
 
+
     /**
      * @return
      */

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author tangdy
@@ -27,19 +28,19 @@ public class AdminController {
         return "admin-index";
     }
 
-    @PostMapping("/about")
+    @PostMapping("/listPage")
     @ResponseBody
-    public BaseResult about( PaperListPage req){
-        return cargoService.aboutList(req);
+    public BaseResult listPage(PaperListPage req){
+        return cargoService.listPage(req);
     }
 
     /**
-     * 跳转关于我们
+     * 跳转关于我们-首页
      * @return
      */
     @RequestMapping("/toAbout")
     public String toAbout(){
-        return "acargo/about";
+        return "acargo/about-index";
     }
 
     /**
@@ -51,6 +52,37 @@ public class AdminController {
     public BaseResult  savePapaer(@RequestBody SaveReq req){
         cargoService.savePapaer(req.getRefId(),req.getName(),req.getContent());
         return BaseResult.success();
+    }
+
+    @RequestMapping("/del/paper")
+    @ResponseBody
+    public BaseResult  delPapaer(@RequestBody SaveReq req){
+        cargoService.delPapaer(req.getId());
+        return BaseResult.success();
+    }
+
+    /**
+     * 编辑文章
+     * @return
+     */
+    @RequestMapping("/update/paper")
+    @ResponseBody
+    public BaseResult  update(@RequestBody SaveReq req){
+        cargoService.update(req.getId(),req.getName(),req.getContent());
+        return BaseResult.success();
+    }
+
+    /**
+     * 跳转编辑
+     * @return
+     */
+    @RequestMapping("/toEditor")
+    public ModelAndView toEditor(String id) {
+        BaseResult detail = cargoService.detail(id);
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("acargo/save");
+        mav.addObject("obj", detail.getData());
+        return mav;
     }
 
     /**

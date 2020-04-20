@@ -14,7 +14,8 @@
         <legend>标题</legend>
         <div class="form-group">
             <div class="col-sm-10">
-                <input class="form-control" id="name"  type="text" />
+                <input  id="subID"  type="hidden" th:value="${obj}!=null ?${obj.id}:''" />
+                <input class="form-control" id="name"  type="text" th:value="${obj}!=null ?${obj.name}:''" />
             </div>
         </div>
     </fieldset>
@@ -71,14 +72,12 @@
         </div>
 
         <!-- 创建文本编辑器 -->
-        <div id="editor">
-            <p>Hello World!</p>
-        </div>
+        <div id="editor" th:utext="${obj}!=null ?${obj.content}:''" ></div>
     </fieldset>
 
     <div class="form-group">
         <div class="col-md-6 col-md-offset-3" style=" margin-top: 20px">
-            <input class="btn btn-primary" type="submit" onclick="subPost()" value="提交"/>
+            <input class="btn btn-primary" type="submit" onclick="return subPost()" value="提交"/>
         </div>
     </div>
 
@@ -98,10 +97,18 @@
         var html = document.querySelector('#editor').children[0].innerHTML;
         html = '<div class="ql-container ql-snow"><div class="ql-editor">'+html+"</div></div>";
         var name  = $("#name").val();
+
+        var url = "/manager/save/paper";
+
+        if($('#subID').val()!=null&&$('#subID').val()!=''){
+            url = "/manager/update/paper";
+        }
         $.ajax({
-            url: "/manager/save/paper",
+            url: url,
             type: 'POST',
+            async: false,
             data: JSON.stringify({
+                "id":$('#subID').val(),
                 'name':name,
                 'content':html,
                 "refId":'0'
@@ -111,7 +118,7 @@
             success:function(res) {
                 console.log(res);
                 if(res.success){
-                    alert("添加成功");
+                    alert("提交成功");
                 }else{
                     alert(res.msg);
                 }
