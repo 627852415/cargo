@@ -17,6 +17,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,7 +43,7 @@ public class CargoServiceImpl implements CargoService {
     @Override
     public BaseResult listPage(PaperListPage basePageReq){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
-        paperTypeEntityWrapper.eq("ref_id","0");
+        paperTypeEntityWrapper.eq("ref_id",basePageReq.getTypeId());
         paperTypeEntityWrapper.setSqlSelect(" ref_id,name,id,author,create_time");
         Page page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
         BasePageResp<Paper> basePageResp = new BasePageResp();
@@ -51,6 +52,7 @@ public class CargoServiceImpl implements CargoService {
     }
 
     @Override
+    @Transactional
     public boolean savePapaer(String refId, String name, String content){
         Paper paper = new Paper();
         paper.setAuthor("sys");
@@ -58,31 +60,66 @@ public class CargoServiceImpl implements CargoService {
         paper.setRefId(refId);
         paper.setContent(content);
         paperDao.insert(paper);
+
+
+        //找出最大序号
+        int maxSortNo = 0;
+        EntityWrapper<PaperType> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.eq("p_id",refId);
+        paperTypeEntityWrapper.setSqlSelect("max(sort_no)");
+        PaperType maxPaperType = paperTypeDao.selectOne(paperTypeEntityWrapper);
+        if(maxPaperType!=null){
+            maxSortNo = maxPaperType.getSortNo()+1;
+        }
+        PaperType paperType = new PaperType();
+        paperType.setPId(refId);
+        paperType.setPaperId(paper.getId());
+        paperType.setName(name);
+        paperType.setSortNo(maxSortNo);
+        paperTypeDao.insert(paperType);
         return true;
     }
 
     @Override
+    @Transactional
     public boolean delPapaer(String id){
         Paper paper = new Paper();
         paper.setId(id);
         paperDao.delete(paper);
+
+        PaperType paperType = new PaperType();
+        paperType.setPaperId(id);
+        paperTypeDao.delete(paperType);
+
         return true;
     }
 
     @Override
+    @Transactional
     public boolean update(String id, String name, String content){
         Paper paper = new Paper();
         paper.setId(id);
         paper.setName(name);
         paper.setContent(content);
         paperDao.updateById(paper);
+
+        //更新类型
+        PaperType paperType = new PaperType();
+        paperType.setPaperId(id);
+        paperType = paperTypeDao.selectOne(paperType);
+        paperType.setName(name);
+        paperTypeDao.updateById(paperType);
+
         return true;
     }
 
 
 
+
+
     @Override
     public BaseResult paperList(){
+
         List<PaperTypeVo> voList = Lists.newArrayList();
         EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
         entityWrapper.orderBy("sort_no",false);
@@ -96,6 +133,7 @@ public class CargoServiceImpl implements CargoService {
         voList = voList.stream().sorted(Comparator.comparingInt(PaperTypeVo::getSortNo)).collect(Collectors.toList());
         return BaseResult.success(voList);
     }
+
 
     private void fetchMenuList(List<PaperType> menuList, List<PaperType> parentMenuListSrc, List<PaperTypeVo> menuRespList) {
         for(PaperType  parentMenu:parentMenuListSrc){

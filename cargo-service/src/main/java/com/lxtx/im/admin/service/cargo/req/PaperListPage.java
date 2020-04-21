@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 public class PaperListPage {
 
-    private String  id;
+    private String  typeId;
 
     /**
      * 页码（默认1页）

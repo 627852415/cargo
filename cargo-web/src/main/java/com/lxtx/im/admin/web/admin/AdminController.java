@@ -36,8 +36,11 @@ public class AdminController {
      * @return
      */
     @RequestMapping("/toAbout")
-    public String toAbout(){
-        return "acargo/about-index";
+    public ModelAndView toAbout(String typeId){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("acargo/about-index");
+        mav.addObject("typeId", typeId);
+        return mav;
     }
 
     /**
@@ -74,11 +77,12 @@ public class AdminController {
      * @return
      */
     @RequestMapping("/toEditor")
-    public ModelAndView toEditor(String id) {
+    public ModelAndView toEditor(String id,String typeId) {
         BaseResult detail = cargoService.detail(id);
         ModelAndView mav = new ModelAndView();
         mav.setViewName("acargo/save");
         mav.addObject("obj", detail.getData());
+        mav.addObject("typeId", typeId);
         return mav;
     }
 
@@ -87,8 +91,11 @@ public class AdminController {
      * @return
      */
     @RequestMapping("/toSave")
-    public String toSave(){
-        return "acargo/save";
+    public ModelAndView toSave(String typeId){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("acargo/save");
+        mav.addObject("typeId", typeId);
+        return mav;
     }
 
 }

@@ -18,6 +18,7 @@
         <legend>标题</legend>
         <div class="form-group">
             <div class="col-sm-10">
+                <input type="hidden" id = 'typeId' th:value="${typeId}" />
                 <input  id="subID"  type="hidden" th:value="${obj}!=null ?${obj.id}:''" />
                 <input class="form-control" id="name"  type="text" th:value="${obj}!=null ?${obj.name}:''" />
             </div>
@@ -118,7 +119,7 @@
                 "id":$('#subID').val(),
                 'name':name,
                 'content':html,
-                "refId":'0'
+                "refId":$('#typeId').val()
             }),
             dataType: "json",
             contentType: "application/json", //必须有

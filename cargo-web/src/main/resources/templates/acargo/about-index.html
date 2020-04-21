@@ -15,17 +15,14 @@
     <blockquote class="layui-elem-quote">
         <form class="layui-form" id="searchForm">
             <div class="layui-form-item search-input" style="margin: 0;">
-                <!--<div class="layui-input-inline">
-                    <input type="text" name="goodsId" id="goodsId" class="layui-input"
-                           th:placeholder="#{text.product.id}"/>
-                </div>-->
+                <input type="hidden" id = 'typeId' name  = "typeId" th:value="${typeId}" />
                 <div class="layui-form-mid layui-word-aux" style="padding: 0;">
-                    <button type="button" class="layui-btn" onclick="return toDetail('/manager/toSave','发布文章')">
+                    <button type="button" class="layui-btn" onclick="return toDetail('/manager/toSave'+'?typeId='+$('#typeId').val(),'发布文章')">
                         发布文章
                     </button>
-                   <!-- <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">
-                        搜索
-                    </button>-->
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">
+                        刷新
+                    </button>
                 </div>
             </div>
         </form>
@@ -72,7 +69,7 @@
                     window.open("/index/paper?id="+goods.id);
                 }
                 if (obj.event === 'detail') {
-                    toDetail("/manager/toEditor?id="+goods.id,"编辑文章");
+                    toDetail("/manager/toEditor?id="+goods.id+"&typeId="+$("#typeId").val(),"编辑文章");
                 }
                 if (obj.event === 'delV') {
                     if(confirm("确定删除该?")){

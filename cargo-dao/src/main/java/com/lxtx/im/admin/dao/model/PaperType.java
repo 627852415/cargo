@@ -35,6 +35,12 @@ public class PaperType extends BaseModel {
      * 父ID
      */
     private String pId;
+
+    /**
+     * 文章（paper表）ID
+     */
+    private String paperId;
+
     /**
      * 排序编号
      */

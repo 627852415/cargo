@@ -37,7 +37,13 @@ public class PaperTypeVo {
      */
     private Integer sortNo;
 
+    private String paperId;
 
+    /**
+     * 是否有子菜单
+     */
     public List<PaperTypeVo> sub = Lists.newArrayList();
+
+
 
 }

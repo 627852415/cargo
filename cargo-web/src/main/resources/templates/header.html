@@ -27,7 +27,7 @@
                                 <a  class="sub-nav-toggler2">关于我们</a>
                                 <ul class="submenu" >
                                     <li ng-repeat = 'oo in menumList[0].sub' >
-                                        <a href="index.html">{{ oo.name }}奥术大师大所大所大所大所大所撒多</a>
+                                        <a href="/index/paper?id={{ oo.paperId }}"  >{{ oo.name }}</a>
                                     </li>
                                     <li><a class="sub-nav-toggler3">更多</a>
                                         <ul class="submenu">
@@ -44,7 +44,7 @@
                                 <a class="sub-nav-toggler2">国际运输</a>
                                 <ul class="submenu">
                                     <li ng-repeat = 'oo in menumList[1].sub' >
-                                        <a href="index.html">{{ oo.name }}</a>
+                                        <a href="/index/paper?id={{ oo.paperId }}" >{{ oo.name }}</a>
                                     </li>
                                 </ul><!-- /.submenu -->
                             </li>
@@ -53,7 +53,7 @@
                                 <a class="sub-nav-toggler2">门到门运输专线</a>
                                 <ul class="submenu">
                                     <li ng-repeat = 'oo in menumList[2].sub' >
-                                        <a href="index.html">{{ oo.name }}</a>
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
                                     </li>
                                 </ul><!-- /.submenu -->
                             </li>
@@ -61,7 +61,7 @@
                                 <a class="sub-nav-toggler2">运输案例</a>
                                 <ul class="submenu">
                                     <li ng-repeat = 'oo in menumList[3].sub' >
-                                        <a href="index.html">{{ oo.name }}</a>
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
                                     </li>
                                 </ul><!-- /.submenu -->
                             </li>
@@ -69,7 +69,7 @@
                                 <a class="sub-nav-toggler2">货运知识</a>
                                 <ul class="submenu">
                                     <li ng-repeat = 'oo in menumList[4].sub' >
-                                        <a href="index.html">{{ oo.name }}</a>
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
                                     </li>
                                 </ul><!-- /.submenu -->
                             </li>
@@ -80,7 +80,7 @@
                                             <a  class="sub-nav-toggler3">{{ oo.name }}</a>
                                             <ul class="submenu">
                                                 <li ng-repeat = 'o1 in oo.sub'>
-                                                    <a href="blog-classic.html" >
+                                                    <a href="/index/paper?id={{ o1.paperId }}" >
                                                         {{ o1.name  }}
                                                     </a></li>
                                             </ul><!-- /.submenu -->
@@ -110,7 +110,6 @@
         $http.post("/index/paper/list")
             .then(function (response) {
                 $scope.menumList = response.data.data.list;
-                console.log($scope.menumList);
             });
     });
 </script>
