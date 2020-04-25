@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home Page One || Indext || Responsive HTML Template</title>
 
@@ -31,7 +31,8 @@
     <link rel="stylesheet" href="/css/jquery.bootstrap-touchspin.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" type="text/css" th:href="@{/css/responsive.css}">
-
+    <link th:href="@{/owl-carousel/owl.carousel.css}" rel="stylesheet">
+    <link th:href="@{/owl-carousel/owl.theme.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -80,9 +81,230 @@
                 </div><!-- /.about-one__inner-container -->
             </div><!-- /.container -->
         </section><!-- /.about-one -->
+
+
         <section class="about-two  ">
             <div class="container">
-                <div class="row">
+                <div class="row  text-center">
+                    <div class=" col-xl-3 col-lg-3 " >
+
+                    </div>
+                    <div class=" col-xl-6 col-lg-6  text-center "  >
+                        <p style="color: #c24f4a;font-size: 25px"> 集装箱海运，拼箱海运，国际空运，国际快递 </p>
+                    </div>
+                    <div class=" col-xl-3 col-lg-3"  >
+                    </div>
+                </div>
+                <div class="row text-center" style="margin-top: 30px">
+                    <div class=" col-xl-1 col-lg-1 " >
+                    </div>
+                    <div class=" col-xl-2 col-lg-2  text-center" >
+                        <img src="/images/cargo/c1.png" width="120" height="120" />
+                        <p>新加坡专线物流</p>
+                    </div>
+                    <div class=" col-xl-2 col-lg-2 "  >
+                        <img src="/images/cargo/c2.png" width="120" height="120" />
+                        <p>马来西亚专线物流</p>
+                    </div>
+                    <div class=" col-xl-2 col-lg-2"  >
+                        <img src="/images/cargo/c3.png" width="120" height="120" />
+                        <p>澳洲专线物流</p>
+                    </div>
+                    <div class=" col-xl-2 col-lg-2"  >
+                        <img src="/images/cargo/c4.png" width="120" height="120" />
+                        <p>新西兰专线物流</p>
+                    </div>
+                    <div class=" col-xl-2 col-lg-2"  >
+                        <img src="/images/cargo/c5.png" width="120" height="120" />
+                        <p>加拿大专线物流</p>
+                    </div>
+                    <div class=" col-xl-1 col-lg-1 " >
+                    </div>
+                </div>
+
+                <div class="row text-center" style="margin-top: 70px" >
+                    <div class="col-xl-12 col-lg-12 text-center">
+                        <span style="color: #c24f4a;font-size: 18px">更多双清门到门专线国家</span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 30px">
+                    <div class=" col-xl-12 col-lg-12">
+                        <div id="owl-example" class="owl-carousel">
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj1.jpg"
+                                                              height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj2.jpg"height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj3.jpg"
+                                                                          height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj4.jpg" height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj1.jpg"
+                                                                          height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj2.jpg" height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj3.jpg"
+                                                                          height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj4.jpg" height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj1.jpg"
+                                                                          height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj2.jpg"height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px"> <img src="/images/cargo/gj3.jpg"
+                                                                          height="70" alt="Touch">
+                            </div>
+                            <div class="item " style="width: 100px ;margin-right: 20px">
+                                <img src="/images/cargo/gj4.jpg"height="70" alt="Touch">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row text-center" style="margin-top: 80px" >
+                    <div class="col-xl-12 col-lg-12 text-center">
+                        <h3 style="color:black;">我们提供的服务</h3>
+                    </div>
+                </div>
+
+                <div class="row text-center" style="margin-top: 40px">
+                        <div id="owl-example2" class="owl-carousel">
+                            <div class=" col-xl-12 col-lg-12 text-center " > <img src="/images/cargo/fuwu1.png"
+                                                                         height="80" alt="Touch">
+                                <p style="color: black;font-size: 16px">①免费收货</p>
+                                <p style="color: black;font-size: 14px">免费收货，免费卸货，无入仓费，测量重量，测量体积，入系统可查看实时数据</p>
+
+                            </div>
+                            <div class="item col-xl-12 col-lg-12 text-center" > <img src="/images/cargo/fuwu2.png"
+                                                                          height="80" alt="Touch">
+                                <p style="color: black;font-size: 16px">②免费包装</p>
+                                <p style="color: black;font-size: 14px">
+                                    收货检查包装，检查货物是否损坏，数量是否短缺，修补包装，小件货重新打包，易碎易损货物加固处理
+                                </p>
+
+
+                            </div>
+                            <div class="item col-xl-12 col-lg-12 text-center"> <img src="/images/cargo/fuwu3.png"
+                                                                          height="80" alt="Touch">
+
+                                <p style="color: black;font-size: 16px">③免费整理资料</p>
+                                <p style="color: black;font-size: 14px">
+                                    办理出口熏蒸，商检，资料审核，核对清单，确认形式发票等一系列出口文件
+                                </p>
+                            </div>
+                            <div class="item col-xl-12 col-lg-12 text-center" > <img src="/images/cargo/fuwu4.png"
+                                                                          height="80" alt="Touch">
+
+                                <p style="color: black;font-size: 16px">④包办出口报关</p>
+                                <p style="color: black;font-size: 14px">
+                                    出口报关，出口退税办理，安排货物海运，空运，快递，实时跟踪运输状态
+                                </p>
+                            </div>
+                            <div class="item col-xl-12 col-lg-12 text-center" > <img src="/images/cargo/fuwu5.png"
+                                                                          height="80" alt="Touch">
+
+                                <p style="color: black;font-size: 16px">⑤包办目的港清关</p>
+                                <p style="color: black;font-size: 14px">
+                                    货物运输至目的国目的港，包办清关工作，包办税务申报，包办目的港码头操作工作
+                                </p>
+                            </div>
+                            <div class="item col-xl-12 col-lg-12 text-center" > <img src="/images/cargo/fuwu6.png"
+                                                                          height="80" alt="Touch">
+
+                                <p style="color: black;font-size: 16px">⑥包办目的港派送</p>
+                                <p style="color: black;font-size: 14px">
+                                    货物完成清关，拖柜，拆柜，分货，包办目的地货物派送至正确的收货人
+                                </p>
+                            </div>
+                    </div>
+                </div>
+
+
+                <section class="feature-one">
+                    <img src="/images/resources/person-1-1.png" class="feature-one__person" alt="">
+                    <div class="container">
+                        <div class="row justify-content-end">
+                            <div class="col-lg-6">
+                                <div class="feature-one__block">
+                                    <div class="block-title">
+                                        <h3 class="block-title__title"> <span class="block-title__bold">5 个选择我们的理由</span>
+                                        </h3><!-- /.block-title__title -->
+                                        <!-- /.block-title__text -->
+                                    </div><!-- /.block-title -->
+                                    <div class="feature-one__single">
+                                        <div class="feature-one__icon">
+                                            <i class="indext-icon-cta-1-1"></i><!-- /.indext-icon-cta-1-1 -->
+                                        </div><!-- /.feature-one__icon -->
+                                        <div class="feature-one__content">
+                                            <p class="feature-one__text">
+                                                ①专线庄家：我们是一手双清门到门海运物流公司，不炒货，不拖货，不丢货，不弃货，没有中间商赚差价
+                                            </p><!-- /.feature-one__text -->
+                                        </div><!-- /.feature-one__content -->
+                                    </div><!-- /.feature-one__single -->
+                                    <div class="feature-one__single">
+                                        <div class="feature-one__icon">
+                                            <i class="indext-icon-cta-1-2"></i><!-- /.indext-icon-cta-1-1 -->
+                                        </div><!-- /.feature-one__icon -->
+                                        <div class="feature-one__content">
+                                            <p class="feature-one__text">
+                                                ②收费合理：我司报价后承诺无额外费用，无隐藏费用，按时效要求以合理的成本设计最为优选的运费方案，最大程度满足客户的需求
+                                            </p><!-- /.feature-one__text -->
+                                        </div><!-- /.feature-one__content -->
+                                    </div><!-- /.feature-one__single -->
+
+                                    <div class="feature-one__single">
+                                        <div class="feature-one__icon">
+                                            <i class="indext-icon-cta-1-1"></i><!-- /.indext-icon-cta-1-1 -->
+                                        </div><!-- /.feature-one__icon -->
+                                        <div class="feature-one__content">
+                                            <p class="feature-one__text">
+                                                ③谁叫谁到: 客户任何时候咨询，查询，疑问，运输的，操作的，时效的，账单的都能得到回复，并且回复及时，真实准确
+                                            </p><!-- /.feature-one__text -->
+                                        </div><!-- /.feature-one__content -->
+                                    </div><!-- /.feature-one__single -->
+
+                                    <div class="feature-one__single">
+                                        <div class="feature-one__icon">
+                                            <i class="indext-icon-cta-1-2"></i><!-- /.indext-icon-cta-1-1 -->
+                                        </div><!-- /.feature-one__icon -->
+                                        <div class="feature-one__content">
+                                            <p class="feature-one__text">
+                                                ④操作透明：我们始终认为客户应有运输知情权，应该获知货物运输的各种状况，所以国际货运中的每个环节我司都会实时更新给客户
+                                            </p><!-- /.feature-one__text -->
+                                        </div><!-- /.feature-one__content -->
+                                    </div><!-- /.feature-one__single -->
+
+                                    <div class="feature-one__single">
+                                        <div class="feature-one__icon">
+                                            <i class="indext-icon-cta-1-1"></i><!-- /.indext-icon-cta-1-1 -->
+                                        </div><!-- /.feature-one__icon -->
+                                        <div class="feature-one__content">
+                                            <p class="feature-one__text">
+                                                ⑤自有仓库拖车：我司自有仓库收货，卸货，装货，不存在办单，入仓费用等问题，提货，拖车全时安排，单来即订，即定即发货
+                                            </p><!-- /.feature-one__text -->
+                                        </div><!-- /.feature-one__content -->
+                                    </div><!-- /.feature-one__single -->
+
+                                </div><!-- /.feature-one__block -->
+                            </div><!-- /.col-lg-6 -->
+                        </div><!-- /.row -->
+                    </div><!-- /.container -->
+                </section><!-- /.feature-one -->
+
+
+
+                <div class="row" style="margin-top: 40px">
                     <div class="col-lg-6 d-flex justify-content-end">
                         <div class="about-two__img wow fadeInLeft" data-wow-duration="1500ms">
                             <img src="/images/resources/about-2-1.jpg" class="about-two__img-1" alt="">
@@ -91,373 +313,59 @@
                     </div><!-- /.col-lg-6 -->
                     <div class="col-lg-6">
                         <div class="about-two__content">
-                            <div class="block-title">
-                                <p class="block-title__tag-line">About Company</p><!-- /.block-title__tag-line -->
-                                <h3 class="block-title__title">We are Leader in <br>
-                                    <span class="block-title__bold">Industrial Market <br>
-                                        Since <span class="block-title__base">1970</span><!-- /.block-title__base --></span>
-                                    <!-- /.block-title__bold -->
-                                </h3><!-- /.block-title__title -->
-                            </div><!-- /.block-title -->
-                            <p class="about-two__text">Dolor sit amet consectetur elit sed do eiusmod tempor incd idunt labore
-                                et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut
-                                aliquip exea commodo consequat.duis aute irure dolor in reprehen derit in voluptate velit esse
-                                cillum dolore eu fugiat nulla pariatur cepteur sint occaecat cupidatat.</p>
-                            <!-- /.about-two__text -->
-                            <ul class="about-two__list list-unstyled">
-                                <li><i class="indext-icon-check-1-1"></i> Quis nostrud exer citation.</li>
-                                <li><i class="indext-icon-check-1-1"></i> Exercitation ullamco laboris nis. </li>
-                                <li><i class="indext-icon-check-1-1"></i> Commodo consequat duis autex.</li>
-                            </ul><!-- /.about-two__list -->
-                            <img src="/images/resources/sign-1-1.png" class="about-two__sign" alt="">
+                            <p class="about-two__text">
+                                门到门整柜集装箱运输，主要提供拖柜上门装柜，出口报关，海运，目的港进口清关，目的港缴税，目的国派送一条龙服务。可安排20尺40尺干柜，以及冷冻柜，平板托装运。整柜门到门国际海运可从中国各大城市安排出口，不论发货人的地址是在上海，北京，天津，大连，青岛，广州，深圳，厦门，福州，新疆，四川，长沙，东莞等不同城市，发货地址是市内，市外，县，镇，乡，村，有马路的地方我司的集装箱拖车都能到达指定的地址装运。
+
+                                门到门拼箱散货运输，主要提供从我司仓库启步运输至国外收货人地址，与整柜运输流程基本相同，包揽了所有操作，客户只需要通知发货人将货物寄送到我司仓库，我们便有序收货，仓储，包装，整理，发货，运输，清关，派送，并能提供货物运输的实时跟踪状态汇报。散货拼箱专线到门海运覆盖了东南亚国家，澳洲国家，北美，FBA亚马逊仓库派送，我司散货海运报价透明合理，不存在隐藏费用。
+
+                                门到门空运，快递；空运可操作机场到机场，可操作仓库到机场，也可操作仓库到门，对于国际空运需求，依赖于客户的选择，运费成本如何合理如何安排，设计最经济最合适的运输方案给客户选择。国际快递小包裹运输，双清送货上门，方便跨境网购。
+
+                            </p>
                         </div><!-- /.about-two__content -->
                     </div><!-- /.col-lg-6 -->
                 </div><!-- /.row -->
             </div><!-- /.container -->
         </section><!-- /.about-two -->
-        <section class="service-one">
-            <img src="/images/resources/cog-1-1.png" class="service-one__cog" alt="">
-            <img src="/images/resources/caren-1-1.png" class="service-one__moc" alt="">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="service-one__title-block">
-                            <div class="block-title">
-                                <p class="block-title__tag-line">Services</p><!-- /.block-title__tag-line -->
-                                <h3 class="block-title__title">Our Core<br>
-                                    <span class="block-title__bold">Services</span></h3><!-- /.block-title__title -->
-                                <p class="block-title__text">Dolor sit amet consectetur elit sed do <br> eiusmod incd idunt
-                                    labore et
-                                    dolore <br> magna aliqua enim minim.</p><!-- /.block-title__text -->
-                            </div><!-- /.block-title -->
-                            <a href="#" class="thm-btn service-one__btn">All Services <i class="fa fa-long-arrow-right"></i>
-                                <!-- /.fa fa-long-arrow-right --></a><!-- /.thm-btn -->
-                        </div><!-- /.service-one__title-block -->
-                    </div><!-- /.col-lg-4 -->
-                    <div class="col-lg-8">
-                        <div class="service-one__content">
-                            <div class="service-one__single">
-                                <div class="service-one__single-inner">
-                                    <i class="indext-icon-robot-arm"></i><!-- /.indext-icon-service-1-1 -->
-                                    <h2 class="service-one__title"><a href="#">Chemical Research</a></h2>
-                                    <!-- /.service-one__title -->
-                                    <p class="service-one__text">Lorem ipsum dolor sit amet consectur adipisicing elit, sed do
-                                        eiusmod tempor incididunt labore.</p><!-- /.service-one__text -->
-                                </div><!-- /.service-one__single-inner -->
-                            </div><!-- /.service-one__single -->
-                            <div class="service-one__single">
-                                <div class="service-one__single-inner">
-                                    <i class="indext-icon-dump-truck"></i><!-- /.indext-icon-service-1-1 -->
-                                    <h2 class="service-one__title"><a href="#">Material Supply</a></h2>
-                                    <!-- /.service-one__title -->
-                                    <p class="service-one__text">Lorem ipsum dolor sit amet consectur adipisicing elit, sed do
-                                        eiusmod tempor incididunt labore.</p><!-- /.service-one__text -->
-                                </div><!-- /.service-one__single-inner -->
-                            </div><!-- /.service-one__single -->
-                            <div class="service-one__single">
-                                <div class="service-one__single-inner">
-                                    <i class="indext-icon-home"></i><!-- /.indext-icon-service-1-1 -->
-                                    <h2 class="service-one__title"><a href="#">House Renovation</a></h2>
-                                    <!-- /.service-one__title -->
-                                    <p class="service-one__text">Lorem ipsum dolor sit amet consectur adipisicing elit, sed do
-                                        eiusmod tempor incididunt labore.</p><!-- /.service-one__text -->
-                                </div><!-- /.service-one__single-inner -->
-                            </div><!-- /.service-one__single -->
-                            <div class="service-one__single">
-                                <div class="service-one__single-inner">
-                                    <i class="indext-icon-sketch"></i><!-- /.indext-icon-service-1-1 -->
-                                    <h2 class="service-one__title"><a href="#">Civil Engineering</a></h2>
-                                    <!-- /.service-one__title -->
-                                    <p class="service-one__text">Lorem ipsum dolor sit amet consectur adipisicing elit, sed do
-                                        eiusmod tempor incididunt labore.</p><!-- /.service-one__text -->
-                                </div><!-- /.service-one__single-inner -->
-                            </div><!-- /.service-one__single -->
-                        </div><!-- /.service-one__content -->
-                    </div><!-- /.col-lg-8 -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </section><!-- /.service-one -->
-        <section class="project-one">
-            <div class="container">
-                <div class="block-title text-center">
-                    <p class="block-title__tag-line">Portfolio</p><!-- /.block-title__tag-line -->
-                    <h3 class="block-title__title">Checkout Our Recent Projects<br>
-                        <span class="block-title__bold">We’ve Been Done
-                        </span></h3><!-- /.block-title__title -->
-                </div><!-- /.block-title -->
-                <div class="project-one__carousel owl-carousel owl-theme">
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-1.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Orna Science Lab
-                                        Building</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-2.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Welding Processing</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-3.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Building Construction</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-1.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Mechanical Engineering</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-2.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Electrical Wiring</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-3.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Oil and Gas Reproduction</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-1.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Bridge Construction</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-2.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Machinery Manufacturing</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                    <div class="item">
-                        <div class="project-one__single">
-                            <img src="/images/projects/project-1-3.jpg" alt="">
-                            <div class="project-one__content">
-                                <h2 class="project-one__title"><a href="#">Factory Remodeling</a></h2><!-- /.project-one__title -->
-                            </div><!-- /.project-one__content -->
-                        </div><!-- /.project-one__single -->
-                    </div><!-- /.item -->
-                </div><!-- /.project-one__carousel owl-carousel owl-theme -->
-            </div><!-- /.container -->
-        </section><!-- /.project-one -->
-        <section class="testimonials-one  ">
-            <div class="container">
-                <div class="video-one">
-                    <img src="/images/resources/video-1-1.jpg" alt="">
-                    <a class="hvr-pulse video-one__btn " href="#"><i class="fa fa-play"></i><!-- /.fa fa-play --></a>
-                </div><!-- /.video-one -->
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="block-title">
-                            <h3 class="block-title__title">Our Customers <br>
-                                <span class="block-title__bold">
-                                    Are Saying</span></h3><!-- /.block-title__title -->
-                        </div><!-- /.block-title -->
-                        <div class="testimonials-one__carousel owl-carousel owl-theme" data-carousel-margin="0">
-                            <div class="item">
-                                <div class="testimonials-one__single">
-                                    <img src="/images/resources/testi-qoute-1-1.png" alt="">
-                                    <p class="testimonials-one__text">Lorem ipsum dolor sit amet consectetr adipicing elit ux
-                                        usmod tempor incidunt enim minim
-                                        quis nostrud exer tation laboris nis aliqu perspiciatis.</p>
-                                    <div class="testimonials-one__content">
-                                        <img src="/images/resources/testi-1-1.jpg" alt="">
-                                        <div class="testimonials-one__info">
-                                            <h2 class="testimonials-one__title">Dora Hudson</h2>
-                                            <!-- /.testimonials-one__title -->
-                                            <div class="testimonials-one__stars">
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                            </div><!-- /.testimonials-one__stars -->
-                                        </div><!-- /.testimonials-one__info -->
-                                    </div><!-- /.testimonials-one__content -->
-                                </div><!-- /.testimonials-one__single -->
-                            </div><!-- /.item -->
-                            <div class="item">
-                                <div class="testimonials-one__single">
-                                    <img src="/images/resources/testi-qoute-1-1.png" alt="">
-                                    <p class="testimonials-one__text">Lorem ipsum dolor sit amet consectetr adipicing elit ux
-                                        usmod tempor incidunt enim minim
-                                        quis nostrud exer tation laboris nis aliqu perspiciatis.</p>
-                                    <div class="testimonials-one__content">
-                                        <img src="/images/resources/testi-1-1.jpg" alt="">
-                                        <div class="testimonials-one__info">
-                                            <h2 class="testimonials-one__title">Dora Hudson</h2>
-                                            <!-- /.testimonials-one__title -->
-                                            <div class="testimonials-one__stars">
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                            </div><!-- /.testimonials-one__stars -->
-                                        </div><!-- /.testimonials-one__info -->
-                                    </div><!-- /.testimonials-one__content -->
-                                </div><!-- /.testimonials-one__single -->
-                            </div><!-- /.item -->
-                            <div class="item">
-                                <div class="testimonials-one__single">
-                                    <img src="/images/resources/testi-qoute-1-1.png" alt="">
-                                    <p class="testimonials-one__text">Lorem ipsum dolor sit amet consectetr adipicing elit ux
-                                        usmod tempor incidunt enim minim
-                                        quis nostrud exer tation laboris nis aliqu perspiciatis.</p>
-                                    <div class="testimonials-one__content">
-                                        <img src="/images/resources/testi-1-1.jpg" alt="">
-                                        <div class="testimonials-one__info">
-                                            <h2 class="testimonials-one__title">Dora Hudson</h2>
-                                            <!-- /.testimonials-one__title -->
-                                            <div class="testimonials-one__stars">
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                                <i class="fa fa-star"></i><!-- /.fa fa-star -->
-                                            </div><!-- /.testimonials-one__stars -->
-                                        </div><!-- /.testimonials-one__info -->
-                                    </div><!-- /.testimonials-one__content -->
-                                </div><!-- /.testimonials-one__single -->
-                            </div><!-- /.item -->
-                        </div><!-- /.testimonials-one__carousel -->
-                    </div><!-- /.col-lg-6 -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </section><!-- /.testimonials-one -->
-        <section class="feature-one">
-            <img src="/images/resources/person-1-1.png" class="feature-one__person" alt="">
-            <div class="container">
-                <div class="row justify-content-end">
-                    <div class="col-lg-6">
-                        <div class="feature-one__block">
-                            <div class="block-title">
-                                <p class="block-title__tag-line">Company</p><!-- /.block-title__tag-line -->
-                                <h3 class="block-title__title"> <span class="block-title__bold">Why People Choose us?</span>
-                                </h3><!-- /.block-title__title -->
-                                <p class="block-title__text">Lorem ipsum dolor sit amet consectetr adipicing elit ux usmod
-                                    tempor incidunt enim minim quis nostrud exer tation laboris nis aliqu perspiciatis.</p>
-                                <!-- /.block-title__text -->
-                            </div><!-- /.block-title -->
-                            <div class="feature-one__single">
-                                <div class="feature-one__icon">
-                                    <i class="indext-icon-cta-1-1"></i><!-- /.indext-icon-cta-1-1 -->
-                                </div><!-- /.feature-one__icon -->
-                                <div class="feature-one__content">
-                                    <h2 class="feature-one__title">
-                                        <a href="#">Compatitive Price</a>
-                                    </h2><!-- /.feature-one__title -->
-                                    <p class="feature-one__text">Excepteur sint occaecat cupidatat proident sunt culpa qui
-                                        officia deserunt.</p><!-- /.feature-one__text -->
-                                </div><!-- /.feature-one__content -->
-                            </div><!-- /.feature-one__single -->
-                            <div class="feature-one__single">
-                                <div class="feature-one__icon">
-                                    <i class="indext-icon-cta-1-2"></i><!-- /.indext-icon-cta-1-1 -->
-                                </div><!-- /.feature-one__icon -->
-                                <div class="feature-one__content">
-                                    <h2 class="feature-one__title">
-                                        <a href="#">Quality Product</a>
-                                    </h2><!-- /.feature-one__title -->
-                                    <p class="feature-one__text">Excepteur sint occaecat cupidatat proident sunt culpa qui
-                                        officia deserunt.</p><!-- /.feature-one__text -->
-                                </div><!-- /.feature-one__content -->
-                            </div><!-- /.feature-one__single -->
-                        </div><!-- /.feature-one__block -->
-                    </div><!-- /.col-lg-6 -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </section><!-- /.feature-one -->
-        <section class="cta-one">
-            <div class="container">
-                <h2 class="cta-one__title">Need Advice for Your Business? Contact Us</h2><!-- /.cta-one__title -->
-                <div class="button-block">
-                    <a href="#" class="thm-btn cta-one__btn">Contact Us <i class="fa fa-long-arrow-right"></i>
-                        <!-- /.fa fa-long-arrow-right --></a>
-                </div><!-- /.button-block -->
-            </div><!-- /.container -->
-        </section><!-- /.cta-one -->
-        <section class="blog-one">
-            <div class="container">
-                <div class="block-title text-center">
-                    <p class="block-title__tag-line">Articles</p><!-- /.block-title__tag-line -->
-                    <h3 class="block-title__title">Keep Update With Our
-                        <br> <span class="block-title__bold">Company News</span><!-- /.block-title__bold -->
-                    </h3><!-- /.block-title__title -->
-                </div><!-- /.block-title -->
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="blog-one__single">
-                            <div class="blog-one__image">
-                                <img src="/images/blog/blog-1-1.jpg" alt="">
-                                <a href="blog-details.html"><i class="indext-icon-right"></i></a>
-                            </div><!-- /.blog-one__image -->
-                            <div class="blog-one__meta">
-                                <a href="blog-details.html">Industry</a>
-                                <span>I</span>
-                                <a href="blog-details.html">On 26 Dec, 2020</a>
-                            </div><!-- /.blog-one__meta -->
-                            <h2 class="blog-one__title"><a href="blog-details.html">Ratione voluptatem sequi nesciunt neque
-                                    porro quisquam est qui do.</a></h2><!-- /.blog-one__title -->
-                            <a href="blog-details.html" class="blog-one__link"><i class="indext-icon-right"></i></a><!-- /.blog-one__link -->
-                        </div><!-- /.blog-one__single -->
-                    </div><!-- /.col-lg-4 -->
-                    <div class="col-lg-4">
-                        <div class="blog-one__single">
-                            <div class="blog-one__image">
-                                <img src="/images/blog/blog-1-2.jpg" alt="">
-                                <a href="blog-details.html"><i class="indext-icon-right"></i></a>
-                            </div><!-- /.blog-one__image -->
-                            <div class="blog-one__meta">
-                                <a href="blog-details.html">Industry</a>
-                                <span>I</span>
-                                <a href="blog-details.html">On 26 Dec, 2020</a>
-                            </div><!-- /.blog-one__meta -->
-                            <h2 class="blog-one__title"><a href="blog-details.html">Deploy bottleneck mice put in in a deck for our standup today so back of </a></h2><!-- /.blog-one__title -->
-                            <a href="blog-details.html" class="blog-one__link"><i class="indext-icon-right"></i></a><!-- /.blog-one__link -->
-                        </div><!-- /.blog-one__single -->
-                    </div><!-- /.col-lg-4 -->
-                    <div class="col-lg-4">
-                        <div class="blog-one__single">
-                            <div class="blog-one__image">
-                                <img src="/images/blog/blog-1-3.jpg" alt="">
-                                <a href="blog-details.html"><i class="indext-icon-right"></i></a>
-                            </div><!-- /.blog-one__image -->
-                            <div class="blog-one__meta">
-                                <a href="blog-details.html">Industry</a>
-                                <span>I</span>
-                                <a href="blog-details.html">On 26 Dec, 2020</a>
-                            </div><!-- /.blog-one__meta -->
-                            <h2 class="blog-one__title"><a href="blog-details.html">Strategic high-level 30,000 ft view window of opportunity. Where do we stand.</a></h2><!-- /.blog-one__title -->
-                            <a href="blog-details.html" class="blog-one__link"><i class="indext-icon-right"></i></a><!-- /.blog-one__link -->
-                        </div><!-- /.blog-one__single -->
-                    </div><!-- /.col-lg-4 -->
-                </div><!-- /.row -->
-            </div><!-- /.container -->
-        </section><!-- /.blog-one -->
-        <div th:replace="/footer :: myfooter"  ></div>
+
+
+
+        <footer class="site-footer">
+
+            <div class="site-footer__brand">
+                <div class="container">
+                    <div class="site-footer__brand-carousel owl-carousel owl-theme">
+                        <div class="item">
+                            <img src="/images/cargo/car1.png" width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">提货服务</p></center>
+                        </div><!-- /.item -->
+                        <div class="item" style="margin-left: 10px">
+                            <img src="/images/cargo/car2.png"  width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">海运订舱</p></center>
+                        </div><!-- /.item -->
+                        <div class="item" style="margin-left: 10px" >
+                            <img src="/images/cargo/car3.png"   width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">集装箱拖车</p></center>
+                        </div><!-- /.item -->
+                        <div class="item" style="margin-left: 10px">
+                            <img src="/images/cargo/car4.png"  width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">报关报检</p></center>
+                        </div><!-- /.item -->
+                        <div class="item" style="margin-left: 10px">
+                            <img src="/images/cargo/car5.png"  width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">运输保险</p></center>
+                        </div><!-- /.item -->
+                        <div class="item" style="margin-left: 10px">
+                            <img src="/images/cargo/car6.png"  width="225" height="142" alt="brand image" />
+                            <center><p style="color:white">仓储配送</p></center>
+                        </div><!-- /.item -->
+                    </div><!-- /.site-footer__brand-carousel -->
+                    <hr class="site-footer__brand-hr">
+                </div><!-- /.container -->
+            </div><!-- /.site-footer__brand -->
+
+        <div th:replace="/footer :: myfooter"  >
+        </div>
+
     </div><!-- /.page-wrapper -->
     <div class="search-popup">
         <div class="search-popup__overlay custom-cursor__overlay">
@@ -490,10 +398,21 @@
     <script src="/js/theme.js"></script>
 
 </body>
-
 <script src="https://cdn.bootcss.com/angular.js/1.5.0/angular.min.js"></script>
+<script th:src="@{owl-carousel/owl.carousel.min.js}"></script>
 
 <script>
+
+    $(document).ready(function($) {
+        $("#owl-example").owlCarousel();
+
+        $("#owl-example2").owlCarousel();
+
+
+        $("#owl-example3").owlCarousel();
+
+    });
+
     var app = angular.module('myApp', []);
     app.controller('siteCtrl', function($scope, $http) {
         $http.post("/index/paper/list")
