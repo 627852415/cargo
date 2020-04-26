@@ -88,13 +88,13 @@
                     id="LAY-system-side-menu" lay-filter="layadmin-system-side-menu">
                     <li data-name="get" class="layui-nav-item" th:each="parent : ${session.menuList}" shiro:hasPermission="${parent.perms}" th:if="${parent.parentId == '0'}">
 
-                        <a href="javascript:;" th:lay-tips="#{${parent.textKey}}" lay-direction="2" th:lay-href="${parent.url}+'?typeId='+${parent.textKey} ">
+                        <a href="javascript:;" th:lay-tips="#{${parent.textKey}}" lay-direction="2" th:lay-href="${parent.url}">
                             <i th:class="${parent.icon != null && parent.icon != ''} ? ${parent.icon} : 'layui-icon layui-icon-auz'"></i> <cite th:text="${parent.name}">系统管理</cite>
                         </a>
                         <dl class="layui-nav-child" th:if="${parent.type == 0}">
                             <!--								children.parentId == parent.menuId-->
                             <dd th:each="children : ${session.menuList}" th:if="${(children.parentId == parent.menuId) and (children.type == 1)}">
-                                <a th:lay-href="@{${children.url}} +'?typeId='+${parent.textKey} " th:text="#{${children.textKey}}">菜单管理</a>
+                                <a th:lay-href="@{${children.url}} " th:text="#{${children.textKey}}">菜单管理</a>
                             </dd>
                         </dl>
                     </li>
@@ -157,7 +157,7 @@
         window.location.href = '/manage/logout';
     }
     function updatePass(){
-        var url = "/manage/to/update/pass";
+        var url = "/sys/user/to/update/pass";
         var title = "修改密码";
         layer.open({
             type: 2,

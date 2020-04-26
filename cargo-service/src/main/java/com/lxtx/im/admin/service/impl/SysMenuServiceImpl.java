@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.lxtx.framework.common.base.BaseResult;
-import com.lxtx.framework.common.utils.environment.PropertiesUtil;
 import com.lxtx.im.admin.dao.SysMenuDao;
 import com.lxtx.im.admin.dao.SysRoleMenuDao;
 import com.lxtx.im.admin.dao.model.SysMenu;
 import com.lxtx.im.admin.dao.model.SysRoleMenu;
 import com.lxtx.im.admin.dao.model.SysUser;
-import com.lxtx.im.admin.service.Constants.PropertiesContants;
 import com.lxtx.im.admin.service.SysMenuService;
 import com.lxtx.im.admin.service.SysRoleService;
 import com.lxtx.im.admin.service.request.*;
@@ -213,7 +211,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 
 		// 只有超级管理员，才能查看所有管理员列表
 
-		List<String> superUsernameList = PropertiesUtil.getList(PropertiesContants.SUPER_USERNAME, ",");
+		List<String> superUsernameList = Arrays.asList("smanager");
 		if (!CollectionUtils.isEmpty(superUsernameList) && superUsernameList.contains(user.getUsername())) {
 			menuList = sysMenuDao.selectList(new SysMenu());
 		} else {

@@ -3,12 +3,14 @@ package com.lxtx.im.admin.web.admin;
 import com.lxtx.framework.common.base.BaseResult;
 import com.lxtx.im.admin.service.SysUserService;
 import com.lxtx.im.admin.service.request.SysUserListPageReq;
+import com.lxtx.im.admin.service.request.SysUserModifyPwdReq;
 import com.lxtx.im.admin.service.request.SysUserModifyReq;
 import com.lxtx.im.admin.service.request.SysUserPassModifyReq;
 import com.lxtx.im.admin.web.aop.SysLogAop;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,19 @@ public class SysUserController {
     @ResponseBody
     public BaseResult updatePass2(@Valid @RequestBody  SysUserPassModifyReq req) {
         return sysUserService.modify2(req);
+    }
+
+
+    @GetMapping(value = "/to/update/pass")
+    public String toUpdatePassword() {
+        return "updatePassword";
+    }
+
+    @SysLogAop(value = "修改密码", monitor = true, param = false)
+    @PostMapping(value = "/update/pwd")
+    @ResponseBody
+    public BaseResult updatePwd(@Validated @RequestBody SysUserModifyPwdReq sysUserModifyPwdReq) {
+        return sysUserService.updatePwd(sysUserModifyPwdReq);
     }
 
 
