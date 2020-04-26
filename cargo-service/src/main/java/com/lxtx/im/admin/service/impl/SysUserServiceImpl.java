@@ -128,11 +128,6 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public BaseResult modify(SysUserModifyReq req) {
-        if(StringUtils.isEmpty(req.getUsbTokenNo())){
-            throw LxtxBizException.newException("操作失败,请输入token编号！");
-        } if(StringUtils.isEmpty(req.getIp())){
-            throw LxtxBizException.newException("操作失败,请绑定IP！");
-        }
 
         req.setUsbTokenNo(getStringNoBlank(req.getUsbTokenNo()));
         req.setIp(getStringNoBlank(req.getIp()));
