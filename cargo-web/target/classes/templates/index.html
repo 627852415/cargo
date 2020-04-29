@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
-    <link rel="manifest" th:href="@{/images/favicon/site.webmanifest}">
+    <link rel="manifest" href="/images/favicon/favicon-32x32.png">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CRubik:400,400i,500,700,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/animate.css">
     <link rel="stylesheet" href="https://www.jq22.com/jquery/bootstrap-4.2.1.css">
@@ -38,7 +38,7 @@
 <body>
     <div class="preloader"><span></span></div><!-- /.preloader -->
     <div class="page-wrapper">
-        <div th:replace="header :: headers"  ></div>
+        <div th:replace="headerCom :: headersDiv"  ></div>
         <section class="slider-one">
             <div class="slider-one__carousel owl-carousel owl-theme">
                 <div class="item slider-one__slider-1" style="background-image: url('/images/cargo/beijing1.jpg');">
@@ -363,7 +363,7 @@
                 </div><!-- /.container -->
             </div><!-- /.site-footer__brand -->
 
-        <div th:replace="/footer :: myfooter"  >
+        <div th:replace="footerCom :: myfooterDiv"  >
         </div>
 
     </div><!-- /.page-wrapper -->

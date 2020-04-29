@@ -26,15 +26,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--配置中心springCloud config-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-client</artifactId>
-        </dependency>
         <!-- 动态刷新配置更新了Git仓库中的配置文件，那如何让config-client能够及时感知到呢?动态刷新配置-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,6 +95,17 @@
                 <includes>
                     <include>**/mapper/*.xml</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.js</include>
+                    <include>**/*.html</include>
+                </includes>
+                <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
