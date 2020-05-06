@@ -2,10 +2,13 @@ package com.lxtx.im.admin.web.admin;
 
 import com.lxtx.framework.common.base.BaseResult;
 import com.lxtx.im.admin.service.CargoService;
+import com.lxtx.im.admin.service.SysUserService;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 import com.lxtx.im.admin.service.cargo.req.SaveReq;
+import com.lxtx.im.admin.service.request.SysUserModifyPwdReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,7 +21,8 @@ public class AdminController {
 
     @Autowired
     private CargoService cargoService;
-
+    @Autowired
+    private SysUserService sysUserService;
 
     @RequestMapping("/index")
     public String listPage() {
@@ -96,6 +100,17 @@ public class AdminController {
         mav.setViewName("acargo/save");
         mav.addObject("typeId", typeId);
         return mav;
+    }
+
+    @GetMapping(value = "/to/update/pass")
+    public String toUpdatePassword() {
+        return "updatePassword";
+    }
+
+    @PostMapping(value = "/update/pwd")
+    @ResponseBody
+    public BaseResult updatePwd(@Validated @RequestBody SysUserModifyPwdReq sysUserModifyPwdReq) {
+        return sysUserService.updatePwd(sysUserModifyPwdReq);
     }
 
 }
