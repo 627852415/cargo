@@ -84,7 +84,7 @@ public class AdminController {
     public ModelAndView toEditor(String id,String typeId) {
         BaseResult detail = cargoService.detail(id);
         ModelAndView mav = new ModelAndView();
-        mav.setViewName("acargo/save2");
+        mav.setViewName("acargo/save");
         mav.addObject("obj", detail.getData());
         mav.addObject("typeId", typeId);
         return mav;
