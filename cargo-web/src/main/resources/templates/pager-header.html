@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org" xmlns:http="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<!-- th:fragment 定义需要引入的代码块，该div包含的内容即为引用的公共内容 -->
+<div th:fragment="headersDiv">
+    <div class="headers">
+        <div class="topbar-one">
+            <div class="container">
+                <div class="topbar-one__left">
+                    <div class="topbar-one__social">
+                        <!--<a href="#"> <img src="/images/resources/full-light-logo2.png" width="185" height="140" class="main-logo" alt="Awesome Image" />
+                           </a>-->
+                    </div><!-- /.topbar-one__social -->
+                </div><!-- /.topbar-one__left -->
+                <div class="topbar-one__right">
+                    <div class="topbar-one__links"> <!-- /.topbar-one__cart --> <a href="#" class="topbar-one__link"><i class="indext-icon-clock"></i><!-- /.indext-icon-clock -->电话:+86 12312312</a><!-- /.topbar-one__link --> <a href="#" class="topbar-one__link"><i class="indext-icon-envelope"></i> <!-- /.indext-icon-envelope -->info@example.com </a><!-- /.topbar-one__link -->
+                    </div><!-- /.topbar-one__links -->
+                </div><!-- /.topbar-one__right -->
+            </div><!-- /.container -->
+        </div><!-- /.topbar-one -->
+        <header class="site-header site-header__header-one site-header__home-one " ng-app="myApp" ng-controller="siteCtrl">
+            <nav class="navbar navbar-expand-lg navbar-light header-navigation stricky">
+                <div class="container clearfix">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="logo-box"> <a class="navbar-brand" href="index.html">
+
+                    </a> <img src="/images/resources/full-light-logo2.png" width="155" height="110" class="main-logo" alt="Awesome Image" /> <button class="menu-toggler" data-target=".main-navigation"> <span class="fa fa-bars"></span> </button> </div><!-- /.logo-box -->
+
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="main-navigation">
+                        <ul class=" navigation-box @@extra_class" >
+
+                            <li class="current">
+                                <a  class="sub-nav-toggler2">关于我们</a>
+                                <ul class="submenu" >
+                                    <li ng-repeat = 'oo in menumList[0].sub' >
+                                        <a href="/index/paper?id={{ oo.paperId }}"  >{{ oo.name }}</a>
+                                    </li>
+                                    <li><a class="sub-nav-toggler3">更多</a>
+                                        <ul class="submenu">
+                                            <li><a href="index.html">Home One</a></li>
+                                            <li><a href="index-2.html">Home Two</a></li>
+                                            <li><a href="index-3.html">Home Three</a></li>
+                                            <li><a href="index-4.html">Home Four</a></li>
+                                            <li><a href="index-5.html">Home Five</a></li>
+                                        </ul>
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a class="sub-nav-toggler2">国际运输</a>
+                                <ul class="submenu">
+                                    <li ng-repeat = 'oo in menumList[1].sub' >
+                                        <a href="/index/paper?id={{ oo.paperId }}" >{{ oo.name }}</a>
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+
+                            <li>
+                                <a class="sub-nav-toggler2">门到门运输专线</a>
+                                <ul class="submenu">
+                                    <li ng-repeat = 'oo in menumList[2].sub' >
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a class="sub-nav-toggler2">运输案例</a>
+                                <ul class="submenu">
+                                    <li ng-repeat = 'oo in menumList[3].sub' >
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a class="sub-nav-toggler2">货运知识</a>
+                                <ul class="submenu">
+                                    <li ng-repeat = 'oo in menumList[4].sub' >
+                                        <a href="/index/paper?id={{ oo.paperId }}">{{ oo.name }}</a>
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+                            <li>
+                                <a class="sub-nav-toggler2">服务范围</a>
+                                <ul class="submenu">
+                                        <li ng-repeat = 'oo in menumList[5].sub' >
+                                            <a  class="sub-nav-toggler3">{{ oo.name }}</a>
+                                            <ul class="submenu">
+                                                <li ng-repeat = 'o1 in oo.sub'>
+                                                    <a href="/index/paper?id={{ o1.paperId }}" >
+                                                        {{ o1.name  }}
+                                                    </a></li>
+                                            </ul><!-- /.submenu -->
+                                        </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+
+                            <li>
+                                <a class="sub-nav-toggler2">进口业务</a>
+                                <ul class="submenu">
+                                    <li ng-repeat = 'oo in menumList[5].sub' >
+                                        <a  class="sub-nav-toggler3">{{ oo.name }}</a>
+                                        <ul class="submenu">
+                                            <li ng-repeat = 'o1 in oo.sub'>
+                                                <a href="/index/paper?id={{ o1.paperId }}" >
+                                                    {{ o1.name  }}
+                                                </a></li>
+                                        </ul><!-- /.submenu -->
+                                    </li>
+                                </ul><!-- /.submenu -->
+                            </li>
+
+                          <li><a href="javascript:void(0);">联系我们</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.container -->
+            </nav>
+        </header><!-- /.site-header -->
+    </div>
+</div>
+
+
+</html>
+
+<script src="https://cdn.bootcss.com/angular.js/1.5.0/angular.min.js"></script>
+
+<script>
+    var app = angular.module('myApp', []);
+    app.controller('siteCtrl', function($scope, $http) {
+        $http.post("/index/paper/list")
+            .then(function (response) {
+                $scope.menumList = response.data.data.list;
+            });
+    });
+</script>

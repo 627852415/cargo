@@ -2252,7 +2252,7 @@ a:focus {
 .inner-banner {
 	position: relative;
 	background-position: center top;
-	background-image: url(../images/backgrounds/inner-banner-bg-1-1.jpg);
+	background-image: url(../images/cargo/beijing2.jpg);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-attachment: fixed;
@@ -2265,7 +2265,6 @@ a:focus {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #000;
 	opacity: 0.65;
 }
 

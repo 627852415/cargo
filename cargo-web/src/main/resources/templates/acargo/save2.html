@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建广告位</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/classic/ckeditor.js"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/decoupled-document/ckeditor.js"></script>
+
+</head>
+<body>
+
+<form class="form-horizontal" role="form">
+    <fieldset>
+        <legend>标题</legend>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <input type="hidden" id = 'typeId' th:value="${typeId}" />
+                <input  id="subID"  type="hidden" th:value="${obj}!=null ?${obj.id}:''" />
+                <input class="form-control" id="name"  type="text" th:value="${obj}!=null ?${obj.name}:''" />
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>文章内容</legend>
+        <!-- 创建编辑容器 -->
+        <!-- 自定义编辑器工具栏 -->
+        <!-- 创建工具栏组件 -->
+        <!-- 创建文本编辑器 -->
+        <textarea id="editor" th:text="${obj}!=null ?${obj.content}:''" ></textarea>
+    </fieldset>
+
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3" style=" margin-top: 20px">
+            <button class="btn btn-primary"  onclick="return subPost()"> 提交</div>
+        </div>
+    </div>
+
+</form>
+
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+
+    var myEditor = null;
+    window.onload = function(){
+        ClassicEditor
+            .create(document.querySelector("#editor"))
+            .then(editor => {
+                myEditor = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    // 提交表单
+    function subPost() {
+        var html = myEditor.getData();
+        var name  = $("#name").val();
+        var url = "/manager/save/paper";
+        var closeView = true;
+        if($('#subID').val()!=null&&$('#subID').val()!=''){
+            url = "/manager/update/paper";
+        }
+        $.ajax({
+            url: url,
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                "id":$('#subID').val(),
+                'name':name,
+                'content':html,
+                "refId":$('#typeId').val()
+            }),
+            dataType: "json",
+            contentType: "application/json", //必须有
+            success:function(res) {
+                console.log(res);
+                if(res.success){
+                    alert("提交成功");
+                    parent.layui.admin.events.closeThisTabs();
+                }else{
+                    alert(res.msg);
+                }
+                console.log("321");
+                return false;
+            },error:function (res) {
+                alert("网络错误");
+            }
+        });
+        console.log("123");
+        return false;
+    }
+
+
+    //  上传适配器，格式官网上有，以一种Promise 的方式。Promise好像是有阻塞的意思在里面。
+    class UploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+        upload() {
+            return new Promise((resolve, reject) => {
+                const data = new FormData();
+                data.append('upload', this.loader.file);
+                data.append('allowSize', 10);//允许图片上传的大小/兆
+                $.ajax({
+                    url: 'loadImage',
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.res) {
+                            resolve({
+                                default: data.url
+                            });
+                        } else {
+                            reject(data.msg);
+                        }
+
+                    }
+                });
+
+            });
+        }
+        abort() {
+        }
+    }
+
+    DecoupledEditor
+        .create( document.querySelector( '#b' ), {
+            language:"zh-cn"
+        })
+        .then( editor => {
+            const toolbarContainer = document.querySelector( '#a' );
+            toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+
+            // 这个地方加载了适配器
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader)=>{
+                return new UploadAdapter(loader);
+            };
+        } )
+        .catch( error => {
+            console.error( error );
+        } );
+
+
+</script>
+
+</body>
+</html>
