@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author tangdy
@@ -112,5 +116,19 @@ public class AdminController {
     public BaseResult updatePwd(@Validated @RequestBody SysUserModifyPwdReq sysUserModifyPwdReq) {
         return sysUserService.updatePwd(sysUserModifyPwdReq);
     }
+
+
+
+    @RequestMapping(value = "/uploadFile")
+    @ResponseBody
+    public BaseResult uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload )   {
+
+        Map<String,Object> map=new HashMap<>();
+        map.put("imageUrl","https://img-ask.csdn.net/upload/201805/06/1525583694_476523.png");
+        map.put("fileName","ssss");
+        return BaseResult.success(map);
+
+    }
+
 
 }
