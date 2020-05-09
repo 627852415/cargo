@@ -5,6 +5,7 @@ import com.lxtx.im.admin.service.CargoService;
 import com.lxtx.im.admin.service.SysUserService;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 import com.lxtx.im.admin.service.cargo.req.SaveReq;
+import com.lxtx.im.admin.service.exception.LxtxBizException;
 import com.lxtx.im.admin.service.request.SysUserModifyPwdReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,8 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author tangdy
@@ -121,11 +125,26 @@ public class AdminController {
 
     @RequestMapping(value = "/uploadFile")
     @ResponseBody
-    public BaseResult uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload )   {
-
+    public BaseResult uploadFile(@RequestParam(value = "file" ,required=false) MultipartFile file )   {
+        if (file==null||file.isEmpty()) {
+           throw LxtxBizException.newException("文件为空");
+        }
+        String fileName = file.getOriginalFilename();  // 文件名
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
+        String filePath = "/user/pro/file"; // 上传后的路径
+        fileName = UUID.randomUUID() + suffixName; // 新文件名
+        File dest = new File(filePath + fileName);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Map<String,Object> map=new HashMap<>();
         map.put("imageUrl","https://img-ask.csdn.net/upload/201805/06/1525583694_476523.png");
-        map.put("fileName","ssss");
+        map.put("fileName",fileName);
         return BaseResult.success(map);
 
     }
