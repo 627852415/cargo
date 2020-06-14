@@ -1,7 +1,10 @@
 package com.lxtx.im.admin.service;
 
 import com.lxtx.framework.common.base.BaseResult;
+import com.lxtx.im.admin.dao.model.Paper;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
+
+import java.util.List;
 
 /**
  * @author Lin hj
@@ -11,6 +14,8 @@ import com.lxtx.im.admin.service.cargo.req.PaperListPage;
  * @date 2020/4/1714:08
  */
 public interface CargoService {
+
+    List<Paper> newPaper();
 
     BaseResult detail(String id);
 

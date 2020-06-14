@@ -30,9 +30,9 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
        // registry.addInterceptor(checkSignatureInterceptor).addPathPatterns("/**");
-		/*registry.addInterceptor(loggerInterceptor).addPathPatterns("/**").
-                excludePathPatterns("/manager/uploadFile");
-        registry.addInterceptor(localeChangeInterceptor());*/
+		registry.addInterceptor(loggerInterceptor).addPathPatterns("/**").
+                excludePathPatterns("/index/uploadFile");
+        registry.addInterceptor(localeChangeInterceptor());
 	}
 
 

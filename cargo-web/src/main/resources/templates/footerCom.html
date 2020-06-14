@@ -24,12 +24,13 @@
                         </div><!-- /.col-lg-3 -->
 
                         <div class="col-xl-6 col-lg-5">
-                            <div class="footer-widget footer-widget__about-widget">
+
+                            <div class="footer-widget footer-widget__about-widget" >
                                 <h2 class="footer-widget__title">最新消息</h2>
-                                <p class="footer-widget__text"><a>一个人如何从这块到那块的神奇魔力</a></p><br>
-                                <p class="footer-widget__text"><a>一个人如何从这块到那块的神奇魔力</a></p><br>
-                                <p class="footer-widget__text"><a>一个人如何从这块到那块的神奇魔力</a></p><br>
-                                <p class="footer-widget__text"><a>一个人如何从这块到那块的神奇魔力</a></p><br>
+                                <div th:each="user : ${newPaper}">
+                                <p class="footer-widget__text" ><a style="color:white" target="_blank"   th:text="${user.name}" th:href="${user.id}" >
+                                    ${user.name}</a></p><br>
+                                </div>
                             </div><!-- /.footer-widget -->
                         </div><!-- /.col-lg-6 -->
                         <div class="col-xl-3 col-lg-3">

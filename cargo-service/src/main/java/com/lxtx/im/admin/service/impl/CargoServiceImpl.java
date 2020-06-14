@@ -10,6 +10,7 @@ import com.lxtx.im.admin.dao.dao.PaperTypeDao;
 import com.lxtx.im.admin.dao.model.Paper;
 import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.CargoService;
+import com.lxtx.im.admin.service.cargo.req.BasePageReq;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 import com.lxtx.im.admin.service.response.BasePageResp;
 import com.lxtx.im.admin.service.vo.PaperTypeVo;
@@ -31,6 +32,23 @@ public class CargoServiceImpl implements CargoService {
     private PaperTypeDao paperTypeDao;
     @Autowired
     private PaperDao paperDao;
+
+    @Override
+    public List<Paper> newPaper(){
+        EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.setSqlSelect("id,ref_id,name,id,author,create_time");
+        paperTypeEntityWrapper.orderBy("update_time",false);
+        BasePageReq basePageReq = new BasePageReq();
+        basePageReq.setSize(7);
+        Page<Paper> page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
+        List<Paper> listPage =  page.getRecords();
+        if(CollectionUtils.isNotEmpty(listPage)){
+            for(Paper paper:listPage){
+                paper.setId("/index/paper?id="+paper.getId());
+            }
+        }
+        return listPage;
+    }
 
 
     @Override
@@ -169,6 +187,9 @@ public class CargoServiceImpl implements CargoService {
         }
         return null;
     }
+
+
+
 
 
 }

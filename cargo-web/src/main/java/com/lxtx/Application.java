@@ -1,11 +1,13 @@
 package com.lxtx;
 
+import com.lxtx.framework.common.log.filter.RepeatedReadRequestFilter;
 import com.lxtx.framework.common.utils.SpringUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,8 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 @EnableAutoConfiguration(exclude = {MultipartAutoConfiguration.class})
 @SpringBootApplication
@@ -29,7 +33,7 @@ public class Application extends SpringBootServletInitializer {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	/*@Bean
+	@Bean
 	public FilterRegistrationBean filterRegistrationBean() {
 		FilterRegistrationBean registrationBean = new FilterRegistrationBean();
 		RepeatedReadRequestFilter repeatedReadRequestFilter = new RepeatedReadRequestFilter();
@@ -38,7 +42,7 @@ public class Application extends SpringBootServletInitializer {
 		urlPatterns.add("/*");
 		registrationBean.setUrlPatterns(urlPatterns);
 		return registrationBean;
-	}*/
+	}
 
 	@Bean
 	public AsyncTaskExecutor taskExecutor(
