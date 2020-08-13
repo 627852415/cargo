@@ -201,8 +201,10 @@
             var stricky = $('.stricked-menu');
             if ($(window).scrollTop() > headerScrollPos) {
                 stricky.addClass('stricky-fixed');
+                //stricky.addClass('stricked-menu-change');
             } else if ($(this).scrollTop() <= headerScrollPos) {
                 stricky.removeClass('stricky-fixed');
+                //stricky.removeClass('stricked-menu-change');
             }
         }
     });

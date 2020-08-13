@@ -21,10 +21,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAutoConfiguration(exclude = {MultipartAutoConfiguration.class})
 @SpringBootApplication
 @EnableAsync
-public class Application extends SpringBootServletInitializer {
+public class CargoApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		ApplicationContext applicationContext = SpringApplication.run(Application.class, args);
+		ApplicationContext applicationContext = SpringApplication.run(CargoApplication.class, args);
         SpringUtil.initContext(applicationContext);
 	}
 

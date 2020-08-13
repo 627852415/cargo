@@ -19453,10 +19453,10 @@ var ComponentModel = Model.extend({
 //         // Set dependentModels, componentIndex, name, id, mainType, subType.
 //         zrUtil.extend(this, extraOpt);
 
-//         this.uid = componentUtil.getUID('componentModel');
+//         this.fid = componentUtil.getUID('componentModel');
 
 //         // this.setReadOnly([
-//         //     'type', 'id', 'uid', 'name', 'mainType', 'subType',
+//         //     'type', 'id', 'fid', 'name', 'mainType', 'subType',
 //         //     'dependentModels', 'componentIndex'
 //         // ]);
 //     }
@@ -23216,7 +23216,7 @@ taskProto.setOutputEnd = function (end) {
 //         task.agentStubMap.each(() => stubCount++);
 //         props.push({text: 'idx', value: `overall (stubs: ${stubCount})`});
 //     }
-//     props.push({text: 'uid', value: task.uidDebug});
+//     props.push({text: 'fid', value: task.uidDebug});
 //     if (task.__pipeline) {
 //         props.push({text: 'pid', value: task.__pipeline.id});
 //         task.agent && props.push(
