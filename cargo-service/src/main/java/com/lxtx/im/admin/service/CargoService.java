@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface CargoService {
 
+    BaseResult serviceRange(String pid);
+
     List<Paper> newPaper();
 
     BaseResult detail(String id);

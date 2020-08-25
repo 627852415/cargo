@@ -33,11 +33,34 @@ public class CargoServiceImpl implements CargoService {
     @Autowired
     private PaperDao paperDao;
 
+    /**
+     * 服务范围
+     * @param pid
+     * @return
+     */
+    @Override
+    public BaseResult serviceRange(String pid){
+        EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.setSqlSelect("id,ref_id,name,id,author,create_time");
+        paperTypeEntityWrapper.eq("ref_id",pid);
+        paperTypeEntityWrapper.orderBy("update_time",false);
+        BasePageReq basePageReq = new BasePageReq();
+        Page<Paper> page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
+        return BaseResult.success(page);
+    }
+
+    
+
+
+    /**
+     * 底部最新消息
+     * @return
+     */
     @Override
     public List<Paper> newPaper(){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.setSqlSelect("id,ref_id,name,id,author,create_time");
-        paperTypeEntityWrapper.orderBy("update_time",false);
+        paperTypeEntityWrapper.orderBy("create_time",false);
         BasePageReq basePageReq = new BasePageReq();
         basePageReq.setSize(7);
         Page<Paper> page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
@@ -51,6 +74,11 @@ public class CargoServiceImpl implements CargoService {
     }
 
 
+    /**详情
+     *
+     * @param id
+     * @return
+     */
     @Override
     public BaseResult detail(String id){
         Paper paper = new Paper();
@@ -132,9 +160,10 @@ public class CargoServiceImpl implements CargoService {
     }
 
 
-
-
-
+    /**
+     * 导航栏菜单
+     * @return
+     */
     @Override
     public BaseResult paperList(){
 
