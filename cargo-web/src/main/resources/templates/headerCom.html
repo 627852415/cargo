@@ -33,22 +33,13 @@
                                     <li  th:each="oo : ${menuList.data.list[0].sub}" >
                                         <a  th:href="@{'/index/paper?id='+${oo.paperId}}" th:text="${oo.name}" ></a>
                                     </li>
-                                    <li><a class="sub-nav-toggler3">更多</a>
-                                        <ul class="submenu">
-                                            <li><a href="index.html">Home One</a></li>
-                                            <li><a href="index-2.html">Home Two</a></li>
-                                            <li><a href="index-3.html">Home Three</a></li>
-                                            <li><a href="index-4.html">Home Four</a></li>
-                                            <li><a href="index-5.html">Home Five</a></li>
-                                        </ul>
-                                    </li>
                                 </ul><!-- /.submenu -->
                             </li>
                             <li>
                                 <a class="sub-nav-toggler2">国际运输</a>
                                 <ul class="submenu">
-                                    <li ng-repeat = 'oo in menumList[1].sub' >
-                                        <a href="/index/paper?id={{ oo.paperId }}" >{{ oo.name }}</a>
+                                    <li  th:each="oo : ${menuList.data.list[1].sub}" >
+                                        <a  th:href="@{'/index/paper?id='+${oo.paperId}}" th:text="${oo.name}" ></a>
                                     </li>
                                 </ul><!-- /.submenu -->
                             </li>
