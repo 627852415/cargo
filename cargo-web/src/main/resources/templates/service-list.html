@@ -34,7 +34,61 @@
     <link rel="stylesheet" href="/css/jquery.bootstrap-touchspin.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" type="text/css" th:href="@{/css/responsive.css}">
+    <style>
+        a{
+            text-decoration: none;
+        }
+        #arrowup-center {
+            display: table;
+            height: 16px;
+            margin: 0 auto;
+        }
 
+        #model14 ul {
+            padding-inline-start: 0 !important;
+        }
+        #model14 li:first-child {
+            margin-left: 0;
+        }
+        #model14 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #model14 li {
+            position: relative;
+            float: left;
+            list-style: none;
+            margin-left: 31px;
+
+
+        }
+
+        .ared {
+            color: red;
+        }
+
+        #model14 li.active a {
+            font-size: 16px;
+            color: #2699fb;
+        }
+
+        #model14 li a {
+            font-size: 16px;
+            color: #345a82;
+        }
+
+        #model14 li.a.hover  a {
+            font-size: 16px;
+            color: #2699fb;
+        }
+
+
+        li a img {
+            margin-top: -3px;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -49,17 +103,54 @@
             </div><!-- /.container -->
         </section><!-- /.inner-banner -->
 
+        <div class="container" style="margin-top: 20px">
+            <div class="row  text-center">
+                <div class=" col-xl-6 col-lg-6 text-center" >
 
-        <div> 123 </div>
+                    <div>
+                        <ul th:each="u : ${serviceList.data.page.records}">
+                            <li style="list-style:none;">
+                                <a th:href="@{'/index/paper?id='+${u.id}}" target="_blank" style="font-size: 18px"  th:text="${u.name}">
+                                </a>&nbsp;
+                                <span  th:text="${u.timeStr}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-        <!--<div align="center">
-            <a class="allpage"><b th:text="'共 '+ ${pageInfo.getPages()}+ ' 页'"></b></a>
-            <a  th:href="@{/findUserList.do(currentPage=${pageInfo.getFirstPage()})}"  >首页</a>
-            <a th:if="${pageInfo.hasPreviousPage()} == true" th:href="@{/findUserList.do(currentPage=${pageInfo.getPrePage()})}"  >上一页</a>
-            <a th:href="@{'/findUserList.do?currentPage=' + ${i}}"  th:each="i :${#numbers.sequence(pageInfo.firstPage, pageInfo.lastPage)}" th:text="  ${i}"   th:class="${pageInfo.getPageNumber() == i}? 'page-item active' :' page-item' "></a>
-            <a th:if="${pageInfo.hasNextPage()} == true" th:href="@{/findUserList.do(currentPage=${pageInfo.getNextPage()})}" >下一页</a>
-            <a th:href="@{/findUserList.do(currentPage=${pageInfo.getLastPage()})}" >尾页</a>
-        </div>-->
+            <div class="row  text-center" th:if="${serviceList.data.page.pages} gt 1">
+                <div class=" col-xl-6 col-lg-6 text-center" >
+
+                    <div id="model14">
+                        <div>
+                            <ul id="arrowup-center">
+                                <li class="arrowup" th:if="${serviceList.data.page.current} gt 1">
+                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${serviceList.data.page.current-1}}" >
+                                        上页
+                                    </a>
+                                </li>
+                                <li th:each="u : ${serviceList.data.pagesNums}" class="ared">
+                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${u}}"
+                                       th:styleappend="${serviceList.data.page.current} eq ${u} ? 'color:red' : '' "
+                                       th:text="${u}"></a>
+                                </li>
+                                <li class="arrowdown" th:if="${serviceList.data.page.current} lt ${serviceList.data.page.pages}">
+                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${serviceList.data.page.current+1}}" >
+                                        下页
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
 
         <div class="container" style="margin-top: 42px;">
             <div class="row text-center" >

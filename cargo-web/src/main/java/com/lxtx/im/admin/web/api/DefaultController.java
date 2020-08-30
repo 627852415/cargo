@@ -19,6 +19,7 @@ public class DefaultController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index");
         modelAndView.addObject("newPaper",cargoService.newPaper());
+        modelAndView.addObject("menuList",cargoService.paperList());
         return modelAndView;
 
     }

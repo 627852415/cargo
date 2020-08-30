@@ -17,18 +17,14 @@ public class IndexController {
     private CargoService cargoService;
 
 
-    @RequestMapping(value = "/service/range")
-    @ResponseBody
-    public BaseResult uploadFile(String id )   {
-        return cargoService.serviceRange(id);
-    }
-
     @RequestMapping("/service/list")
-    public ModelAndView toServiceList(String id) {
+    public ModelAndView toServiceList(String id,String current) {
         ModelAndView mav = new ModelAndView();
         mav.setViewName("service-list");
         mav.addObject("pid", id);
         mav.addObject("newPaper",cargoService.newPaper());
+        mav.addObject("serviceList",cargoService.serviceRange(id,current));
+        mav.addObject("menuList",cargoService.paperList());
         return mav;
     }
 
@@ -52,6 +48,7 @@ public class IndexController {
         mav.setViewName("paper");
         mav.addObject("obj", detail.getData());
         mav.addObject("newPaper",cargoService.newPaper());
+        mav.addObject("menuList",cargoService.paperList());
         return mav;
     }
 

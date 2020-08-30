@@ -48,5 +48,8 @@ public class Paper extends BaseModel {
      */
     private String sortNo;
 
+    @TableField(exist = false)
+    private String timeStr;
+
 
 }

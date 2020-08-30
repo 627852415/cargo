@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Lists;
 import com.lxtx.framework.common.base.BaseResult;
+import com.lxtx.framework.common.utils.DateUtils;
 import com.lxtx.im.admin.dao.dao.PaperDao;
 import com.lxtx.im.admin.dao.dao.PaperTypeDao;
 import com.lxtx.im.admin.dao.model.Paper;
@@ -12,9 +13,11 @@ import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.CargoService;
 import com.lxtx.im.admin.service.cargo.req.BasePageReq;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
+import com.lxtx.im.admin.service.dto.Mpages;
 import com.lxtx.im.admin.service.response.BasePageResp;
 import com.lxtx.im.admin.service.vo.PaperTypeVo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,14 +42,33 @@ public class CargoServiceImpl implements CargoService {
      * @return
      */
     @Override
-    public BaseResult serviceRange(String pid){
+    public BaseResult serviceRange(String pid,String current){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.setSqlSelect("id,ref_id,name,id,author,create_time");
         paperTypeEntityWrapper.eq("ref_id",pid);
         paperTypeEntityWrapper.orderBy("update_time",false);
         BasePageReq basePageReq = new BasePageReq();
+        basePageReq.setSize(3);
+        if(StringUtils.isNotEmpty(current)){
+            basePageReq.setCurrent(Integer.parseInt(current));
+        }
         Page<Paper> page = paperDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
-        return BaseResult.success(page);
+        Mpages mpages = new Mpages();
+        List<Paper> list = page.getRecords();
+        page.setRecords(list);
+        if(CollectionUtils.isNotEmpty(page.getRecords())){
+            List<String> pagesNum = Lists.newArrayList();
+            for(int i = 1 ;i<=page.getPages();i++){
+                pagesNum.add(i+"");
+            }
+            mpages.setPagesNums(pagesNum);
+            for(Paper paper:page.getRecords()){
+                paper.setTimeStr(
+                        DateUtils.getDateFormat(paper.getCreateTime(),DateUtils.DATE_FORMAT_YYYY_MM_DD));
+            }
+        }
+        mpages.setPage(page);
+        return BaseResult.success(mpages);
     }
 
     
