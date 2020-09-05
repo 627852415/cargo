@@ -6,6 +6,7 @@ import com.lxtx.im.admin.service.SysUserService;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
 import com.lxtx.im.admin.service.cargo.req.SaveMenuReq;
 import com.lxtx.im.admin.service.cargo.req.SaveReq;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,7 +100,7 @@ public class ServiceMeunController {
         ModelAndView mav = new ModelAndView();
         mav.setViewName("acargo/service-edit");
         mav.addObject("obj", detail.getData());
-        mav.addObject("list", cargoService.selectOneMeunList(typeId));
+        mav.addObject("list", cargoService.selectSaveOneMeunList(typeId));
         mav.addObject("typeId", typeId);
         return mav;
     }
@@ -121,7 +122,7 @@ public class ServiceMeunController {
     public ModelAndView toServiceSave(String typeId){
         ModelAndView mav = new ModelAndView();
         mav.setViewName("acargo/service-save");
-        mav.addObject("list", cargoService.selectOneMeunList(typeId));
+        mav.addObject("list", cargoService.selectSaveOneMeunList(typeId));
         mav.addObject("typeId", typeId);
         return mav;
     }
@@ -138,7 +139,7 @@ public class ServiceMeunController {
     public ModelAndView oneMenunList(String typeId){
         ModelAndView mav = new ModelAndView();
         mav.setViewName("acargo/servicemenu/two-meun");
-        mav.addObject("list", cargoService.selectOneMeunList(typeId));
+        mav.addObject("list", cargoService.selectTwoMeunList(typeId));
         return mav;
     }
 
@@ -147,14 +148,14 @@ public class ServiceMeunController {
     @PostMapping("/twoMenunList")
     @ResponseBody
     public BaseResult twoMenunList(String pid){
-        return BaseResult.success(cargoService.selectOneMeunList(pid));
+        return BaseResult.success(cargoService.selectTwoLikeMeunList(pid));
     }
 
     @RequestMapping("/save/menu")
     @ResponseBody
     public BaseResult  savemenu(@RequestBody SaveMenuReq req){
-        Integer topLevel = null;
-        if(req.getTopLevel().equals("on")){
+        Integer topLevel = 2;
+        if(StringUtils.isNotEmpty(req.getTopLevel())&&req.getTopLevel().equals("on")){
             topLevel = 1;
         }
         cargoService.saveServiceOneMeun(req.getTypeId(),req.getName(),topLevel);
@@ -164,7 +165,7 @@ public class ServiceMeunController {
     @RequestMapping("/save/twomenu")
     @ResponseBody
     public BaseResult  saveTwomenu(@RequestBody SaveMenuReq req){
-        cargoService.saveServiceOneMeun(req.getPid(),req.getName(),2);
+        cargoService.saveServiceTwoMeun(req.getPid(),req.getName(),2);
         return BaseResult.success();
     }
 

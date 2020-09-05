@@ -19,6 +19,8 @@
         <div class="form-group">
             <div class="col-sm-10">
                 <input type="hidden" id = 'typeId' th:value="${typeId}" />
+                <input type="hidden" id = 'oneRef' th:value="${obj.oneRef}" />
+                <input type="hidden" id = 'twoRef' th:value="${obj.twoRef}" />
                  <input  id="subID"  type="hidden" th:value="${obj}!=null ?${obj.id}:''" />
                 <input class="form-control" id="name"  type="text" th:value="${obj}!=null ?${obj.name}:''" />
             </div>
@@ -127,8 +129,10 @@
 
     $(document).ready(function(){
 
-        var oneRef = [[${obj.oneRef}]];
-        var twoRef = [[${obj.twoRef}]];
+        var oneRef = $("#oneRef").val();
+        var twoRef = $("#twoRef").val();
+        console.log(oneRef);
+        console.log(twoRef);
         if(oneRef!=null){
             loadTwoMenu(oneRef,twoRef);
         }

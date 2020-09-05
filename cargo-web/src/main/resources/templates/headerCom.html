@@ -74,7 +74,7 @@
 
                                     <li  th:each="oo : ${menuList.data.list[5].sub}" >
                                         <a
-                                                class=""th:classappend="${oo.topLevel eq 1} ? 'sub-nav-toggler3' : '' "
+                                                class=""th:classappend="${oo.topLevel eq 1} ? '' : 'sub-nav-toggler3' "
                                                 th:href="@{'/index/service/list?oneRef='+${oo.id}}" th:text="${oo.name}" ></a>
                                         <ul class="submenu">
                                             <li th:each="oo1 : ${oo.sub}" >
