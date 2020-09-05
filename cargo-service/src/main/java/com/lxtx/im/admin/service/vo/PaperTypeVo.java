@@ -42,6 +42,8 @@ public class PaperTypeVo {
     private String oneRef;
     private String twoRef;
 
+    private Integer topLevel;
+
     /**
      * 是否有子菜单
      */

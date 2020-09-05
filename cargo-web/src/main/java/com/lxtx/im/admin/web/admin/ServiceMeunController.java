@@ -164,7 +164,7 @@ public class ServiceMeunController {
     @RequestMapping("/save/twomenu")
     @ResponseBody
     public BaseResult  saveTwomenu(@RequestBody SaveMenuReq req){
-        cargoService.saveServiceOneMeun(req.getPid(),req.getName(),null);
+        cargoService.saveServiceOneMeun(req.getPid(),req.getName(),2);
         return BaseResult.success();
     }
 

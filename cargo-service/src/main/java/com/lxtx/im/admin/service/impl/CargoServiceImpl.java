@@ -333,6 +333,9 @@ public class CargoServiceImpl implements CargoService {
 
     private void fetchMenuList(List<PaperType> menuList, List<PaperType> parentMenuListSrc, List<PaperTypeVo> menuRespList) {
         for(PaperType  parentMenu:parentMenuListSrc){
+            if(parentMenu.getName().equals("欧洲")){
+                System.out.println("123");
+            }
             PaperTypeVo sysLoginMenuResp = new PaperTypeVo();
             BeanUtils.copyProperties(parentMenu,sysLoginMenuResp);
             //获取下级菜单
@@ -359,6 +362,9 @@ public class CargoServiceImpl implements CargoService {
         }
         List<PaperTypeVo> data = JSON.parseArray(JSON.toJSONString(subsubMenuList),PaperTypeVo.class);
         for(PaperTypeVo sysLoginMenuResp1:data){
+            if(sysLoginMenuResp1.getName().equals("欧洲")){
+                System.out.println("123");
+            }
             sysLoginMenuResp.setSub(data);
             subMenuRespList.add(sysLoginMenuResp1);
             return addSubMenuLists(srcList,sysLoginMenuResp1.getId(),subMenuRespList,sysLoginMenuResp1);
