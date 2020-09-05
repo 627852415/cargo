@@ -48,6 +48,19 @@ public class AdminController {
     }
 
     /**
+     * 跳转服务列表
+     * @param typeId
+     * @return
+     */
+    @RequestMapping("/toServiceList")
+    public ModelAndView toServiceList(String typeId){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("acargo/service-index");
+        mav.addObject("typeId", typeId);
+        return mav;
+    }
+
+    /**
      * 新增文章
      * @return
      */
@@ -101,6 +114,8 @@ public class AdminController {
         mav.addObject("typeId", typeId);
         return mav;
     }
+
+
 
     @GetMapping(value = "/to/update/pass")
     public String toUpdatePassword() {

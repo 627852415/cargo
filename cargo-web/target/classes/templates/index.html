@@ -394,7 +394,6 @@
     <script src="/js/theme.js"></script>
 
 </body>
-<script src="https://cdn.bootcss.com/angular.js/1.5.0/angular.min.js"></script>
 <!--
 <script th:src="@{owl-carousel/owl.carousel.min.js}"></script>
 -->
@@ -409,14 +408,6 @@
 
         $("#owl-example3").owlCarousel();
 
-    });
-
-    var app = angular.module('myApp', []);
-    app.controller('siteCtrl', function($scope, $http) {
-        $http.post("/index/paper/list")
-            .then(function (response) {
-                $scope.menumList = response.data.data.list;
-            });
     });
 </script>
 

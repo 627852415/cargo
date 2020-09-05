@@ -73,10 +73,10 @@
                                 <ul class="submenu">
 
                                     <li  th:each="oo : ${menuList.data.list[5].sub}" >
-                                        <a  class="sub-nav-toggler3" th:href="@{'/index/paper?id='+${oo.id}}" th:text="${oo.name}" ></a>
+                                        <a   th:href="@{'/index/service/list?oneRef='+${oo.id}}" th:text="${oo.name}" ></a>
                                         <ul class="submenu">
                                             <li th:each="oo1 : ${oo.sub}" >
-                                                <a th:href="@{'/index/service/list?id='+${oo1.id}}"  th:text="${oo1.name}">
+                                                <a th:href="@{'/index/service/list?twoRef='+${oo1.id}}"  th:text="${oo1.name}">
                                                 </a></li>
                                         </ul><!-- /.submenu -->
                                     </li>

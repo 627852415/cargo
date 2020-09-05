@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <title>新建广告位</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!--<link href="http://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">-->
+    <link type="text/css" rel="stylesheet" th:href='@{/js/quall/quill.snow.css}'/>
+    <link type="text/css" rel="stylesheet" th:href='@{/layui/css/layui.css}'/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+
+</head>
+<body>
+
+<form class="form-horizontal" role="form">
+    <fieldset>
+        <legend>标题</legend>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <input type="hidden" id = 'typeId' th:value="${typeId}" />
+                 <input  id="subID"  type="hidden" th:value="${obj}!=null ?${obj.id}:''" />
+                <input class="form-control" id="name"  type="text" th:value="${obj}!=null ?${obj.name}:''" />
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>一级区域</legend>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <select id="oneMenu" name="oneMenu"   class="form-control"  >
+                    <option value="-1">请选择</option>
+                    <option
+                            th:selected="${obj.oneRef == oo.id}"
+                            th:each="oo : ${list}" th:value="${oo.id}" th:text="${oo.name}"
+
+                    ></option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>二级区域</legend>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <select id="twoMenu" name="twoMenu" class="form-control" >
+                </select>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>文章内容</legend>
+        <!-- 创建编辑容器 -->
+        <!-- 自定义编辑器工具栏 -->
+        <!-- 创建工具栏组件 -->
+        <div id="toolbar">
+            <<span class="ql-formats">
+        <select class="ql-font"></select>
+        <select class="ql-size"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-strike"></button>
+    </span>
+            <span class="ql-formats">
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-script" value="sub"></button>
+        <button class="ql-script" value="super"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-header" value="1"></button>
+        <button class="ql-header" value="2"></button>
+        <button class="ql-blockquote"></button>
+        <button class="ql-code-block"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-indent" value="-1"></button>
+        <button class="ql-indent" value="+1"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-direction" value="rtl"></button>
+        <select class="ql-align"></select>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+        <button class="ql-video"></button>
+        <button class="ql-formula"></button>
+    </span>
+            <span class="ql-formats">
+        <button class="ql-clean"></button>
+    </span>
+        </div>
+
+        <!-- 创建文本编辑器 -->
+        <div id="editor" th:utext="${obj}!=null ?${obj.content}:''" style="height: 550px" ></div>
+    </fieldset>
+
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3" style=" margin-top: 20px">
+            <button class="btn btn-primary"  onclick="return subPost()" /> 提交</div>
+    </div>
+    </div>
+
+</form>
+
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script th:src="@{/js/quall/quill.js}"></script>
+
+<script>
+
+
+    $(document).ready(function(){
+
+        var oneRef = [[${obj.oneRef}]];
+        var twoRef = [[${obj.twoRef}]];
+        if(oneRef!=null){
+            loadTwoMenu(oneRef,twoRef);
+        }
+    });
+
+
+    function loadTwoMenu(pid,twoId) {
+        var url = "/manager/service/twoMenunList";
+        $.post(url, {"pid": pid}, function (rd) {
+            var dataList = rd.data.list;
+            $("#twoMenu").empty();
+            for (var i = 0; i < dataList.length; i++) {
+                if(twoId!=null&&dataList[i].id== twoId){
+                    $("#twoMenu").append("<option value='" + dataList[i].id + "' selected >" + dataList[i].name + "</option>");
+                }else{
+                    $("#twoMenu").append("<option value='" + dataList[i].id + "'>" + dataList[i].name + "</option>");
+                }
+            }
+        });
+    }
+
+    $("#oneMenu").bind("change",function(){
+        var pid = $("#oneMenu").val();
+        loadTwoMenu(pid);
+    });
+
+        // 提交表单
+    function subPost() {
+        var html = document.querySelector('#editor').children[0].innerHTML;
+        html = '<div class="ql-container ql-snow"><div class="ql-editor">'+html+"</div></div>";
+        var name  = $("#name").val();
+        var oneMenu  = $("#oneMenu").val();
+        var twoMenu  = $("#twoMenu").val();
+
+        var url = "/manager/service/update/paper";
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                "id":$('#subID').val(),
+                'name':name,
+                'content':html,
+                'oneRefId':oneMenu,
+                'twoRefId':twoMenu,
+                "refId":$('#typeId').val()
+            }),
+            dataType: "json",
+            contentType: "application/json", //必须有
+            success:function(res) {
+                console.log(res);
+                if(res.success){
+                    alert("提交成功");
+                    parent.layui.admin.events.closeThisTabs();
+                }else{
+                    alert(res.msg);
+                }
+                console.log("321");
+                return false;
+            },error:function (res) {
+                alert("网络错误");
+            }
+        });
+        console.log("123");
+        return false;
+    }
+
+    window.onload=function(){
+        var BackgroundClass = Quill.import('attributors/class/background');
+        var ColorClass = Quill.import('attributors/class/color');
+        var SizeStyle = Quill.import('attributors/style/size');
+        Quill.register(BackgroundClass, true);
+        Quill.register(ColorClass, true);
+        Quill.register(SizeStyle, true);
+
+
+        var editor = new Quill('#editor', {
+            modules: { toolbar: '#toolbar' },
+            placeholder: 'Compose an epic...',
+            theme: 'snow'
+        });
+    }
+</script>
+
+</body>
+</html>

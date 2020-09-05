@@ -20,6 +20,7 @@ public class DefaultController {
         modelAndView.setViewName("index");
         modelAndView.addObject("newPaper",cargoService.newPaper());
         modelAndView.addObject("menuList",cargoService.paperList());
+        modelAndView.addObject("guojiaList",cargoService.serviceCountryRange());
         return modelAndView;
 
     }

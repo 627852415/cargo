@@ -1,0 +1,155 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title>区域列表</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+<style type="text/css">
+    .layui-table th {
+        text-align: center;
+    }
+</style>
+<body>
+
+<div class="admin-main fadeInUp animated">
+    <blockquote class="layui-elem-quote">
+        <form class="layui-form" id="searchForm">
+            <div class="layui-form-item search-input" style="margin: 0;">
+                <input type="hidden" id = 'typeId' name  = "typeId" value="6" />
+                <div class="layui-form-mid layui-word-aux" style="padding: 0;">
+                    <button type="button" class="layui-btn" onclick="return saveMenum()">
+                        新增一级区域
+                    </button>
+                    <button type="button" class="layui-btn" onclick="return saveTwoMenum()">
+                        新增二级区域
+                    </button>
+                    <button type="button" class="layui-btn" onclick="search('searchForm', 'dataLoad')">
+                        刷新
+                    </button>
+                </div>
+            </div>
+        </form>
+    </blockquote>
+    <table class="layui-table" lay-data="{cellMinWidth: 80, page:true, id: 'dataLoad'}" lay-filter="dataTable">
+        <thead>
+        <tr>
+            <th lay-data="{field:'id', width:'15%', align:'center'}">ID</th>
+            <th lay-data="{field:'name', align:'center', width:'28%'}">区域名</th>
+            <th lay-data="{width:'25%', align:'center',toolbar: '#barData'}">操作</th>
+
+        </tr>
+        </thead>
+    </table>
+    <script type="text/html" id="barData">
+        <a class="layui-btn tableBtn" lay-event="detail">编辑</a>
+        <a class="layui-btn tableBtn" lay-event="delV">删除</a>
+    </script>
+</div>
+</div>
+</body>
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var laydate = layui.laydate;
+        var curDate = formatDate(new Date);
+        var createTime, endTime;
+
+
+    });
+    loadTableWithoutColumns('/manager/service/menu/listPage', 'dataTable', 'searchForm');
+    //[[#{text.lazy.loading}]]
+    setTimeout('rowTool()', 1000); //延迟1秒
+
+    function rowTool() {
+        layui.use('table', function () {
+            //[[#{text.listen.for.line.tool.events}]]
+            table.on('tool(dataTable)', function (obj) {
+                var goods = obj.data;
+                if (obj.event === 'viewDetail') {
+                    window.open("/index/paper?id="+goods.id);
+                }
+                if (obj.event === 'detail') {
+                    var title = "编辑区域";
+                    layer.open({
+                        type: 2,
+                        closeBtn: 1,
+                        offset: '50px',
+                        title: '<b>' + title + '</b>',
+                        area: ['540px', '550px'],
+                        content: "/manager/service/menu/toEditor?id="+goods.id
+                    });
+
+                }
+                if (obj.event === 'delV') {
+                    if(confirm("确定删除?")){
+                        delp(goods.id);
+                    }
+                }
+            });
+        });
+    }
+
+    function saveMenum() {
+        var typeId = $("#typeId").val();
+        var url="/manager/service/toMenuSave?typeId="+typeId;
+        var title = "一级菜单";
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['540px', '550px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    function saveTwoMenum() {
+        var typeId = $("#typeId").val();
+        var url="/manager/service/toMenuTwo?typeId=6";
+        var title = "二级菜单";
+        layer.open({
+            type: 2,
+            closeBtn: 1,
+            offset: '50px',
+            title: '<b>' + title + '</b>',
+            area: ['540px', '550px'], //[[#{text.width.height}]]
+            content: url
+        });
+    }
+
+    function delp(id){
+        $.ajax({
+            url: '/manager/service/del/paper',
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                "id":id
+            }),
+            dataType: "json",
+            contentType: "application/json", //必须有
+            success:function(res) {
+                if(res.success){
+                    alert("删除成功");
+                    window.location.reload();
+                }else{
+                    alert(res.msg);
+                }
+                return false;
+            },error:function (res) {
+                alert("网络错误");
+            }
+        });
+    }
+
+
+    function toDetail(url,t) {
+        var e = $(this),
+            i = url;
+        layui.router();
+        var l = parent === self ? layui : top.layui;
+        l.index.openTabsPage(i, t || e.text())
+    }
+
+
+
+</script>
+</html>

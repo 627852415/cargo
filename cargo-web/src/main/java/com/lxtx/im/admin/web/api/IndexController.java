@@ -2,6 +2,7 @@ package com.lxtx.im.admin.web.api;
 
 import com.lxtx.framework.common.base.BaseResult;
 import com.lxtx.im.admin.service.CargoService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +19,18 @@ public class IndexController {
 
 
     @RequestMapping("/service/list")
-    public ModelAndView toServiceList(String id,String current) {
+    public ModelAndView toServiceList(String oneRef,String twoRef,String current) {
         ModelAndView mav = new ModelAndView();
         mav.setViewName("service-list");
-        mav.addObject("pid", id);
+        if(StringUtils.isNotEmpty(oneRef)){
+            mav.addObject("pid", oneRef);
+        }else if(StringUtils.isNotEmpty(twoRef)){
+            mav.addObject("pid", twoRef);
+        }
         mav.addObject("newPaper",cargoService.newPaper());
-        mav.addObject("serviceList",cargoService.serviceRange(id,current));
+        mav.addObject("serviceList",cargoService.serviceRange(oneRef,twoRef,current));
         mav.addObject("menuList",cargoService.paperList());
+        mav.addObject("guojiaList",cargoService.serviceCountryRange());
         return mav;
     }
 
@@ -49,6 +55,7 @@ public class IndexController {
         mav.addObject("obj", detail.getData());
         mav.addObject("newPaper",cargoService.newPaper());
         mav.addObject("menuList",cargoService.paperList());
+        mav.addObject("guojiaList",cargoService.serviceCountryRange());
         return mav;
     }
 

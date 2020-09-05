@@ -2,7 +2,9 @@ package com.lxtx.im.admin.service;
 
 import com.lxtx.framework.common.base.BaseResult;
 import com.lxtx.im.admin.dao.model.Paper;
+import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
+import com.lxtx.im.admin.service.cargo.req.SaveReq;
 
 import java.util.List;
 
@@ -15,11 +17,31 @@ import java.util.List;
  */
 public interface CargoService {
 
-    BaseResult serviceRange(String pid,String current);
+    BaseResult deleteMenu(String id);
+
+    BaseResult menuListPages(PaperListPage paperListPage);
+
+    boolean updateServicePaper(SaveReq req);
+
+    boolean updateMenu(SaveReq req);
+
+    boolean saveServiceOneMeun(String pid, String name,Integer topLevel);
+
+    List<PaperType> selectOneMeunList(String pid);
+
+    BaseResult saveServiceTwoMeun(String pid);
+
+    boolean saveServicePapaer(SaveReq req);
+
+    BaseResult serviceRange(String oneRef,String twoRef,String current);
+
+    List<PaperType> serviceCountryRange();
 
     List<Paper> newPaper();
 
     BaseResult detail(String id);
+
+    BaseResult detailMenu(String id);
 
     BaseResult listPage(PaperListPage basePageReq);
 

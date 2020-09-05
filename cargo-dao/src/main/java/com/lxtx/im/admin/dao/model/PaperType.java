@@ -41,6 +41,15 @@ public class PaperType extends BaseModel {
      */
     private String paperId;
 
+
+    private String code;
+
+    /**
+     * 1 为一级区域
+     *
+     */
+    private Integer topLevel;
+
     /**
      * 排序编号
      */

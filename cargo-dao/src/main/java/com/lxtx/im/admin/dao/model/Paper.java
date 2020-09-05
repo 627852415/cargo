@@ -36,6 +36,14 @@ public class Paper extends BaseModel {
      */
     private String refId;
     /**
+     * 一级关联ID
+     */
+    private String oneRef;
+    /**
+     * 二级关联ID
+     */
+    private String twoRef;
+    /**
      * 作者
      */
     private String author;

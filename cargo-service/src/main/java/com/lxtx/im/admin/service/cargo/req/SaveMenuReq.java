@@ -10,12 +10,10 @@ import lombok.Data;
  * @date 2020/4/1913:05
  */
 @Data
-public class  SaveReq{
-    private String refId;
-    private String oneRefId;
-    private String twoRefId;
+public class SaveMenuReq {
+    private String typeId;
+    private String pid;
     private String name;
-    private String content;
-    private String id;
+    private String topLevel;
 
 }

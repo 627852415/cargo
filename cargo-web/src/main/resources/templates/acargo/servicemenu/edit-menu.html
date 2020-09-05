@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>一级导航</title>
+    <script type="text/javascript" th:src="@{/js/commonHead.js}"></script>
+</head>
+
+<body>
+<form class="layui-form" action="" id="addForm" style="padding-top: 30px">
+    <input type="hidden" id = 'id' name  = "id" th:value="${obj.id}" />
+    <div class="layui-form-item">
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width:85px;">区域名</label>
+            <div class="layui-input-block" style="width:350px;margin-left:130px;">
+                <input style="width: 220px" name="name" id="name" th:value="${obj.name}"
+                       class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 200px;">
+            <button class="layui-btn" lay-submit="" lay-filter="sub-btn">[[#{text.submit}]]</button>
+            <button type="reset" class="layui-btn">[[#{text.reset}]]</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    layui.use(['layer', 'upload'], function () {
+        var layer = layui.layer
+            , upload = layui.upload;
+    });
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //[[#{text.listening.for.commits}]]
+        form.on('submit(sub-btn)', function (data) {
+            save(data);
+            return false;
+        });
+
+    });
+    //[[#{text.save}]]
+    function save(data) {
+        var tishi = layer.load(1, {shade: [0.8, '#393D49']});
+        var formData = data.field;
+        if (formData.icoUrl === "") {
+            delete formData.icoUrl;
+        }
+        $.ajax({
+            url: "/manager/service/update/menu",
+            type: 'POST',
+            data: JSON.stringify(formData),
+            dataType: "JSON",
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                layer.close(tishi);
+                if (data.success) {
+                    layer.alert('[[#{text.successful.operation}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 6
+                    }, function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    });
+                } else if (data.msg != null) {
+                    layer.msg(data.msg);
+                } else {
+                    // [[#{text.prompt.failed}]]
+                    layer.alert('[[#{text.system.is.abnormal,.operation.failed}]]', {
+                        title: '[[#{text.operation.message}]]',
+                        icon: 5
+                    });
+                }
+            },
+            error: function (e) {
+                //最后数据加载完 让 loading层消失
+                layer.close(tishi);
+                layer.msg('[[#{text.system.upgrade.and.maintenance,.please.try.again.later}]]');
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

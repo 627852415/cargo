@@ -37,9 +37,7 @@
                             <div class="footer-widget footer-widget__links-widget">
                                 <h2 class="footer-widget__title">专线国家</h2><!-- /.footer-widget__title -->
                                 <ul class="footer-widget__links list-unstyled">
-                                    <li><a href="#"> 新加坡</a></li>
-                                    <li><a href="#"> 马来西亚 </a></li>
-                                    <li><a href="#"> 泰国</a></li>
+                                    <li  th:each="oo : ${guojiaList}" ><a th:href="@{'/index/service/list?twoRef='+${oo.id}}" th:text="${oo.name}"> </a></li>
                                 </ul><!-- /.footer-widget__links -->
                             </div><!-- /.footer-widget -->
                         </div>

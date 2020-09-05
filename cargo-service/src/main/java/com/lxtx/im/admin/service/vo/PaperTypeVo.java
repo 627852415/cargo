@@ -39,6 +39,9 @@ public class PaperTypeVo {
 
     private String paperId;
 
+    private String oneRef;
+    private String twoRef;
+
     /**
      * 是否有子菜单
      */

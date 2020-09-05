@@ -13,7 +13,9 @@ import com.lxtx.im.admin.dao.model.PaperType;
 import com.lxtx.im.admin.service.CargoService;
 import com.lxtx.im.admin.service.cargo.req.BasePageReq;
 import com.lxtx.im.admin.service.cargo.req.PaperListPage;
+import com.lxtx.im.admin.service.cargo.req.SaveReq;
 import com.lxtx.im.admin.service.dto.Mpages;
+import com.lxtx.im.admin.service.exception.LxtxBizException;
 import com.lxtx.im.admin.service.response.BasePageResp;
 import com.lxtx.im.admin.service.vo.PaperTypeVo;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,16 +38,122 @@ public class CargoServiceImpl implements CargoService {
     @Autowired
     private PaperDao paperDao;
 
+
+    @Override
+    public BaseResult deleteMenu(String id){
+        PaperType paperType = new PaperType();
+        paperType.setPId(id);
+        if(CollectionUtils.isNotEmpty(paperTypeDao.selectList(paperType))){
+            throw LxtxBizException.newException("存在子区域，不允许删除!");
+        }
+
+        Paper paper = new Paper();
+        paper.setOneRef(id);
+        if(CollectionUtils.isNotEmpty(paperDao.selectList(paper))){
+            throw LxtxBizException.newException("该区域发布过文章，不允许删除!");
+        }
+
+        Paper paper2 = new Paper();
+        paper2.setTwoRef(id);
+        if(CollectionUtils.isNotEmpty(paperDao.selectList(paper2))){
+            throw LxtxBizException.newException("该区域发布过文章，不允许删除!");
+        }
+
+        paperTypeDao.deleteById(id);
+        return BaseResult.success();
+    }
+
+    @Override
+    public BaseResult menuListPages(PaperListPage paperListPage){
+        EntityWrapper<PaperType> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.isNotNull("code");
+        Page<PaperType> page = paperTypeDao.selectPage(paperListPage.getPage(),paperTypeEntityWrapper);
+        return BaseResult.success(page);
+    }
+
+
+    @Override
+    @Transactional
+    public boolean updateServicePaper(SaveReq req){
+        Paper paper = new Paper();
+        paper.setId(req.getId());
+        paper.setName(req.getName());
+        paper.setContent(req.getContent());
+        paper.setOneRef(req.getOneRefId());
+        if(StringUtils.isEmpty(req.getTwoRefId())){
+            paper.setTwoRef(" ");
+        }else{
+            paper.setTwoRef(req.getTwoRefId());
+        }
+        paperDao.updateById(paper);
+
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean updateMenu(SaveReq req){
+        PaperType paper = new PaperType();
+        paper.setId(req.getId());
+        paper.setName(req.getName());
+        paperTypeDao.updateById(paper);
+        return true;
+    }
+
+    @Override
+    public boolean saveServiceOneMeun(String pid, String name,Integer topLevel){
+        PaperType paperType = new PaperType();
+        paperType.setName(name);
+        paperType.setPId(pid);
+        paperType.setTopLevel(topLevel);
+        paperType.setCode(pid+"+"+name);
+        paperTypeDao.insert(paperType);
+
+        return true;
+    }
+
+    @Override
+    public List<PaperType> selectOneMeunList(String pid){
+        EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
+        entityWrapper.eq("p_id",pid);
+        entityWrapper.isNull("top_level");
+        return paperTypeDao.selectList(entityWrapper);
+    }
+
+
+    @Override
+    public BaseResult saveServiceTwoMeun(String pid) {
+        PaperType paperType = new PaperType();
+        paperType.setPId(pid);
+        return BaseResult.success(paperTypeDao.selectList(paperType));
+    }
+
+    @Override
+    @Transactional
+    public boolean saveServicePapaer(SaveReq req){
+        Paper paper = new Paper();
+        BeanUtils.copyProperties(req,paper);
+        paper.setOneRef(req.getOneRefId());
+        paper.setTwoRef(req.getTwoRefId());
+        paper.setAuthor("sys");
+        paperDao.insert(paper);
+        return true;
+    }
+
+
     /**
      * 服务范围
-     * @param pid
      * @return
      */
     @Override
-    public BaseResult serviceRange(String pid,String current){
+    public BaseResult serviceRange(String oneRef,String twoRef,String current){
         EntityWrapper<Paper> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.setSqlSelect("id,ref_id,name,id,author,create_time");
-        paperTypeEntityWrapper.eq("ref_id",pid);
+        if(StringUtils.isNotEmpty(oneRef)){
+            paperTypeEntityWrapper.eq("one_ref",oneRef);
+        }else if(StringUtils.isNotEmpty(twoRef)){
+            paperTypeEntityWrapper.eq("two_ref",twoRef);
+        }
         paperTypeEntityWrapper.orderBy("update_time",false);
         BasePageReq basePageReq = new BasePageReq();
         basePageReq.setSize(3);
@@ -71,7 +179,19 @@ public class CargoServiceImpl implements CargoService {
         return BaseResult.success(mpages);
     }
 
-    
+
+    @Override
+    public  List<PaperType> serviceCountryRange(){
+        EntityWrapper<PaperType> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.isNotNull("code");
+        paperTypeEntityWrapper.isNull("top_level");
+        paperTypeEntityWrapper.ne("p_id",6);
+        BasePageReq basePageReq = new BasePageReq();
+        basePageReq.setSize(5);
+        Page<PaperType> page = paperTypeDao.selectPage(basePageReq.getPage(),paperTypeEntityWrapper);
+        return page.getRecords();
+    }
+
 
 
     /**
@@ -106,6 +226,13 @@ public class CargoServiceImpl implements CargoService {
         Paper paper = new Paper();
         paper.setId(id);
         return BaseResult.success(paperDao.selectOne(paper));
+    }
+
+    @Override
+    public BaseResult detailMenu(String id){
+        PaperType paperType = new PaperType();
+        paperType.setId(id);
+        return BaseResult.success(paperTypeDao.selectOne(paperType));
     }
 
     @Override
