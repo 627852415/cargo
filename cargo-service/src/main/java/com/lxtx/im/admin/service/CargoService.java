@@ -27,7 +27,15 @@ public interface CargoService {
 
     boolean saveServiceOneMeun(String pid, String name,Integer topLevel);
 
+    boolean saveServiceTwoMeun(String pid, String name, Integer topLevel);
+
     List<PaperType> selectOneMeunList(String pid);
+
+    List<PaperType> selectTwoLikeMeunList(String pid);
+
+    List<PaperType> selectTwoMeunList(String pid);
+
+    List<PaperType> selectSaveOneMeunList(String pid);
 
     BaseResult saveServiceTwoMeun(String pid);
 

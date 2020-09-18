@@ -25,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,11 +111,62 @@ public class CargoServiceImpl implements CargoService {
     }
 
     @Override
+    public boolean saveServiceTwoMeun(String pid, String name, Integer topLevel){
+
+        PaperType paperType = new PaperType();
+
+        String codeID = pid;
+
+        EntityWrapper<PaperType> paperTypeEntityWrapper = new EntityWrapper<>();
+        paperTypeEntityWrapper.eq("p_id",pid);
+        paperTypeEntityWrapper.orderDesc(Arrays.asList("id"));
+        List<PaperType> paperTypes = paperTypeDao.selectList(paperTypeEntityWrapper);
+        if(CollectionUtils.isNotEmpty(paperTypes)){
+            pid = paperTypes.get(0).getId();
+        }
+
+
+        paperType.setName(name);
+        paperType.setPId(pid);
+        paperType.setTopLevel(topLevel);
+        paperType.setCode(codeID+"+"+name);
+        paperTypeDao.insert(paperType);
+
+        return true;
+    }
+
+    @Override
     public List<PaperType> selectOneMeunList(String pid){
         EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
         entityWrapper.eq("p_id",pid);
-        entityWrapper.isNull("top_level");
-        return paperTypeDao.selectList(entityWrapper);
+        entityWrapper.eq("top_level",2);
+        List<PaperType> paperTypes = paperTypeDao.selectList(entityWrapper);
+        return paperTypes;
+    }
+
+    @Override
+    public List<PaperType> selectTwoLikeMeunList(String pid){
+        EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
+        entityWrapper.like("code",pid);
+        List<PaperType> paperTypes = paperTypeDao.selectList(entityWrapper);
+        return paperTypes;
+    }
+
+    @Override
+    public List<PaperType> selectTwoMeunList(String pid){
+        EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
+        entityWrapper.eq("p_id",pid);
+        List<PaperType> paperTypes = paperTypeDao.selectList(entityWrapper);
+        paperTypes =  paperTypes.stream().filter(o->!(o.getTopLevel()!=null&&o.getTopLevel()==1)).collect(Collectors.toList());
+        return paperTypes;
+    }
+
+    @Override
+    public List<PaperType> selectSaveOneMeunList(String pid){
+        EntityWrapper<PaperType> entityWrapper = new EntityWrapper<>();
+        entityWrapper.eq("p_id",pid);
+        List<PaperType> paperTypes = paperTypeDao.selectList(entityWrapper);
+        return paperTypes;
     }
 
 
@@ -184,7 +233,6 @@ public class CargoServiceImpl implements CargoService {
     public  List<PaperType> serviceCountryRange(){
         EntityWrapper<PaperType> paperTypeEntityWrapper = new EntityWrapper<>();
         paperTypeEntityWrapper.isNotNull("code");
-        paperTypeEntityWrapper.isNull("top_level");
         paperTypeEntityWrapper.ne("p_id",6);
         BasePageReq basePageReq = new BasePageReq();
         basePageReq.setSize(5);
@@ -333,9 +381,6 @@ public class CargoServiceImpl implements CargoService {
 
     private void fetchMenuList(List<PaperType> menuList, List<PaperType> parentMenuListSrc, List<PaperTypeVo> menuRespList) {
         for(PaperType  parentMenu:parentMenuListSrc){
-            if(parentMenu.getName().equals("欧洲")){
-                System.out.println("123");
-            }
             PaperTypeVo sysLoginMenuResp = new PaperTypeVo();
             BeanUtils.copyProperties(parentMenu,sysLoginMenuResp);
             //获取下级菜单
@@ -345,6 +390,9 @@ public class CargoServiceImpl implements CargoService {
             if(CollectionUtils.isNotEmpty(subMenuList)){
                 List<PaperTypeVo>  subMenuRespList = JSON.parseArray(JSON.toJSONString(subMenuList),PaperTypeVo.class);
                 for(PaperTypeVo sysLoginMenuResp1:subMenuRespList){
+                    if(sysLoginMenuResp1.getName().equals("东南亚")){
+                        System.out.println("123");
+                    }
                     sysLoginMenuResp1.setSub(
                             addSubMenuLists(menuList, sysLoginMenuResp1.getId(), new ArrayList<>(), sysLoginMenuResp1));
                 }
@@ -362,9 +410,6 @@ public class CargoServiceImpl implements CargoService {
         }
         List<PaperTypeVo> data = JSON.parseArray(JSON.toJSONString(subsubMenuList),PaperTypeVo.class);
         for(PaperTypeVo sysLoginMenuResp1:data){
-            if(sysLoginMenuResp1.getName().equals("欧洲")){
-                System.out.println("123");
-            }
             sysLoginMenuResp.setSub(data);
             subMenuRespList.add(sysLoginMenuResp1);
             return addSubMenuLists(srcList,sysLoginMenuResp1.getId(),subMenuRespList,sysLoginMenuResp1);
