@@ -1,6 +1,8 @@
 server:
   port: 8767
 spring:
+  resources:
+    static-locations: classpath:/static/, classpath:/templates/
   application:
     name: cargo
   jackson:
