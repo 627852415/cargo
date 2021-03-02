@@ -205,7 +205,7 @@ public class CargoServiceImpl implements CargoService {
         }
         paperTypeEntityWrapper.orderBy("update_time",false);
         BasePageReq basePageReq = new BasePageReq();
-        basePageReq.setSize(3);
+        basePageReq.setSize(8);
         if(StringUtils.isNotEmpty(current)){
             basePageReq.setCurrent(Integer.parseInt(current));
         }

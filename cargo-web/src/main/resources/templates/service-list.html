@@ -91,7 +91,7 @@
     </style>
 </head>
 
-<body>
+<body >
     <div class="preloader"><span></span></div><!-- /.preloader -->
     <div class="page-wrapper">
         <div th:replace="headerCom :: headersDiv"  ></div>
@@ -105,9 +105,9 @@
 
         <div class="container" style="margin-top: 20px">
             <div class="row  text-center">
-                <div class=" col-xl-6 col-lg-6 text-center" >
+                <div class=" col-xl-6 col-lg-6 " >
 
-                    <div>
+                    <div style="text-align:left;">
                         <ul th:each="u : ${serviceList.data.page.records}">
                             <li style="list-style:none;">
                                 <a th:href="@{'/index/paper?id='+${u.id}}" target="_blank" style="font-size: 18px"  th:text="${u.name}">
@@ -126,17 +126,17 @@
                         <div>
                             <ul id="arrowup-center">
                                 <li class="arrowup" th:if="${serviceList.data.page.current} gt 1">
-                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${serviceList.data.page.current-1}}" >
+                                    <a th:href="@{'list?twoRef='+${pid}+'&'+'current='+${serviceList.data.page.current-1}}" >
                                         上页
                                     </a>
                                 </li>
                                 <li th:each="u : ${serviceList.data.pagesNums}" class="ared">
-                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${u}}"
+                                    <a th:href="@{'list?twoRef='+${pid}+'&'+'current='+${u}}"
                                        th:styleappend="${serviceList.data.page.current} eq ${u} ? 'color:red' : '' "
                                        th:text="${u}"></a>
                                 </li>
                                 <li class="arrowdown" th:if="${serviceList.data.page.current} lt ${serviceList.data.page.pages}">
-                                    <a th:href="@{'list?id='+${pid}+'&'+'current='+${serviceList.data.page.current+1}}" >
+                                    <a th:href="@{'list?twoRef='+${pid}+'&'+'current='+${serviceList.data.page.current+1}}" >
                                         下页
                                     </a>
                                 </li>
