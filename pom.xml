@@ -39,7 +39,7 @@
         <commons-lang.version>3.7</commons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-codec.version>1.11</commons-codec.version>
-        <httpclient.version>4.5.5</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <fastjson.version>1.2.47</fastjson.version>
         <dom4j.version>1.6.1</dom4j.version>
         <spring-data-redis>2.0.9.RELEASE</spring-data-redis>
