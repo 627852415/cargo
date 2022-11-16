@@ -47,7 +47,7 @@
         <lombok.version>1.18.0</lombok.version>
         <openfeign.version>2.0.0.RELEASE</openfeign.version>
         <jdk15on.version>1.60</jdk15on.version>
-        <jackson-databind.version>2.9.5</jackson-databind.version>
+        <jackson-databind.version>2.12.7.1</jackson-databind.version>
         <jjwt.version>0.7.0</jjwt.version>
     </properties>
 
